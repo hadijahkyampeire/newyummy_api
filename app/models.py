@@ -77,6 +77,7 @@ class Category(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
+    recipes = db.relationship('Recipe', backref='category', lazy='dynamic')
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(
         db.DateTime, default=db.func.current_timestamp(),
@@ -102,3 +103,24 @@ class Category(db.Model):
 
     def __repr__(self):
         return "<Category: {}>".format(self.name)
+
+class Recipe(db.Model):
+    """ Models the items table """
+
+    __tablename__ = 'recipes'
+    recipe_id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(256), unique=True)
+    description = db.Column(db.Text)
+    category_id = db.Column(db.Integer, db.ForeignKey(
+                                                'categories.Category.id'))
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    updated_at = db.Column(db.DateTime, default=db.func.current_timestamp(),
+                           onupdate=db.func.current_timestamp())
+
+    def __init__(self, title, description, category_id):
+        self.title = title
+        self.description = description
+        self.status = False
+        self.category_id = category_id
+       
+      
