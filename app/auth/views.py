@@ -24,7 +24,7 @@ class RegistrationView(MethodView):
                 user.save()
 
                 response = {
-                    'message': 'You registered successfully. Please log in.'
+                    'message': 'You registered successfully. Please login.'
                 }
                 # return a response notifying the user that they registered successfully
                 return make_response(jsonify(response)), 201
