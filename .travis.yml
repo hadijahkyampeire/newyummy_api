@@ -14,6 +14,6 @@ before_script:
   - createdb test_db
 
 # command to run tests
-script: 
-  - nosetests 
+# script: 
+#   - nosetests 
 after_success: coveralls
