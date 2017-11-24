@@ -13,5 +13,5 @@ install:
 
 # command to run tests
 script: 
-nose2
+nosetests
 after_success: coveralls
