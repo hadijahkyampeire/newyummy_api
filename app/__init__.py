@@ -9,7 +9,7 @@ from instance.config import app_config
 db = SQLAlchemy()
 
 def create_app(config_name):
-    from .models import Category, User
+    from .models import Category, User, Recipe
     app = FlaskAPI(__name__, instance_relative_config=True)
     app.config.from_object(app_config["development"])
     app.config.from_pyfile('config.py')
@@ -125,54 +125,80 @@ def create_app(config_name):
                 }
                 # return an error response, telling the user he is Unauthorized
                 return make_response(jsonify(response)), 401
-    # @app.route('/recipes/', methods=['POST', 'GET'])
-    # def recipes():
-    #     curr_category = \
-    #     Category.query.filter_by(category_id=recipes).first()
-    #             # Go ahead and handle the request, the user is authenticated
-    #     if curr_category:
-    #         if request.method == "POST":
-    #                 title = str(request.data.get('title', ''))
-    #                 description = str(request.data.get('description', ''))
-    #                 if title and description:
-    #                     recipe = Recipe(title=title, description=description,category_id=category.id)
-    #                     recipe.save()
-    #                     response = jsonify({
-    #                         'id': recipe.id,
-    #                         'title': recipe.title,
-    #                         'description': recipe.description,
-    #                         'category_id': recipe.category_id,
-    #                         'date_created': recipe.date_created,
-    #                         'date_modified': recipe.date_modified,
+    @app.route('/recipes/', methods=['POST', 'GET'])
+    def recipes():
+        if request.method == "POST":
+            title = str(request.data.get('title', ''))
+            description = str(request.data.get('description', ''))
+            if title and description:
+                recipe = Recipe(title=title, description=description)
+                recipe.save()
+                response = jsonify({
+                    'id': recipe.id,
+                    'title': recipe.title,
+                    'description': recipe.description,
+                    'date_created': recipe.date_created,
+                    'date_modified': recipe.date_modified
+                })
+                response.status_code = 201
+                return response
+        else:
+            # GET
+            recipes = Recipe.get_all()
+            results = []
 
-    #                     })
+            for recipe in recipes:
+                obj = {
+                    'id': recipe.id,
+                    'title': recipe.title,
+                    'description': recipe.description,
+                    'date_created': recipe.date_created,
+                    'date_modified': recipe.date_modified
+                }
+                results.append(obj)
+            response = jsonify(results)
+            response.status_code = 200
+            return response
+    @app.route('/recipes/<int:id>', methods=['GET', 'PUT', 'DELETE'])
+    def recipe_manipulation(id, **kwargs):
+     # retrieve a recipe using it's ID
+        recipe = Recipe.query.filter_by(id=id).first()
+        if not recipe:
+            # Raise an HTTPException with a 404 not found status code
+            abort(404)
 
-    #                     return make_response(response), 201
+        if request.method == 'DELETE':
+            recipe.delete()
+            return {
+            "message": "recipe {} deleted successfully".format(recipe.id) 
+         }, 200
 
-    #         else:
-    #             # GET all the categories created by this user
-    #             recipes = Recipe.query.filter_by(id=recipe.id)
-    #             results = []
-
-    #             for recipe in recipes:
-    #                 obj = {
-    #                         'id': recipe.id,
-    #                         'title': recipe.title,
-    #                         'description': recipe.description,
-    #                         'date_created': recipe.date_created,
-    #                         'date_modified': recipe.date_modified,
-    #                         'created_by': recipe.created_by
-    #                     }
-    #                 results.append(obj)
-
-    #                 return make_response(jsonify(results)), 200
-    #     else:
-    #         # user is not legit, so the payload is an error message
-    #         message = user_id
-    #         response = {
-    #                 'message': message
-    #             }
-    #         return make_response(jsonify(response)), 401
+        elif request.method == 'PUT':
+            title = str(request.data.get('title', ''))
+            description = str(request.data.get('description', ''))
+            recipe.title= title
+            recipe.description=description
+            recipe.save()
+            response = jsonify({
+                'id': recipe.id,
+                'title': recipe.title,
+                'description': recipe.description,
+                'date_created': recipe.date_created,
+                'date_modified': recipe.date_modified
+            })
+            response.status_code = 200
+            return response
+        else:
+            # GET
+            response = jsonify({
+                'id': recipe.id,
+                'title': recipe.title,
+                'description': recipe.description,
+                'date_created': recipe.date_created,
+                'date_modified': recipe.date_modified
+            })
+            response.status_code = 200
+            return response
     from .auth import auth_blueprint
     app.register_blueprint(auth_blueprint)
 

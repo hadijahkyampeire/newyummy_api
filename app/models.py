@@ -4,6 +4,8 @@ from app import db
 from datetime import datetime, timedelta
 from flask import current_app
 from flask_bcrypt import Bcrypt
+
+
 class User(db.Model):
     """This class defines the users table """
 
@@ -70,6 +72,7 @@ class User(db.Model):
             # the token is invalid, return an error string
             return "Invalid token. Please register or login"
 
+
 class Category(db.Model):
     """This class represents the categories table."""
 
@@ -83,6 +86,7 @@ class Category(db.Model):
         db.DateTime, default=db.func.current_timestamp(),
         onupdate=db.func.current_timestamp())
     created_by = db.Column(db.Integer, db.ForeignKey(User.id))
+
     def __init__(self, name, created_by):
         """initialize with name."""
         self.name = name
@@ -91,12 +95,12 @@ class Category(db.Model):
     def save(self):
         db.session.add(self)
         db.session.commit()
-    
+
     @staticmethod
     def get_all(user_id):
         """This method gets all the categories for a given user."""
         return Category.query.filter_by(created_by=user_id)
-    
+
     def delete(self):
         db.session.delete(self)
         db.session.commit()
@@ -104,23 +108,33 @@ class Category(db.Model):
     def __repr__(self):
         return "<Category: {}>".format(self.name)
 
-# class Recipe(db.Model):
-#     """ Models the items table """
 
-#     __tablename__ = 'recipes'
-#     recipe_id = db.Column(db.Integer, primary_key=True)
-#     title = db.Column(db.String(256), unique=True)
-#     description = db.Column(db.Text)
-#     category_id = db.Column(db.Integer, db.ForeignKey(
-#                                                 'categories.Category.id'))
-#     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
-#     updated_at = db.Column(db.DateTime, default=db.func.current_timestamp(),
-#                            onupdate=db.func.current_timestamp())
+class Recipe(db.Model):
+    """ Models the recipe table """
 
-#     def __init__(self, title, description, category_id):
-#         self.title = title
-#         self.description = description
-#         self.status = False
-#         self.category_id = category_id
-       
-      
+    __tablename__ = 'recipes'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(256), unique=True)
+    description = db.Column(db.Text)
+    date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
+    date_modified = db.Column(db.DateTime, default=db.func.current_timestamp(),
+        onupdate=db.func.current_timestamp())
+
+    def __init__(self, title, description):
+        self.title = title
+        self.description = description
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    @staticmethod
+    def get_all():
+        return Recipe.query.all()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def __repr__(self):
+        return "<Recipe: {}>".format(self.title)
