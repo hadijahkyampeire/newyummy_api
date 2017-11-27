@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/hadijahkyampeire/newyummy_api.svg?branch=master)](https://travis-ci.org/hadijahkyampeire/newyummy_api)
 # yummyrecipes_api
 # Description
 yummyrecipes_api is a RESTFul web api that let's users create accounts, login and create, view, edit and delete categories and recipes.
