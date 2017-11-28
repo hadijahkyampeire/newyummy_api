@@ -82,7 +82,7 @@ The api documentation can be found at https://yummyrecipesapiandelav1.docs.apiar
     ```sh
     $ python run.py 
 # Demo
-    The API demo is deployed on heroku at http://hadijahyummyrecipe-api.herokuapp.com
+    The API demo is deployed on heroku at http://hadijahyummyrecipe-api.herokuapp.com/
 
 
     ```
