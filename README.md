@@ -4,7 +4,7 @@
 yummyrecipes_api is a RESTFul web api that let's users create accounts, login and create, view, edit and delete categories and recipes.
 
 # API-Documentation
-The api documentation can be found at https://yummyrecipesapiandelav1.docs.apiary.io/#reference
+The api documentation can be found at https://yummyrecipesapiandelav1.docs.apiary.io/#
 
 ## Technologies used
 * **[Python3](https://www.python.org/downloads/)** - A programming language that lets you work more quickly (The universe loves speed!).
