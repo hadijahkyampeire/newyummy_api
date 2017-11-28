@@ -5,7 +5,8 @@ yummyrecipes_api is a RESTFul web api that let's users create accounts, login an
 
 # API-Documentation
 The api documentation can be found at https://yummyrecipesapiandelav1.docs.apiary.io/#
-
+# Demo
+The API demo is deployed on heroku at http://hadijahyummyrecipe-api.herokuapp.com/
 ## Technologies used
 * **[Python3](https://www.python.org/downloads/)** - A programming language that lets you work more quickly (The universe loves speed!).
 * **[Flask](flask.pocoo.org/)** - A microframework for Python based on Werkzeug, Jinja 2 and good  environments
@@ -82,8 +83,7 @@ The api documentation can be found at https://yummyrecipesapiandelav1.docs.apiar
     ```sh
     $ python run.py 
     ```
-   # Demo
-    The API demo is deployed on heroku at http://hadijahyummyrecipe-api.herokuapp.com/
+   
 
 
    Test your setup using a client app like postman
