@@ -125,26 +125,32 @@ def create_app(config_name):
                 }
                 # return an error response, telling the user he is Unauthorized
                 return make_response(jsonify(response)), 401
-    @app.route('/recipes/', methods=['POST', 'GET'])
-    def recipes():
+    @app.route('/categories/<int:id>/recipes', methods=['POST', 'GET'])
+    def recipes(id, **kwargs):
+        
+        Category.query.filter_by(id = id ).first()
         if request.method == "POST":
             title = str(request.data.get('title', ''))
             description = str(request.data.get('description', ''))
             if title and description:
-                recipe = Recipe(title=title, description=description)
+                recipe = Recipe(title=title, description=description, category_identity = id)
                 recipe.save()
                 response = jsonify({
-                    'id': recipe.id,
-                    'title': recipe.title,
-                    'description': recipe.description,
-                    'date_created': recipe.date_created,
-                    'date_modified': recipe.date_modified
-                })
-                response.status_code = 201
-                return response
+                'id': recipe.id,
+                'title': recipe.title,
+                'description': recipe.description,
+                'date_created': recipe.date_created,
+                'date_modified': recipe.date_modified,
+                'category_identity':id
+
+            })
+        
+            response.status_code = 201
+            return response
+            
         else:
             # GET
-            recipes = Recipe.get_all()
+            recipes = Recipe.query.filter_by(category_identity=id)
             results = []
 
             for recipe in recipes:
@@ -153,16 +159,20 @@ def create_app(config_name):
                     'title': recipe.title,
                     'description': recipe.description,
                     'date_created': recipe.date_created,
-                    'date_modified': recipe.date_modified
+                    'date_modified': recipe.date_modified,
+                    'category_identity':id
+                    
                 }
                 results.append(obj)
             response = jsonify(results)
             response.status_code = 200
             return response
-    @app.route('/recipes/<int:id>', methods=['GET', 'PUT', 'DELETE'])
-    def recipe_manipulation(id, **kwargs):
+
+    @app.route('/categories/<int:id>/recipes/<int:recipe_id>', methods=['GET', 'PUT', 'DELETE'])
+    def recipe_manipulation(id, recipe_id, **kwargs):
+        Category.query.filter_by(id = id ).first()
      # retrieve a recipe using it's ID
-        recipe = Recipe.query.filter_by(id=id).first()
+        recipe = Recipe.query.filter_by(id=recipe_id).first()
         if not recipe:
             # Raise an HTTPException with a 404 not found status code
             abort(404)
@@ -184,7 +194,8 @@ def create_app(config_name):
                 'title': recipe.title,
                 'description': recipe.description,
                 'date_created': recipe.date_created,
-                'date_modified': recipe.date_modified
+                'date_modified': recipe.date_modified,
+                'category_identity':id
             })
             response.status_code = 200
             return response
@@ -195,7 +206,8 @@ def create_app(config_name):
                 'title': recipe.title,
                 'description': recipe.description,
                 'date_created': recipe.date_created,
-                'date_modified': recipe.date_modified
+                'date_modified': recipe.date_modified,
+                'category_identity':id
             })
             response.status_code = 200
             return response

@@ -16,7 +16,7 @@ class User(db.Model):
     email = db.Column(db.String(256), nullable=False, unique=True)
     password = db.Column(db.String(256), nullable=False)
     categories = db.relationship(
-        'Category', order_by='Category.id', cascade="all, delete-orphan")
+        'Category', order_by='Category.id', cascade="all, delete-orphan", lazy='dynamic')
 
     def __init__(self, email, password):
         """Initialize the user with an email and a password."""
@@ -42,7 +42,7 @@ class User(db.Model):
         try:
             # set up a payload with an expiration time
             payload = {
-                'exp': datetime.utcnow() + timedelta(minutes=5),
+                'exp': datetime.utcnow() + timedelta(minutes=10),
                 'iat': datetime.utcnow(),
                 'sub': user_id
             }
@@ -80,7 +80,8 @@ class Category(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
-    # recipes = db.relationship('Recipe', backref='category', lazy='dynamic')
+    recipes = db.relationship(
+        'Recipe', order_by='Recipe.id', cascade="all, delete-orphan", lazy='dynamic')
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(
         db.DateTime, default=db.func.current_timestamp(),
@@ -119,10 +120,12 @@ class Recipe(db.Model):
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(db.DateTime, default=db.func.current_timestamp(),
         onupdate=db.func.current_timestamp())
+    category_identity = db.Column(db.Integer, db.ForeignKey(Category.id))
 
-    def __init__(self, title, description):
+    def __init__(self, title, description, category_identity):
         self.title = title
         self.description = description
+        self.category_identity = category_identity
 
     def save(self):
         db.session.add(self)
@@ -135,6 +138,5 @@ class Recipe(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
-
     def __repr__(self):
         return "<Recipe: {}>".format(self.title)
