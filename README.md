@@ -80,6 +80,6 @@ The api documentation can be found at https://yummyrecipesapiandelav1.docs.apiar
     ```
     Start the application by running
     ```sh
-    $ python manage.py runserver
+    $ python run.py 
     ```
    Test your setup using a client app like postman
