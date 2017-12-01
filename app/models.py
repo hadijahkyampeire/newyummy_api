@@ -119,7 +119,7 @@ class Recipe(db.Model):
     description = db.Column(db.Text)
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(db.DateTime, default=db.func.current_timestamp(),
-        onupdate=db.func.current_timestamp())
+                              onupdate=db.func.current_timestamp())
     category_identity = db.Column(db.Integer, db.ForeignKey(Category.id))
 
     def __init__(self, title, description, category_identity):
@@ -138,5 +138,6 @@ class Recipe(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
     def __repr__(self):
         return "<Recipe: {}>".format(self.title)

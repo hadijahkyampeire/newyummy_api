@@ -1,3 +1,4 @@
+https://coveralls.io/repos/github/hadijahkyampeire/newyummy_api/badge.svg?branch=master
 [![Build Status](https://travis-ci.org/hadijahkyampeire/newyummy_api.svg?branch=master)](https://travis-ci.org/hadijahkyampeire/newyummy_api)
 # yummyrecipes_api
 # Description
