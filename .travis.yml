@@ -13,5 +13,5 @@ install:
   - pip install coveralls --quiet
 
 # command to run tests
-script: coverage run --source=app ./manage.py test
+script: nosetests
 after_success: coveralls
