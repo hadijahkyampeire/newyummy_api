@@ -227,6 +227,6 @@ class RecipeTestCase(unittest.TestCase):
             db.drop_all()
 
 
-Make the tests conveniently executable
+# Make the tests conveniently executable
 if __name__ == "__main__":
     unittest.main()
