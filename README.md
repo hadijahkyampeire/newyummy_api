@@ -84,7 +84,23 @@ The API demo is deployed on heroku at http://hadijahyummyrecipe-api.herokuapp.co
     ```sh
     $ python run.py 
     ```
-   
+## Functionality
+  End points | Functionality | Access
+  ------------------|------------------|--------------------
+  auth/register|Post, create account|PUBLIC
+  auth/login|post, login|PUBLIC 
+  categories/|post, add category|PRIVATE
+  categories/|Get, retrieve all categories| PRIVATE
+  categories/id|Get, retrieve one category|PRIVATE
+  categories/id|Put, Edit a category| PRIVATE
+  categories/id|Delete, Delete a category| PRIVATE
+  categories/id/recipes|post, add a recipe to a category|PRIVATE
+  categories/id/recipes|Get, retrieve all recipes in a given category| PRIVATE
+  categories/id/recipes/id|Get, retrieve a recipe in a given category|PRIVATE
+  categories/id/recipes/id|Put, Edit a recipe in a given category| PRIVATE
+  categories/id/recipes/id|Delete, Delete a recipe in a given category| PRIVATE
+  -----------------|-----------------------|-------------------
+
 
 
    Test your setup using a client app like postman
