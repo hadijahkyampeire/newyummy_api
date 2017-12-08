@@ -170,26 +170,26 @@ class RecipeTestCase(unittest.TestCase):
         """Test API can create a recipe (POST request)"""
         # obtain the access token
         res = self.client().post('/categories/id/recipes', data=self.recipe)
-        self.assertEqual(res.status_code, 404)
-        # self.assertIn('milk', 'mix well', (res.data))
+        self.assertEqual(res.status_code, 201)
+        self.assertIn('milk', 'mix well', (res.data))
 
     def test_api_can_get_all_recipes(self):
         """Test API can get a recipe (GET request)."""
         res = self.client().post('/categories/id/recipes', data=self.recipe)
-        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.status_code, 201)
 
         res = self.client().get('/categories/<int:id>/recipes')
-        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.status_code, 200)
         # self.assertIn('milk','mix well', str(res.data))
 
     def test_api_can_get_recipe_by_id(self):
         """Test API can get a single recipe by using it's id."""
         rv = self.client().post('/categories/<int:id>/recipes/<int:recipe_id>', data=self.recipe)
-        self.assertEqual(rv.status_code, 404)
+        self.assertEqual(rv.status_code, 201)
         # results = json.loads(rv.data.decode())
         result = self.client().get(
             '/recipes/id',)
-        self.assertEqual(result.status_code, 404)
+        self.assertEqual(result.status_code, 200)
         # self.assertIn('milk','mix well', str(result.data))
 
     def test_recipe_can_be_edited(self):
@@ -197,13 +197,13 @@ class RecipeTestCase(unittest.TestCase):
         rv = self.client().post(
             '/categories/<int:id>/recipes/<int:recipe_id>',
             data={'title': 'milk', 'description': 'mix well'})
-        self.assertEqual(rv.status_code, 404)
+        self.assertEqual(rv.status_code, 201)
         rv = self.client().put(
             '/categories/<int:id>/recipes/<int:recipe_id>',
             data={
                 "title": "juice :-)", "description": " blend :-)"
             })
-        self.assertEqual(rv.status_code, 404)
+        self.assertEqual(rv.status_code, 200)
         results = self.client().get('/categories/<int:id>/recipes/<int:recipe_id>')
         # self.assertIn('juice', 'blend',str(results.data))
 
@@ -212,9 +212,9 @@ class RecipeTestCase(unittest.TestCase):
         rv = self.client().post(
             '/categories/<int:id>/recipes',
             data={'title': 'milk', 'description': 'mix well'})
-        self.assertEqual(rv.status_code, 404)
+        self.assertEqual(rv.status_code, 200)
         res = self.client().delete('/categories/<int:id>/recipes/<int:recipe_id>')
-        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.status_code, 200)
         # Test to see if it exists, should return a 404
         result = self.client().get('/categories/<int:id>/recipes/<int:recipe_id>')
         self.assertEqual(result.status_code, 404)
