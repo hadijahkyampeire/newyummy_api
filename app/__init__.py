@@ -19,6 +19,7 @@ def create_app(config_name):
 
     @app.route('/categories/', methods=['POST', 'GET'])
     def categories():
+       
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split(" ")[1]
 
@@ -46,8 +47,22 @@ def create_app(config_name):
                             })
 
                         return make_response(response), 201
-                
-
+                #get
+                q = str(request.args.get('q','')).lower()
+                categories = Category.query.filter_by(created_by=user_id)
+                results = []
+                if q:
+                    for category in categories: 
+                        if q in category.name.lower(): 
+                            obj={} 
+                            obj={
+                            'id':category.id,
+                            'name':category.name,
+                            'date_created':category.date_created,
+                            'date_modified':category.date_modified,
+                            'created_by':category.created_by
+                            }
+                            results.append(obj)
                 else:
                     # GET all the bucketlists created by this user
                     categories = Category.query.filter_by(created_by=user_id)
@@ -64,35 +79,17 @@ def create_app(config_name):
                         results.append(obj)
 
                     return make_response(jsonify(results)), 200
-                if 'q' in request.args:
-                    name = request.args['q']
-                    searched_category = Category.query.filter_by(name=name).first()
-                    if searched_category:
-                        searched_category_dict = {
-                            'id': searched_category.id,
-                            'name': searched_category.name,
-                            'date_created': category.date_created,
-                            'date_modified': category.date_modified,
-                            'created_by': user_id
-                        }
-                        response = {
-                            'status': 'Success',
-                            'message': 'Category found',
-                            'category': searched_category_dict
-                        }
-                        return jsonify(response), 200
-                    response = {
-                        'status': 'Error',
-                        'message': 'Category with title ' + name + ' not found'
-                    }
-                    return jsonify(response), 404
-            else:
-                # user is not legit, so the payload is an error message
-                message = user_id
-                response = {
-                    'message': message
-                }
-                return make_response(jsonify(response)), 401
+                if results:
+                    return jsonify({'categories': results})
+                else:
+                    return jsonify({"message": "No recipes found"})
+            # else:
+            #         # user is not legit, so the payload is an error message
+            #         message = user_id
+            #         response = {
+            #             'message': message
+            #         }
+            #         return make_response(jsonify(response)), 401
 
     @app.route('/categories/<int:id>', methods=['GET', 'PUT', 'DELETE'])
     def category_manipulation(id, **kwargs):
@@ -185,35 +182,29 @@ def create_app(config_name):
                     }
                 })
 
-            response.status_code = 201
-            return response
-        if 'q' in request.args:
-            title = request.args['q']
-            searched_recipe = Recipe.query.filter_by(title=title).first()
-            if searched_recipe:
-                searched_recipe_dict = {
-                    'id': searched_recipe.id,
-                    'title': searched_recipe.title,
-                    'description': searched_recipe.description,
+                response.status_code = 201
+                return response
+        #get
+        q = str(request.args.get('q','')).lower()
+        recipes = Recipe.query.filter_by(category_identity=id)
+        results = []
+        if q:
+            for recipe in recipes: 
+                if q in recipe.title.lower() or q in recipe.description.lower(): 
+                    obj={} 
+                    obj={
+                    'id': recipe.id,
+                    'title': recipe.title,
+                    'description': recipe.description,
                     'date_created': recipe.date_created,
                     'date_modified': recipe.date_modified,
                     'category_identity': id
-                }
-                response = {
-                    'message': 'Recipe found',
-                    'recipe': searched_recipe_dict
-                }
-                return jsonify(response), 200
-            response = {
-                'status': 'Error',
-                'message': 'Recipe with title ' + title + ' not found'
-            }
-            return jsonify(response), 404
-
+                       }
+                    results.append(obj)
         else:
             # GET
-            recipes = Recipe.query.filter_by(category_identity=id)
-            results = []
+            # recipes = Recipe.query.filter_by(category_identity=id)
+            # results = []
 
             for recipe in recipes:
                 obj = {
@@ -226,9 +217,11 @@ def create_app(config_name):
 
                 }
                 results.append(obj)
-            response = jsonify(results)
-            response.status_code = 200
-            return response
+            return make_response(jsonify(results)), 200
+        if results:
+            return jsonify({'recipes': results})
+        else:
+            return jsonify({"message": "No recipes found"})
 
     @app.route('/categories/<int:id>/recipes/<int:recipe_id>', methods=['GET', 'PUT', 'DELETE'])
     def recipe_manipulation(id, recipe_id, **kwargs):
