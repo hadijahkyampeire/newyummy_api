@@ -48,9 +48,13 @@ def create_app(config_name):
 
                         return make_response(response), 201
                 #get
+                page = int(request.args.get('page', 1))
+                per_page = int(request.args.get('per_page', 2))
                 q = str(request.args.get('q','')).lower()
                 categories = Category.query.filter_by(created_by=user_id)
                 results = []
+                if not categories:
+                    return jsonify({'message': 'No categories available'})
                 if q:
                     for category in categories: 
                         if q in category.name.lower(): 
@@ -185,9 +189,13 @@ def create_app(config_name):
                 response.status_code = 201
                 return response
         #get
+        page = int(request.args.get('page', 1))
+        per_page = int(request.args.get('per_page', 2))
         q = str(request.args.get('q','')).lower()
-        recipes = Recipe.query.filter_by(category_identity=id)
+        recipes = Recipe.query.filter_by(category_identity=id).paginate(page = page, per_page = per_page)
         results = []
+        if not recipes:
+        return jsonify({'message': 'No recipes available'})
         if q:
             for recipe in recipes: 
                 if q in recipe.title.lower() or q in recipe.description.lower(): 
