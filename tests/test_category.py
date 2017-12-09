@@ -33,6 +33,7 @@ class CategoryTestCase(unittest.TestCase):
         }
         return self.client().post('/auth/login', data=user_data)
 
+
     def test_accessing_category_view_with_invalid_or_expired_token(self):
         """ Tests accessing the category endpoint with an invalid
         or expired token """
