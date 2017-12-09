@@ -17,7 +17,6 @@ def create_app(config_name):
 
     @app.route('/categories/', methods=['POST', 'GET'])
     def categories():
-
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split(" ")[1]
 
@@ -278,15 +277,15 @@ def create_app(config_name):
             return response
         else:
             # GET
-            response = jsonify({
-                'id': recipe.id,
-                'title': recipe.title,
-                'description': recipe.description,
-                'date_created': recipe.date_created,
-                'date_modified': recipe.date_modified,
-                'category_identity': id
-            })
-            response.status_code = 200
+            # response = jsonify({
+            #     'id': recipe.id,
+            #     'title': recipe.title,
+            #     'description': recipe.description,
+            #     'date_created': recipe.date_created,
+            #     'date_modified': recipe.date_modified,
+            #     'category_identity': id
+            # })
+            # response.status_code = 200
             return response
     from .auth import auth_blueprint
     app.register_blueprint(auth_blueprint)
