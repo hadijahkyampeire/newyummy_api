@@ -37,7 +37,7 @@ def create_app(config_name):
                     result = Category.query.filter_by(name=name).first()
 
                     if result:
-                        return jsonify({"message": "Item already exists"})
+                        return jsonify({"message": "Category already exists"})
                         
                     category = Category(name=name, created_by=user_id)
                     category.save()
@@ -57,7 +57,7 @@ def create_app(config_name):
                     return make_response(response), 201
                 
                 else:
-                    # GET all the bucketlists created by this user
+                    # GET all the categories created by this user
                     #GET METHOD/categories/
                     page = int(request.args.get('page', 1))
                     per_page = int(request.args.get('per_page', 2))
