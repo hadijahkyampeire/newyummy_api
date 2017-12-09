@@ -4,11 +4,8 @@ from flask import request, jsonify, abort, make_response
 
 # local import
 from instance.config import app_config
-
 # initialize sql-alchemy
 db = SQLAlchemy()
-
-
 def create_app(config_name):
     from .models import Category, User, Recipe
     app = FlaskAPI(__name__, instance_relative_config=True)
@@ -19,7 +16,7 @@ def create_app(config_name):
 
     @app.route('/categories/', methods=['POST', 'GET'])
     def categories():
-        
+
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split(" ")[1]
 
@@ -38,60 +35,60 @@ def create_app(config_name):
 
                     if result:
                         return jsonify({"message": "Category already exists"})
-                        
+
                     category = Category(name=name, created_by=user_id)
                     category.save()
                     response = jsonify({
-                            'message': 'Category ' + category.name +
-                            ' has been created',
-                            'category':{
+                        'message': 'Category ' + category.name +
+                        ' has been created',
+                        'category': {
                             'id': category.id,
                             'name': category.name,
                             'date_created': category.date_created,
                             'date_modified': category.date_modified,
                             'created_by': user_id,
                             'status': True
-                            }
-                        })
+                        }
+                    })
 
                     return make_response(response), 201
-                
+
                 else:
                     # GET all the categories created by this user
-                    #GET METHOD/categories/
+                    # GET METHOD/categories/
                     page = int(request.args.get('page', 1))
                     per_page = int(request.args.get('per_page', 2))
-                    q = str(request.args.get('q','')).lower()
-                    categories = Category.query.filter_by(created_by=user_id).paginate(page = page, per_page = per_page)
+                    q = str(request.args.get('q', '')).lower()
+                    categories = Category.query.filter_by(
+                        created_by=user_id).paginate(page=page, per_page=per_page)
                     results = []
                     if not categories:
                         return jsonify({'message': 'No categories available'})
                     if q:
-                        for category in categories.items: 
-                            if q in category.name.lower(): 
-                                obj={} 
-                                obj={
-                                'id':category.id,
-                                'name':category.name,
-                                'date_created':category.date_created,
-                                'date_modified':category.date_modified,
-                                'created_by':category.created_by
+                        for category in categories.items:
+                            if q in category.name.lower():
+                                obj = {}
+                                obj = {
+                                    'id': category.id,
+                                    'name': category.name,
+                                    'date_created': category.date_created,
+                                    'date_modified': category.date_modified,
+                                    'created_by': category.created_by
                                 }
                                 results.append(obj)
                     else:
                         for category in categories.items:
-                                obj={} 
-                                obj={
-                                'id':category.id,
-                                'name':category.name,
-                                'date_created':category.date_created,
-                                'date_modified':category.date_modified,
-                                'created_by':category.created_by
-                                }
-                                results.append(obj)
+                            obj = {}
+                            obj = {
+                                'id': category.id,
+                                'name': category.name,
+                                'date_created': category.date_created,
+                                'date_modified': category.date_modified,
+                                'created_by': category.created_by
+                            }
+                            results.append(obj)
 
-
-                    #return make_response(jsonify(results)), 200
+                    # return make_response(jsonify(results)), 200
                     if results:
                         return jsonify({'categories': results})
                     else:
@@ -138,9 +135,9 @@ def create_app(config_name):
                     category.save()
 
                     response = {
-                        
-                            'message': 'Category has been updated',
-                            'newcategory':{
+
+                        'message': 'Category has been updated',
+                        'newcategory': {
                             'id': category.id,
                             'name': category.name,
                             'date_created': category.date_created,
@@ -153,7 +150,7 @@ def create_app(config_name):
                     # Handle GET request, sending back category to the user
                     response = {
                         "message": "category {} found".format(category.id),
-                        'category':{
+                        'category': {
                             'id': category.id,
                             'name': category.name,
                             'date_created': category.date_created,
@@ -189,8 +186,8 @@ def create_app(config_name):
                     title=title, description=description, category_identity=id)
                 recipe.save()
                 response = jsonify({
-                    'message': 'Recipe ' + recipe.title +' has been created',
-                    'recipe':{
+                    'message': 'Recipe ' + recipe.title + ' has been created',
+                    'recipe': {
                         'id': recipe.id,
                         'title': recipe.title,
                         'description': recipe.description,
@@ -203,26 +200,27 @@ def create_app(config_name):
 
                 response.status_code = 201
                 return response
-        #get
+        # get
         page = int(request.args.get('page', 1))
         per_page = int(request.args.get('per_page', 2))
-        q = str(request.args.get('q','')).lower()
-        recipes = Recipe.query.filter_by(category_identity=id).paginate(page = page, per_page = per_page)
+        q = str(request.args.get('q', '')).lower()
+        recipes = Recipe.query.filter_by(
+            category_identity=id).paginate(page=page, per_page=per_page)
         results = []
         if not recipes:
             return jsonify({'message': 'No recipes available'})
         if q:
-            for recipe in recipes.items: 
-                if q in recipe.title.lower() or q in recipe.description.lower(): 
-                    obj={} 
-                    obj={
-                    'id': recipe.id,
-                    'title': recipe.title,
-                    'description': recipe.description,
-                    'date_created': recipe.date_created,
-                    'date_modified': recipe.date_modified,
-                    'category_identity': id
-                       }
+            for recipe in recipes.items:
+                if q in recipe.title.lower() or q in recipe.description.lower():
+                    obj = {}
+                    obj = {
+                        'id': recipe.id,
+                        'title': recipe.title,
+                        'description': recipe.description,
+                        'date_created': recipe.date_created,
+                        'date_modified': recipe.date_modified,
+                        'category_identity': id
+                    }
                     results.append(obj)
         else:
             # GET
@@ -245,7 +243,6 @@ def create_app(config_name):
             return jsonify({'recipes': results})
         else:
             return jsonify({"message": "No recipes found"})
-
 
     @app.route('/categories/<int:id>/recipes/<int:recipe_id>', methods=['GET', 'PUT', 'DELETE'])
     def recipe_manipulation(id, recipe_id, **kwargs):
