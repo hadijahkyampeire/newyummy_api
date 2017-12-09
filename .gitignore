@@ -105,3 +105,8 @@ venv.bak/
 
 #migrations
 migrations/
+#coverage
+.coverage
+htmlcov/
+#vscode
+.vscode/
