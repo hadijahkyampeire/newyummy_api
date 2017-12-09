@@ -1,4 +1,4 @@
-[![Coverage Status](https://coveralls.io/repos/github/hadijahkyampeire/newyummy_api/badge.svg?branch=master)](https://coveralls.io/github/hadijahkyampeire/newyummy_api?branch=master)
+
 [![Coverage Status](https://coveralls.io/repos/github/hadijahkyampeire/newyummy_api/badge.svg?branch=api)](https://coveralls.io/github/hadijahkyampeire/newyummy_api?branch=api)
 [![Build Status](https://travis-ci.org/hadijahkyampeire/newyummy_api.svg?branch=master)](https://travis-ci.org/hadijahkyampeire/newyummy_api)
 # yummyrecipes_api
