@@ -17,9 +17,9 @@ def create_app(config_name):
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
 
-    @app.route('/categories', methods=['POST', 'GET'])
+    @app.route('/categories/', methods=['POST', 'GET'])
     def categories():
-       
+        
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split(" ")[1]
 
@@ -178,6 +178,12 @@ def create_app(config_name):
         if request.method == "POST":
             title = str(request.data.get('title', ''))
             description = str(request.data.get('description', ''))
+            if not title or not description or title.isspace() or description.isspace():
+                return jsonify({'message': 'Recipe title and description are required', 'status': False})
+                result = Category.query.filter_by(name=name).first()
+
+            if result:
+                return jsonify({"message": "Recipe already exists"})
             if title and description:
                 recipe = Recipe(
                     title=title, description=description, category_identity=id)
