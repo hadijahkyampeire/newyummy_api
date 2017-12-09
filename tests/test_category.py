@@ -33,6 +33,16 @@ class CategoryTestCase(unittest.TestCase):
         }
         return self.client().post('/auth/login', data=user_data)
 
+    def test_accessing_category_view_with_invalid_or_expired_token(self):
+        """ Tests accessing the category endpoint with an invalid
+        or expired token """
+        self.register_user()
+        result = self.login_user()
+        # obtain the access token
+        access_token = json.loads(result.data.decode())['access_token']
+        response = self.client().get('/categories/',
+                                  headers=dict(Authorization="Bearer " + 'XBA5567SJ2K119'))
+        self.assertEqual(response.status_code, 401)
     def test_category_creation(self):
         """Test the API can create a category (POST request)"""
         # register a test user, then log them in
