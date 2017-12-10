@@ -7,12 +7,10 @@ from instance.config import app_config
 
 # initialize sql-alchemy
 db = SQLAlchemy()
-
-
 def create_app(config_name):
     from .models import Category, User, Recipe
     app = FlaskAPI(__name__, instance_relative_config=True)
-    app.config.from_object(app_config["development"])
+    app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
@@ -29,65 +27,74 @@ def create_app(config_name):
                 # Go ahead and handle the request, the user is authenticated
 
                 if request.method == "POST":
-                    name = str(request.data.get('name', ''))
-                    if name:
-                        category = Category(name=name, created_by=user_id)
-                        category.save()
-                        response = jsonify({
-                                'message': 'Category ' + category.name +
-                                ' has been created',
-                                    'category':{
-                                    'id': category.id,
-                                    'name': category.name,
-                                    'date_created': category.date_created,
-                                    'date_modified': category.date_modified,
-                                    'created_by': user_id
-                                }
-                            })
+                    # name = str(request.data.get('name', ''))
+                    name = request.data.get('name')
+                    if not name or name.isspace():
+                        return jsonify({'message': 'Category name is required', 'status': False})
+                    result = Category.query.filter_by(name=name).first()
 
-                        return make_response(response), 201
-                
+                    if result:
+                        return jsonify({"message": "Category already exists"})
 
-                else:
-                    # GET all the bucketlists created by this user
-                    categories = Category.query.filter_by(created_by=user_id)
-                    results = []
-
-                    for category in categories:
-                        obj = {
+                    category = Category(name=name, created_by=user_id)
+                    category.save()
+                    response = jsonify({
+                        'message': 'Category ' + category.name +
+                        ' has been created',
+                        'category': {
                             'id': category.id,
                             'name': category.name,
                             'date_created': category.date_created,
                             'date_modified': category.date_modified,
-                            'created_by': category.created_by
+                            'created_by': user_id,
+                            'status': True
                         }
-                        results.append(obj)
+                    })
 
-                    return make_response(jsonify(results)), 200
-                if 'q' in request.args:
-                    name = request.args['q']
-                    searched_category = Category.query.filter_by(name=name).first()
-                    if searched_category:
-                        searched_category_dict = {
-                            'id': searched_category.id,
-                            'name': searched_category.name,
-                            'date_created': category.date_created,
-                            'date_modified': category.date_modified,
-                            'created_by': user_id
-                        }
-                        response = {
-                            'status': 'Success',
-                            'message': 'Category found',
-                            'category': searched_category_dict
-                        }
-                        return jsonify(response), 200
-                    response = {
-                        'status': 'Error',
-                        'message': 'Category with title ' + name + ' not found'
-                    }
-                    return jsonify(response), 404
+                    return make_response(response), 201
+
+                else:
+                    # GET all the categories created by this user
+                    # GET METHOD/categories/
+                    page = int(request.args.get('page', 1))
+                    per_page = int(request.args.get('per_page', 2))
+                    q = str(request.args.get('q', '')).lower()
+                    categories = Category.query.filter_by(
+                        created_by=user_id).paginate(page=page, per_page=per_page)
+                    results = []
+                    if not categories:
+                        return jsonify({'message': 'No categories available'})
+                    if q:
+                        for category in categories.items:
+                            if q in category.name.lower():
+                                obj = {}
+                                obj = {
+                                    'id': category.id,
+                                    'name': category.name,
+                                    'date_created': category.date_created,
+                                    'date_modified': category.date_modified,
+                                    'created_by': category.created_by
+                                }
+                                results.append(obj)
+                    else:
+                        for category in categories.items:
+                            obj = {}
+                            obj = {
+                                'id': category.id,
+                                'name': category.name,
+                                'date_created': category.date_created,
+                                'date_modified': category.date_modified,
+                                'created_by': category.created_by
+                            }
+                            results.append(obj)
+
+                    # return make_response(jsonify(results)), 200
+                    if results:
+                        return jsonify({'categories': results})
+                    else:
+                        return jsonify({"message": "No category found"})
             else:
-                # user is not legit, so the payload is an error message
+                # user is not legit, so the payload is an error message for expired token
                 message = user_id
                 response = {
                     'message': message
@@ -128,9 +135,9 @@ def create_app(config_name):
                     category.save()
 
                     response = {
-                        
-                            'message': 'Category has been updated',
-                            'newcategory':{
+
+                        'message': 'Category has been updated',
+                        'newcategory': {
                             'id': category.id,
                             'name': category.name,
                             'date_created': category.date_created,
@@ -143,7 +150,7 @@ def create_app(config_name):
                     # Handle GET request, sending back category to the user
                     response = {
                         "message": "category {} found".format(category.id),
-                        'category':{
+                        'category': {
                             'id': category.id,
                             'name': category.name,
                             'date_created': category.date_created,
@@ -153,7 +160,7 @@ def create_app(config_name):
                     }
                     return make_response(jsonify(response)), 200
             else:
-                # user is not legit, so the payload is an error message
+                # user is not legit, so the payload is an error message to handle expired token
                 message = user_id
                 response = {
                     'message': message
@@ -168,13 +175,18 @@ def create_app(config_name):
         if request.method == "POST":
             title = str(request.data.get('title', ''))
             description = str(request.data.get('description', ''))
+            if not title or not description or title.isspace() or description.isspace():
+                return jsonify({'message': 'Recipe title and description are required', 'status': False})
+            result = Recipe.query.filter_by(title=title).first()
+            if result:
+                return jsonify({"message": "Recipe already exists"})
             if title and description:
                 recipe = Recipe(
                     title=title, description=description, category_identity=id)
                 recipe.save()
                 response = jsonify({
-                    'message': 'Recipe ' + recipe.title +' has been created',
-                    'recipe':{
+                    'message': 'Recipe ' + recipe.title + ' has been created',
+                    'recipe': {
                         'id': recipe.id,
                         'title': recipe.title,
                         'description': recipe.description,
@@ -185,37 +197,36 @@ def create_app(config_name):
                     }
                 })
 
-            response.status_code = 201
-            return response
-        if 'q' in request.args:
-            title = request.args['q']
-            searched_recipe = Recipe.query.filter_by(title=title).first()
-            if searched_recipe:
-                searched_recipe_dict = {
-                    'id': searched_recipe.id,
-                    'title': searched_recipe.title,
-                    'description': searched_recipe.description,
-                    'date_created': recipe.date_created,
-                    'date_modified': recipe.date_modified,
-                    'category_identity': id
-                }
-                response = {
-                    'message': 'Recipe found',
-                    'recipe': searched_recipe_dict
-                }
-                return jsonify(response), 200
-            response = {
-                'status': 'Error',
-                'message': 'Recipe with title ' + title + ' not found'
-            }
-            return jsonify(response), 404
-
+                response.status_code = 201
+                return response
+        # get
+        page = int(request.args.get('page', 1))
+        per_page = int(request.args.get('per_page', 2))
+        q = str(request.args.get('q', '')).lower()
+        recipes = Recipe.query.filter_by(
+            category_identity=id).paginate(page=page, per_page=per_page)
+        results = []
+        if not recipes:
+            return jsonify({'message': 'No recipes available'})
+        if q:
+            for recipe in recipes.items:
+                if q in recipe.title.lower() or q in recipe.description.lower():
+                    obj = {}
+                    obj = {
+                        'id': recipe.id,
+                        'title': recipe.title,
+                        'description': recipe.description,
+                        'date_created': recipe.date_created,
+                        'date_modified': recipe.date_modified,
+                        'category_identity': id
+                    }
+                    results.append(obj)
         else:
             # GET
-            recipes = Recipe.query.filter_by(category_identity=id)
-            results = []
+            # recipes = Recipe.query.filter_by(category_identity=id)
+            # results = []
 
-            for recipe in recipes:
+            for recipe in recipes.items:
                 obj = {
                     'id': recipe.id,
                     'title': recipe.title,
@@ -226,9 +237,11 @@ def create_app(config_name):
 
                 }
                 results.append(obj)
-            response = jsonify(results)
-            response.status_code = 200
-            return response
+            return make_response(jsonify(results)), 200
+        if results:
+            return jsonify({'recipes': results})
+        else:
+            return jsonify({"message": "No recipes found"})
 
     @app.route('/categories/<int:id>/recipes/<int:recipe_id>', methods=['GET', 'PUT', 'DELETE'])
     def recipe_manipulation(id, recipe_id, **kwargs):

@@ -1,5 +1,6 @@
-https://coveralls.io/repos/github/hadijahkyampeire/newyummy_api/badge.svg?branch=master
-[![Build Status](https://travis-ci.org/hadijahkyampeire/newyummy_api.svg?branch=master)](https://travis-ci.org/hadijahkyampeire/newyummy_api)
+[![Coverage Status](https://coveralls.io/repos/github/hadijahkyampeire/newyummy_api/badge.svg?branch=api)](https://coveralls.io/github/hadijahkyampeire/newyummy_api?branch=api)
+[![Build Status](https://travis-ci.org/hadijahkyampeire/newyummy_api.svg?branch=api)](https://travis-ci.org/hadijahkyampeire/newyummy_api)
+[![Maintainability](https://api.codeclimate.com/v1/badges/930b41f7e96ab8f63f98/maintainability)](https://codeclimate.com/github/hadijahkyampeire/newyummy_api/maintainability)
 # yummyrecipes_api
 # Description
 yummyrecipes_api is a RESTFul web api that let's users create accounts, login and create, view, edit and delete categories and recipes.
@@ -84,7 +85,23 @@ The API demo is deployed on heroku at http://hadijahyummyrecipe-api.herokuapp.co
     ```sh
     $ python run.py 
     ```
-   
+## Functionality
+  End points | Functionality | Access
+  ------------------|------------------|--------------------
+  auth/register|Post, create account|PUBLIC
+  auth/login|post, login|PUBLIC 
+  categories/|post, add category|PRIVATE
+  categories/|Get, retrieve all categories| PRIVATE
+  categories/id|Get, retrieve one category|PRIVATE
+  categories/id|Put, Edit a category| PRIVATE
+  categories/id|Delete, Delete a category| PRIVATE
+  categories/id/recipes|post, add a recipe to a category|PRIVATE
+  categories/id/recipes|Get, retrieve all recipes in a given category| PRIVATE
+  categories/id/recipes/id|Get, retrieve a recipe in a given category|PRIVATE
+  categories/id/recipes/id|Put, Edit a recipe in a given category| PRIVATE
+  categories/id/recipes/id|Delete, Delete a recipe in a given category| PRIVATE
+  -----------------|-----------------------|-------------------
+
 
 
    Test your setup using a client app like postman

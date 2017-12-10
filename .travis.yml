@@ -13,5 +13,8 @@ install:
   - pip install coveralls --quiet
 
 # command to run tests
-script: nosetests
-after_success: coveralls
+script: 
+  - nosetests --with-coverage
+# command for coverage reporting
+after_success: 
+  - coveralls
