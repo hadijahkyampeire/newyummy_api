@@ -8,8 +8,21 @@ class RegistrationView(MethodView):
     """This class registers a new user."""
 
     def post(self):
-        """Handle POST request for this view. Url ---> /auth/register"""
-
+        """
+        Handle POST request for this view. Url ---> /auth/register 
+        ---
+        tags:
+          - Register User
+        parameters:
+          - in: body
+            name: body
+            required: true
+            type: string
+            description: This route registers a new user
+        responses:
+          200:
+            description: User successfully created   
+        """
         # Query to see if the user already exists
         user = User.query.filter_by(email=request.data['email']).first()
 
@@ -47,7 +60,21 @@ class LoginView(MethodView):
     """This class-based view handles user login and access token generation."""
 
     def post(self):
-        """Handle POST request for this view. Url ---> /auth/login"""
+        """
+        Handle POST request for this view. Url ---> /auth/login
+        ---
+        tags:
+          - Login User
+        parameters:
+          - in: body
+            name: body
+            required: true
+            type: string
+            description: This route logs in a user
+        responses:
+          200:
+            description: User logged in successfully  
+        """
         try:
             # Get the user object using their email (unique to every user)
             user = User.query.filter_by(email=request.data['email']).first()
