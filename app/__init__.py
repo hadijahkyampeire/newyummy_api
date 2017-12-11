@@ -177,8 +177,7 @@ def create_app(config_name):
             description = str(request.data.get('description', ''))
             if not title or not description or title.isspace() or description.isspace():
                 return jsonify({'message': 'Recipe title and description are required', 'status': False})
-                result = Category.query.filter_by(name=name).first()
-
+            result = Recipe.query.filter_by(title=title).first()
             if result:
                 return jsonify({"message": "Recipe already exists"})
             if title and description:
@@ -227,7 +226,7 @@ def create_app(config_name):
             # recipes = Recipe.query.filter_by(category_identity=id)
             # results = []
 
-            for recipe in recipes:
+            for recipe in recipes.items:
                 obj = {
                     'id': recipe.id,
                     'title': recipe.title,
