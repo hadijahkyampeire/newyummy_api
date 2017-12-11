@@ -11,6 +11,9 @@ class CategoryTestCase(unittest.TestCase):
         self.app = create_app(config_name="testing")
         self.client = self.app.test_client
         self.category = {'name': 'supper'}
+        self.category1={'name':'fish'}
+        self.category2={'name':'lunch'}
+        self.category3={'name':'good breakfast'}
 
         # binds the app to the current context
         with self.app.app_context():
@@ -99,6 +102,42 @@ class CategoryTestCase(unittest.TestCase):
         # assert that the category is actually returned given its ID
         self.assertEqual(result.status_code, 200)
         self.assertIn('supper', str(result.data))
+    def test_category_can_be_got_using_q(self):
+        self.register_user()
+        result = self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+
+        res = self.client().post(
+            '/categories/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.category)
+        self.assertEqual(res.status_code, 201)
+
+        # get all the categories that belong to the test user by making a GET request
+        res = self.client().get(
+            '/categories/?q=supper',
+            headers=dict(Authorization="Bearer " + access_token),
+        )
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('supper', str(res.data))
+    def test_category_can_be_got_using_pagination(self):
+        self.register_user()
+        result = self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+
+        res = self.client().post(
+            '/categories/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.category)
+        self.assertEqual(res.status_code, 201)
+
+        # get all the categories that belong to the test user by making a GET request
+        res = self.client().get(
+            '/categories/?page=1&per_page=1',
+            headers=dict(Authorization="Bearer " + access_token),
+        )
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('supper', str(res.data))
 
     def test_category_can_be_edited(self):
         """Test API can edit an existing category. (PUT request)"""
