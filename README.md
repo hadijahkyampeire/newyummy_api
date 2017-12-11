@@ -1,4 +1,4 @@
-[![Coverage Status](https://coveralls.io/repos/github/hadijahkyampeire/newyummy_api/badge.svg?branch=api)](https://coveralls.io/github/hadijahkyampeire/newyummy_api?branch=api)
+[![Coverage Status](https://coveralls.io/repos/github/hadijahkyampeire/newyummy_api/badge.svg?branch=api)](https://coveralls.io/github/hadijahkyampeire/newyummy_api?branch=master)
 [![Build Status](https://travis-ci.org/hadijahkyampeire/newyummy_api.svg?branch=api)](https://travis-ci.org/hadijahkyampeire/newyummy_api)
 [![Maintainability](https://api.codeclimate.com/v1/badges/930b41f7e96ab8f63f98/maintainability)](https://codeclimate.com/github/hadijahkyampeire/newyummy_api/maintainability)
 # yummyrecipes_api
