@@ -76,6 +76,54 @@ class RecipeTestCase(unittest.TestCase):
         res = self.client().get('/categories/1/recipes')
         self.assertEqual(res.status_code, 200)
         self.assertIn('fruit',str(res.data))
+    def test_api_can_get_recipes_by_pagination(self):
+        """Test API can get a recipe (GET request)."""
+        self.register_user()
+        result = self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+
+        rv = self.client().post(
+            '/categories/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.category)
+        self.assertEqual(rv.status_code, 201)
+        results = json.loads(rv.data.decode())
+
+        result = self.client().get(
+            '/categories/1',
+            headers=dict(Authorization="Bearer " + access_token))
+        # assert that the category is actually returned given its ID
+        self.assertIn('supper', str(result.data))
+        res = self.client().post('/categories/1/recipes', data=self.recipe)
+        self.assertEqual(res.status_code, 201)
+
+        res = self.client().get('/categories/1/recipes?page=1&per_page=1')
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('fruit',str(res.data))
+    def test_api_can_get_arecipe_by_q(self):
+        """Test API can get a recipe (GET request)."""
+        self.register_user()
+        result = self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+
+        rv = self.client().post(
+            '/categories/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.category)
+        self.assertEqual(rv.status_code, 201)
+        results = json.loads(rv.data.decode())
+
+        result = self.client().get(
+            '/categories/1',
+            headers=dict(Authorization="Bearer " + access_token))
+        # assert that the category is actually returned given its ID
+        self.assertIn('supper', str(result.data))
+        res = self.client().post('/categories/1/recipes', data=self.recipe)
+        self.assertEqual(res.status_code, 201)
+
+        res = self.client().get('/categories/1/recipes?q=fruit')
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('fruit',str(res.data))
     def test_api_can_get_recipe_by_id(self):
         """Test API can get a single recipe by using it's id."""
         self.register_user()
