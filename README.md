@@ -7,7 +7,7 @@
 yummyrecipes_api is a RESTFul web api that let's users create accounts, login and create, view, edit and delete categories and recipes.
 
 # API-Documentation
-The api documentation can be found at https://yummyrecipesapiandelav1.docs.apiary.io/#
+The api documentation can be found at http://127.0.0.1:5000/apidocs/#/
 # Demo
 The API demo is deployed on heroku at http://hadijahyummyrecipe-api.herokuapp.com/
 ## Technologies used
