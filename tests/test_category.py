@@ -11,9 +11,6 @@ class CategoryTestCase(unittest.TestCase):
         self.app = create_app(config_name="testing")
         self.client = self.app.test_client
         self.category = {'name': 'supper'}
-        self.category1={'name':'fish'}
-        self.category2={'name':'lunch'}
-        self.category3={'name':'good breakfast'}
 
         # binds the app to the current context
         with self.app.app_context():
