@@ -120,7 +120,7 @@ def create_app(config_name):
                     # GET all the categories created by this user
                     # GET METHOD/categories/
                 page = int(request.args.get('page', 1))
-                per_page = int(request.args.get('per_page', 3))
+                per_page = int(request.args.get('per_page', 5))
                 q = str(request.args.get('q', '')).lower()
                 categories = Category.query.filter_by(
                     created_by=user_id).paginate(page=page, per_page=per_page)
@@ -446,7 +446,7 @@ def create_app(config_name):
                     # GET METHOD/categories/
                 # get
                 page = int(request.args.get('page', 1))
-                per_page = int(request.args.get('per_page', 3))
+                per_page = int(request.args.get('per_page', 5))
                 q = str(request.args.get('q', '')).lower()
                 recipes = Recipe.query.filter_by(
                     category_identity=id).paginate(page=page, per_page=per_page)
