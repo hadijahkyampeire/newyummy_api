@@ -15,8 +15,27 @@ def create_app(config_name):
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
 
-    @app.route('/categories/', methods=['POST', 'GET'])
-    def categories():
+    @app.route('/categories/', methods=['POST'])
+    def add_categories():
+        """
+        Method for posting and getting categories
+        ---
+        tags:
+          - Add category
+        parameters:
+          - in: body
+            name: body
+            required: true
+            type: string
+            description: This route is for a user to add categories
+        security:
+          - TokenHeader: []
+
+        responses:
+          200:
+            description:  category successfully created   
+
+        """
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split(" ")[1]
 
@@ -52,32 +71,62 @@ def create_app(config_name):
                     })
 
                     return make_response(response), 201
+            else:
+                # user is not legit, so the payload is an error message for expired token
+                message = user_id
+                response = {
+                    'message': message
+                }
+                return make_response(jsonify(response)), 401
+    @app.route('/categories/', methods=[ 'GET'])
+    def get_categories():
+        """
+        This method is for getting categories
+        ---
+        tags:
+          - Get category
+        parameters:
+          
+          - in: path
+            name: q
+            required: false
+            type: string
+          - in: path
+            name: page
+            required: false
+            type: string
+          - in: path
+            name: per_page
+            required: false
+            type: string
+            description: This route is for a user to get categories by pagination or q parameter
+        security:
+          - TokenHeader: []
 
-                else:
+        responses:
+          200:
+            description:  category successfully retrieved 
+
+        """
+        auth_header = request.headers.get('Authorization')
+        access_token = auth_header.split(" ")[1]
+        if access_token:
+         # Attempt to decode the token and get the User ID
+            user_id = User.decode_token(access_token)
+            if not isinstance(user_id, str):
                     # GET all the categories created by this user
                     # GET METHOD/categories/
-                    page = int(request.args.get('page', 1))
-                    per_page = int(request.args.get('per_page', 2))
-                    q = str(request.args.get('q', '')).lower()
-                    categories = Category.query.filter_by(
-                        created_by=user_id).paginate(page=page, per_page=per_page)
-                    results = []
-                    if not categories:
-                        return jsonify({'message': 'No categories available'})
-                    if q:
-                        for category in categories.items:
-                            if q in category.name.lower():
-                                obj = {}
-                                obj = {
-                                    'id': category.id,
-                                    'name': category.name,
-                                    'date_created': category.date_created,
-                                    'date_modified': category.date_modified,
-                                    'created_by': category.created_by
-                                }
-                                results.append(obj)
-                    else:
-                        for category in categories.items:
+                page = int(request.args.get('page', 1))
+                per_page = int(request.args.get('per_page', 2))
+                q = str(request.args.get('q', '')).lower()
+                categories = Category.query.filter_by(
+                    created_by=user_id).paginate(page=page, per_page=per_page)
+                results = []
+                if not categories:
+                    return jsonify({'message': 'No categories available'})
+                if q:
+                    for category in categories.items:
+                        if q in category.name.lower():
                             obj = {}
                             obj = {
                                 'id': category.id,
@@ -87,12 +136,23 @@ def create_app(config_name):
                                 'created_by': category.created_by
                             }
                             results.append(obj)
+                else:
+                    for category in categories.items:
+                        obj = {}
+                        obj = {
+                            'id': category.id,
+                            'name': category.name,
+                            'date_created': category.date_created,
+                            'date_modified': category.date_modified,
+                            'created_by': category.created_by
+                        }
+                        results.append(obj)
 
-                    # return make_response(jsonify(results)), 200
-                    if results:
-                        return jsonify({'categories': results})
-                    else:
-                        return jsonify({"message": "No category found"})
+                # return make_response(jsonify(results)), 200
+                if results:
+                    return jsonify({'categories': results})
+                else:
+                    return jsonify({"message": "No category found"})
             else:
                 # user is not legit, so the payload is an error message for expired token
                 message = user_id
@@ -101,8 +161,29 @@ def create_app(config_name):
                 }
                 return make_response(jsonify(response)), 401
 
-    @app.route('/categories/<int:id>', methods=['GET', 'PUT', 'DELETE'])
-    def category_manipulation(id, **kwargs):
+    @app.route('/categories/<int:id>', methods=['DELETE'])
+    def delete_category(id, **kwargs):
+        """
+        This method is for delete category by id
+        ---
+        tags:
+          - Delete category
+        parameters:
+          
+          - in: path
+            name: id
+            required: true
+            type: string
+            description: This route is for a user to delete a category by id
+        security:
+          - TokenHeader: []
+
+        responses:
+          200:
+            description:  category successfully deleted 
+
+
+        """
      # retrieve a category using it's ID
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split(" ")[1]
@@ -126,16 +207,48 @@ def create_app(config_name):
                     return {
                         "message": "category {} deleted".format(category.id)
                     }, 200
+            else:
+                # user is not legit, so the payload is an error message to handle expired token
+                message = user_id
+                response = {
+                    'message': message
+                }
+                # return an error response, telling the user he is Unauthorized
+                return make_response(jsonify(response)), 401
+    @app.route('/categories/<int:id>', methods=[ 'PUT'])
+    def edit_category(id, **kwargs):
+        """
+        This method is for editing categories
+        ---
+        tags:
+          - Edit category
+        parameters:
+          
+          - in: path
+            name: id
+            required: true
+            type: string
+            description: This route is for a user to edit a category by id
+        security:
+          - TokenHeader: []
+        responses:
+          200:
+            description:  category successfully updated 
+        """
+        auth_header = request.headers.get('Authorization')
+        access_token = auth_header.split(" ")[1]
 
-                elif request.method == 'PUT':
-                    # Obtain the new name of the category from the request data
+        if access_token:
+            user_id = User.decode_token(access_token)
+            if not isinstance(user_id, str):
+                category = Category.query.filter_by(id=id).first()
+                if not category:
+                    abort(404)
+                else:
                     name = str(request.data.get('name', ''))
-
                     category.name = name
                     category.save()
-
                     response = {
-
                         'message': 'Category has been updated',
                         'newcategory': {
                             'id': category.id,
@@ -146,6 +259,46 @@ def create_app(config_name):
                         }
                     }
                     return make_response(jsonify(response)), 200
+            else:
+                # user is not legit, so the payload is an error message to handle expired token
+                message = user_id
+                response = {
+                    'message': message
+                }
+                # return an error response, telling the user he is Unauthorized
+                return make_response(jsonify(response)), 401
+
+    @app.route('/categories/<int:id>', methods=[ 'GET'])
+    def get_category_by_id(id, **kwargs):
+        """
+        This method is for getting category by id
+        ---
+        tags:
+          - Get a category
+        parameters:
+          
+          - in: path
+            name: id
+            required: true
+            type: string
+            description: This route is for a user to get a category by id
+        security:
+          - TokenHeader: []
+
+        responses:
+          200:
+            description:  category successfully retrieved 
+
+        """
+        auth_header = request.headers.get('Authorization')
+        access_token = auth_header.split(" ")[1]
+
+        if access_token:
+            user_id = User.decode_token(access_token)
+            if not isinstance(user_id, str):
+                category = Category.query.filter_by(id=id).first()
+                if not category:
+                    abort(404)
                 else:
                     # Handle GET request, sending back category to the user
                     response = {
@@ -167,6 +320,7 @@ def create_app(config_name):
                 }
                 # return an error response, telling the user he is Unauthorized
                 return make_response(jsonify(response)), 401
+
 
     @app.route('/categories/<int:id>/recipes', methods=['POST', 'GET'])
     def recipes(id, **kwargs):
