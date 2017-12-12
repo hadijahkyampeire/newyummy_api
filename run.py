@@ -8,7 +8,7 @@ swag= Swagger(app,
    template={
        "info": {
        "title": "Hadijahz YummyRecipes API",
-       "description": "API that creates and logs in a user so as to manipulate yummyrecipes"},
+       "description": "API that creates and logs in a user so as to manipulate yummyrecipes. Find source code and guidelines on 'https://github.com/hadijahkyampeire/newyummy_api'"},
        "securityDefinitions":{
            "TokenHeader": {
                "type": "apiKey",
