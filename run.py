@@ -6,11 +6,15 @@ config_name = "development"
 app = create_app(config_name)
 swag= Swagger(app,
    template={
+       "info": {
+       "title": "Hadijahz YummyRecipes API",
+       "description": "API that creates and logs in a user so as to manipulate yummyrecipes"},
        "securityDefinitions":{
            "TokenHeader": {
                "type": "apiKey",
                "name": "Authorization",
                "in": "header"
+               
            }
        }
    })
