@@ -9,7 +9,7 @@ yummyrecipes_api is a RESTFul web api that let's users create accounts, login an
 # API-Documentation
 The api documentation can be found at http://127.0.0.1:5000/apidocs/#/
 # Demo
-The API demo is deployed on heroku at http://hadijahyummyrecipe-api.herokuapp.com/
+The API demo is deployed on heroku at https://hadijahyummyrecipe-api.herokuapp.com/apidocs/#/
 ## Technologies used
 * **[Python3](https://www.python.org/downloads/)** - A programming language that lets you work more quickly (The universe loves speed!).
 * **[Flask](flask.pocoo.org/)** - A microframework for Python based on Werkzeug, Jinja 2 and good  environments
