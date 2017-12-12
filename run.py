@@ -1,4 +1,4 @@
-from flask import render_template
+from flask import render_template, redirect
 from flasgger import Swagger
 from app import create_app
 
@@ -20,7 +20,7 @@ swag= Swagger(app,
    })
 @app.route("/")
 def main():
-    return render_template('index.html')
+    return redirect('/apidocs')
 
 if __name__ == '__main__':
     app.run()
