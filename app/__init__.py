@@ -20,16 +20,16 @@ def create_app(config_name):
     @app.route('/categories/', methods=['POST'])
     def add_categories():
         """
-        Method for posting and getting categories
+        Method for posting categories
         ---
         tags:
-          - Add category
+          - Add categories
         parameters:
           - in: body
             name: body
             required: true
             type: string
-            description: This route is for a user to add categories
+            description: input json data for a category
         security:
           - TokenHeader: []
 
@@ -94,15 +94,17 @@ def create_app(config_name):
             name: q
             required: false
             type: string
+            description: search category by querying the name
           - in: query
             name: page
             required: false
             type: integer
+            description: search categories by querying the page number
           - in: query
             name: per_page
             required: false
             type: integer
-            description: This route is for a user to get categories by pagination or q parameter
+            description: search by specifying number of items on a page
         security:
           - TokenHeader: []
 
@@ -176,8 +178,8 @@ def create_app(config_name):
           - in: path
             name: id
             required: true
-            type: string
-            description: This route is for a user to delete a category by id
+            type: integer
+            description: delete a category by specifying its id
         security:
           - TokenHeader: []
 
@@ -187,7 +189,7 @@ def create_app(config_name):
 
 
         """
-     # retrieve a category using it's ID
+        # retrieve a category using it's ID
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split(" ")[1]
 
@@ -227,16 +229,16 @@ def create_app(config_name):
         tags:
           - Edit category
         parameters:
-
           - in: path
             name: id
             required: true
-            type: string
-          - in: path
-            name: id
+            type: integer
+            description: first specify the category id
+          - in: body
+            name: body
             required: true
             type: string
-            description: This route is for a user to edit a category by id
+            description: input new json data to replace the existing on
         security:
           - TokenHeader: []
         responses:
@@ -284,12 +286,11 @@ def create_app(config_name):
         tags:
           - Get a category by id
         parameters:
-
           - in: path
             name: id
             required: true
-            type: string
-            description: This route is for a user to get a category by id
+            type: integer
+            description: search by a category id
         security:
           - TokenHeader: []
 
@@ -341,11 +342,12 @@ def create_app(config_name):
             name: id
             required: true
             type: integer
+            description: input the category id where you want to add recipes
           - in: body
             name: body
             required: true
             type: string
-            description: This route is for a user to add recipes
+            description: input json data as recipe details
         security:
           - TokenHeader: []
 
@@ -354,53 +356,38 @@ def create_app(config_name):
             description:  recipe successfully created   
 
         """
-        auth_header = request.headers.get('Authorization')
-        access_token = auth_header.split(" ")[1]
+        if request.method == "POST":
+            title = str(request.data.get('title', ''))
+            description = str(request.data.get('description', ''))
+            if not title or not description or title.isspace() or description.isspace():
+                return jsonify({'message': 'Recipe title and description are required', 'status': False})
+            result = Recipe.query.filter_by(title=title).first()
+            if result:
+                return jsonify({"message": "Recipe already exists"})
+            if title and description:
+                recipe = Recipe(
+                    title=title, description=description, category_identity=id)
+                recipe.save()
+                response = jsonify({
+                    'message': 'Recipe ' + recipe.title + ' has been created',
+                    'recipe': {
+                        'id': recipe.id,
+                        'title': recipe.title,
+                        'description': recipe.description,
+                        'date_created': recipe.date_created,
+                        'date_modified': recipe.date_modified,
+                        'category_identity': id
 
-        if access_token:
-            user_id = User.decode_token(access_token)
-            if not isinstance(user_id, str):
-                category = Category.query.filter_by(id=id).first()
-                if request.method == "POST":
-                    title = str(request.data.get('title', ''))
-                    description = str(request.data.get('description', ''))
-                    if not title or not description or title.isspace() or description.isspace():
-                        return jsonify({'message': 'Recipe title and description are required', 'status': False})
-                    result = Recipe.query.filter_by(title=title).first()
-                    if result:
-                        return jsonify({"message": "Recipe already exists"})
-                    if title and description:
-                        recipe = Recipe(
-                            title=title, description=description, category_identity=id)
-                        recipe.save()
-                        response = jsonify({
-                            'message': 'Recipe ' + recipe.title + ' has been created',
-                            'recipe': {
-                                'id': recipe.id,
-                                'title': recipe.title,
-                                'description': recipe.description,
-                                'date_created': recipe.date_created,
-                                'date_modified': recipe.date_modified,
-                                'category_identity': id
+                    }
+                })
 
-                            }
-                        })
-
-                        response.status_code = 201
-                        return response
-            else:
-                # user is not legit, so the payload is an error message to handle expired token
-                message = user_id
-                response = {
-                    'message': message
-                }
-                # return an error response, telling the user he is Unauthorized
-                return make_response(jsonify(response)), 401
+                response.status_code = 201
+                return response
 
     @app.route('/categories/<int:id>/recipes', methods=['GET'])
     def get_recipes(id, **kwargs):
         """
-        This route is for a user to get a recipes by q or pagination
+        This route is for a user to get recipes by q or pagination
         ---
         tags:
           - Get recipes by q or pagination
@@ -435,66 +422,49 @@ def create_app(config_name):
             description:  recipe successfully retrieved 
 
         """
-        auth_header = request.headers.get('Authorization')
-        access_token = auth_header.split(" ")[1]
-        if access_token:
-         # Attempt to decode the token and get the User ID
-            user_id = User.decode_token(access_token)
-            if not isinstance(user_id, str):
-                category = Category.query.filter_by(id=id).first
-                    # GET all the categories created by this user
-                    # GET METHOD/categories/
-                # get
-                page = int(request.args.get('page', 1))
-                per_page = int(request.args.get('per_page', 5))
-                q = str(request.args.get('q', '')).lower()
-                recipes = Recipe.query.filter_by(
-                    category_identity=id).paginate(page=page, per_page=per_page)
-                results = []
-                if not recipes:
-                    return jsonify({'message': 'No recipes available'})
-                if q:
-                    for recipe in recipes.items:
-                        if q in recipe.title.lower() or q in recipe.description.lower():
-                            obj = {}
-                            obj = {
-                                'id': recipe.id,
-                                'title': recipe.title,
-                                'description': recipe.description,
-                                'date_created': recipe.date_created,
-                                'date_modified': recipe.date_modified,
-                                'category_identity': id
-                            }
-                            results.append(obj)
-                else:
-                    # GET
-                    # recipes = Recipe.query.filter_by(category_identity=id)
-                    # results = []
+        # GET all the categories created by this user
+        page = int(request.args.get('page', 1))
+        per_page = int(request.args.get('per_page', 5))
+        q = str(request.args.get('q', '')).lower()
+        recipes = Recipe.query.filter_by(
+            category_identity=id).paginate(page=page, per_page=per_page)
+        results = []
+        if not recipes:
+            return jsonify({'message': 'No recipes available'})
+        if q:
+            for recipe in recipes.items:
+                if q in recipe.title.lower() or q in recipe.description.lower():
+                    obj = {}
+                    obj = {
+                        'id': recipe.id,
+                        'title': recipe.title,
+                        'description': recipe.description,
+                        'date_created': recipe.date_created,
+                        'date_modified': recipe.date_modified,
+                        'category_identity': id
+                    }
+                    results.append(obj)
+        else:
+            # GET
+            # recipes = Recipe.query.filter_by(category_identity=id)
+            # results = []
 
-                    for recipe in recipes.items:
-                        obj = {
-                            'id': recipe.id,
-                            'title': recipe.title,
-                            'description': recipe.description,
-                            'date_created': recipe.date_created,
-                            'date_modified': recipe.date_modified,
-                            'category_identity': id
+            for recipe in recipes.items:
+                obj = {
+                    'id': recipe.id,
+                    'title': recipe.title,
+                    'description': recipe.description,
+                    'date_created': recipe.date_created,
+                    'date_modified': recipe.date_modified,
+                    'category_identity': id
 
-                        }
-                        results.append(obj)
-                    return make_response(jsonify(results)), 200
-                if results:
-                    return jsonify({'recipes': results})
-                else:
-                    return jsonify({"message": "No recipes found"})
-            else:
-                # user is not legit, so the payload is an error message to handle expired token
-                message = user_id
-                response = {
-                    'message': message
                 }
-                # return an error response, telling the user he is Unauthorized
-                return make_response(jsonify(response)), 401
+                results.append(obj)
+            return make_response(jsonify(results)), 200
+        if results:
+            return jsonify({'recipes': results})
+        else:
+            return jsonify({"message": "No recipes found"})
 
     @app.route('/categories/<int:id>/recipes/<int:recipe_id>', methods=['DELETE'])
     def delete_recipe(id, recipe_id, **kwargs):
@@ -507,12 +477,13 @@ def create_app(config_name):
           - in: path
             name: id
             required: true
-            type: string
+            type: integer
+            description: specify the category id for the recipe
           - in: path
             name: recipe_id
             required: true
-            type: string
-            description: This route is for a user to delete a category by id
+            type: integer
+            description: specify the recipe id you want to delete
         security:
           - TokenHeader: []
 
@@ -521,33 +492,17 @@ def create_app(config_name):
             description:  recipe successfully deleted 
 
         """
-        auth_header = request.headers.get('Authorization')
-        access_token = auth_header.split(" ")[1]
+        # retrieve a recipe using it's ID
+        recipe = Recipe.query.filter_by(id=recipe_id).first()
+        if not recipe:
+            # Raise an HTTPException with a 404 not found status code
+            abort(404)
 
-        if access_token:
-            user_id = User.decode_token(access_token)
-            if not isinstance(user_id, str):
-                category = Category.query.filter_by(id=id).first()
-                # retrieve a recipe using it's ID
-                recipe = Recipe.query.filter_by(id=recipe_id).first()
-                if not recipe:
-                    # Raise an HTTPException with a 404 not found status code
-                    abort(404)
-
-                else:
-                    recipe.delete()
-                    return {
-                        "message": "recipe {} deleted successfully".format(recipe.id)
-                    }, 200
-            else:
-                # user is not legit, so the payload is an error message to handle expired token
-                message = user_id
-                response = {
-                    'message': message
-                }
-                # return an error response, telling the user he is Unauthorized
-                return make_response(jsonify(response)), 401
-
+        else:
+            recipe.delete()
+            return {
+                "message": "recipe {} deleted successfully".format(recipe.id)
+            }, 200
     @app.route('/categories/<int:id>/recipes/<int:recipe_id>', methods=['PUT'])
     def edit_recipe(id, recipe_id, **kwargs):
         """
@@ -559,63 +514,49 @@ def create_app(config_name):
           - in: path
             name: id
             required: true
-            type: string
+            type: integer
+            description: specify the category id for the recipe
           - in: path
             name: recipe_id
             required: true
-            type: string
+            type: integer
+            description: specify the recipe id you want to update
           - in: body
             name: body
             required: true
             type: string
-            description: This route is for a user to edit a recipe by id
+            description: input new recipe details to edit a recipe 
         security:
           - TokenHeader: []
         responses:
           200:
             description:  category successfully updated 
         """
-        auth_header = request.headers.get('Authorization')
-        access_token = auth_header.split(" ")[1]
-
-        if access_token:
-            user_id = User.decode_token(access_token)
-            if not isinstance(user_id, str):
-                category = Category.query.filter_by(id=id).first()
                 # retrieve a recipe using it's ID
-                recipe = Recipe.query.filter_by(id=recipe_id).first()
-                if not recipe:
-                    # Raise an HTTPException with a 404 not found status code
-                    abort(404)
-                title = str(request.data.get('title', ''))
-                description = str(request.data.get('description', ''))
-                if not title or not description or title.isspace() or description.isspace():
-                    return jsonify({'message': 'Recipe title and description are required', 'status': False})
-                else:
-                    title = str(request.data.get('title', ''))
-                    description = str(request.data.get('description', ''))
-                    recipe.title = title
-                    recipe.description = description
-                    recipe.save()
-                    response = jsonify({
-                        'id': recipe.id,
-                        'title': recipe.title,
-                        'description': recipe.description,
-                        'date_created': recipe.date_created,
-                        'date_modified': recipe.date_modified,
-                        'category_identity': id
-                    })
-                    response.status_code = 200
-                    return response
-            else:
-                # user is not legit, so the payload is an error message to handle expired token
-                message = user_id
-                response = {
-                    'message': message
-                }
-                # return an error response, telling the user he is Unauthorized
-                return make_response(jsonify(response)), 401
-
+        recipe = Recipe.query.filter_by(id=recipe_id).first()
+        if not recipe:
+            # Raise an HTTPException with a 404 not found status code
+            abort(404)
+        title = str(request.data.get('title', ''))
+        description = str(request.data.get('description', ''))
+        if not title or not description or title.isspace() or description.isspace():
+            return jsonify({'message': 'Recipe title and description are required', 'status': False})
+        else:
+            title = str(request.data.get('title', ''))
+            description = str(request.data.get('description', ''))
+            recipe.title = title
+            recipe.description = description
+            recipe.save()
+            response = jsonify({
+                'id': recipe.id,
+                'title': recipe.title,
+                'description': recipe.description,
+                'date_created': recipe.date_created,
+                'date_modified': recipe.date_modified,
+                'category_identity': id
+            })
+            response.status_code = 200
+            return response
     @app.route('/categories/<int:id>/recipes/<int:recipe_id>', methods=['GET'])
     def get_recipe_by_id(id, recipe_id, **kwargs):
         """
@@ -628,11 +569,12 @@ def create_app(config_name):
             name: id
             required: true
             type: integer
+            description: specify the category id for the recipe
           - in: path
             name: recipe_id
             required: true
             type: integer
-            description: This route is for a user to get a recipes by id
+            description: specify the recipe id you want to get
         security:
           - TokenHeader: []
 
@@ -641,38 +583,23 @@ def create_app(config_name):
             description:  recipe successfully retrieved 
 
         """
-        auth_header = request.headers.get('Authorization')
-        access_token = auth_header.split(" ")[1]
-
-        if access_token:
-            user_id = User.decode_token(access_token)
-            if not isinstance(user_id, str):
-                category = Category.query.filter_by(id=id).first()
-                # retrieve a recipe using it's ID
-                recipe = Recipe.query.filter_by(id=recipe_id).first()
-                if not recipe:
-                    # Raise an HTTPException with a 404 not found status code
-                    abort(404)
-                else:
-                    # GET
-                    response = jsonify({
-                        'id': recipe.id,
-                        'title': recipe.title,
-                        'description': recipe.description,
-                        'date_created': recipe.date_created,
-                        'date_modified': recipe.date_modified,
-                        'category_identity': id
-                    })
-                    response.status_code = 200
-                    return response
-            else:
-                # user is not legit, so the payload is an error message to handle expired token
-                message = user_id
-                response = {
-                    'message': message
-                }
-                # return an error response, telling the user he is Unauthorized
-                return make_response(jsonify(response)), 401
+        # retrieve a recipe using it's ID
+        recipe = Recipe.query.filter_by(id=recipe_id).first()
+        if not recipe:
+            # Raise an HTTPException with a 404 not found status code
+            abort(404)
+        else:
+            # GET
+            response = jsonify({
+                'id': recipe.id,
+                'title': recipe.title,
+                'description': recipe.description,
+                'date_created': recipe.date_created,
+                'date_modified': recipe.date_modified,
+                'category_identity': id
+            })
+            response.status_code = 200
+            return response
     from .auth import auth_blueprint
     app.register_blueprint(auth_blueprint)
 

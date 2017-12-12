@@ -77,7 +77,7 @@ class RecipeTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertIn('fruit',str(res.data))
     def test_api_can_get_recipes_by_pagination(self):
-        """Test API can get a recipe (GET request)."""
+        """Test API can get a recipe by pagination (GET request)."""
         self.register_user()
         result = self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
@@ -101,7 +101,7 @@ class RecipeTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertIn('fruit',str(res.data))
     def test_api_can_get_arecipe_by_q(self):
-        """Test API can get a recipe (GET request)."""
+        """Test API can get a recipe by q search (GET request)."""
         self.register_user()
         result = self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
@@ -174,11 +174,11 @@ class RecipeTestCase(unittest.TestCase):
         rv = self.client().put(
             '/categories/1/recipes/1',
             data={
-                "title": "juice :-)"
+                "title": "fruit :-)"
             })
         self.assertEqual(rv.status_code, 200)
         results = self.client().get('/categories/1/recipes/1')
-        self.assertIn('juice',str(results.data))  
+        self.assertIn('fruit',str(results.data))  
 
     def test_recipe_deletion(self):
         """Test API can delete an existing recipe. (DELETE request)."""
