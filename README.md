@@ -1,7 +1,7 @@
 
 [![Build Status](https://travis-ci.org/hadijahkyampeire/newyummy_api.svg?branch=api)](https://travis-ci.org/hadijahkyampeire/newyummy_api)
 [![Coverage Status](https://coveralls.io/repos/github/hadijahkyampeire/newyummy_api/badge.svg?branch=master&service=github)](https://coveralls.io/github/hadijahkyampeire/newyummy_api?branch=master)
-[![Maintainability](https://api.codeclimate.com/v1/badges/930b41f7e96ab8f63f98/maintainability&service=github)](https://codeclimate.com/github/hadijahkyampeire/newyummy_api/maintainability&service=github)
+[![Maintainability](https://api.codeclimate.com/v1/badges/930b41f7e96ab8f63f98/maintainability)](https://codeclimate.com/github/hadijahkyampeire/newyummy_api/maintainability)
 # yummyrecipes_api
 # Description
 yummyrecipes_api is a RESTFul web api that let's users create accounts, login and create, view, edit and delete categories and recipes.
