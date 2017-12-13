@@ -5,7 +5,7 @@
 <a href="https://www.python.org/dev/peps/pep-0008/">
 <img class="notice-badge" src="https://img.shields.io/badge/code%20style-pep8-orange.svg" alt="Badge"/>
 </a>
-<a href="https://github.com/hadijahkyampeire/newyummy_api/master/Licence.md">
+<a href="https://github.com/hadijahkyampeire/newyummy_api/blob/api/License.md">
 <img class="notice-badge" src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="Badge"/>
 </a>
 # yummyrecipes_api
