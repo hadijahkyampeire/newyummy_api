@@ -12,7 +12,7 @@ class RegistrationView(MethodView):
         Handle POST request for this view. Url ---> /auth/register 
         ---
         tags:
-          - Register User
+          - User Authentication
         parameters:
           - in: body
             name: body
@@ -64,7 +64,7 @@ class LoginView(MethodView):
         Handle POST request for this view. Url ---> /auth/login
         ---
         tags:
-          - Login User
+          - User Authentication
         parameters:
           - in: body
             name: body
