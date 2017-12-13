@@ -17,7 +17,7 @@ def create_app(config_name):
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
 
-    @app.route('/categories/', methods=['POST'])
+    @app.route('/api/v1/categories/', methods=['POST'])
     def add_categories():
         """
         Method for posting categories
@@ -52,7 +52,7 @@ def create_app(config_name):
                     name = request.data.get('name')
                     if not name or name.isspace():
                         return jsonify({'message': 'Category name is required', 'status': False})
-                    result = Category.query.filter_by(name=name).first()
+                    result = Category.query.filter_by(name=name).filter_by(created_by=user_id).first()
 
                     if result:
                         return jsonify({"message": "Category already exists"})
@@ -81,7 +81,7 @@ def create_app(config_name):
                 }
                 return make_response(jsonify(response)), 401
 
-    @app.route('/categories/', methods=['GET'])
+    @app.route('/api/v1/categories/', methods=['GET'])
     def get_categories():
         """
         This method is for getting categories
@@ -166,7 +166,7 @@ def create_app(config_name):
                 }
                 return make_response(jsonify(response)), 401
 
-    @app.route('/categories/<int:id>', methods=['DELETE'])
+    @app.route('/api/v1/categories/<int:id>', methods=['DELETE'])
     def delete_category(id, **kwargs):
         """
         This method is for delete category by id
@@ -221,7 +221,7 @@ def create_app(config_name):
                 # return an error response, telling the user he is Unauthorized
                 return make_response(jsonify(response)), 401
 
-    @app.route('/categories/<int:id>', methods=['PUT'])
+    @app.route('/api/v1/categories/<int:id>', methods=['PUT'])
     def edit_category(id, **kwargs):
         """
         This method is for editing categories
@@ -278,7 +278,7 @@ def create_app(config_name):
                 # return an error response, telling the user he is Unauthorized
                 return make_response(jsonify(response)), 401
 
-    @app.route('/categories/<int:id>', methods=['GET'])
+    @app.route('/api/v1/categories/<int:id>', methods=['GET'])
     def get_category_by_id(id, **kwargs):
         """
         This method is for getting category by id
@@ -330,7 +330,7 @@ def create_app(config_name):
                 # return an error response, telling the user he is Unauthorized
                 return make_response(jsonify(response)), 401
 
-    @app.route('/categories/<int:id>/recipes', methods=['POST'])
+    @app.route('/api/v1/categories/<int:id>/recipes', methods=['POST'])
     def add_recipes(id,  **kwargs):
         """
         Method for posting recipes
@@ -384,7 +384,7 @@ def create_app(config_name):
                 response.status_code = 201
                 return response
 
-    @app.route('/categories/<int:id>/recipes', methods=['GET'])
+    @app.route('/api/v1/categories/<int:id>/recipes', methods=['GET'])
     def get_recipes(id, **kwargs):
         """
         This route is for a user to get recipes by q or pagination
@@ -466,7 +466,7 @@ def create_app(config_name):
         else:
             return jsonify({"message": "No recipes found"})
 
-    @app.route('/categories/<int:id>/recipes/<int:recipe_id>', methods=['DELETE'])
+    @app.route('/api/v1/categories/<int:id>/recipes/<int:recipe_id>', methods=['DELETE'])
     def delete_recipe(id, recipe_id, **kwargs):
         """
         This method is for deleting recipe by id
@@ -503,7 +503,7 @@ def create_app(config_name):
             return {
                 "message": "recipe {} deleted successfully".format(recipe.id)
             }, 200
-    @app.route('/categories/<int:id>/recipes/<int:recipe_id>', methods=['PUT'])
+    @app.route('/api/v1/categories/<int:id>/recipes/<int:recipe_id>', methods=['PUT'])
     def edit_recipe(id, recipe_id, **kwargs):
         """
         This method is for editing categories
@@ -557,7 +557,7 @@ def create_app(config_name):
             })
             response.status_code = 200
             return response
-    @app.route('/categories/<int:id>/recipes/<int:recipe_id>', methods=['GET'])
+    @app.route('/api/v1/categories/<int:id>/recipes/<int:recipe_id>', methods=['GET'])
     def get_recipe_by_id(id, recipe_id, **kwargs):
         """
         This method is for getting category by id

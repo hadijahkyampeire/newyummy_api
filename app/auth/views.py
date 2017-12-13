@@ -1,4 +1,5 @@
 from . import auth_blueprint
+import re
 
 from flask.views import MethodView
 from flask import make_response, request, jsonify
@@ -9,7 +10,7 @@ class RegistrationView(MethodView):
 
     def post(self):
         """
-        Handle POST request for this view. Url ---> /auth/register 
+        Handle POST request for this view. Url ---> /api/v1/auth/register 
         ---
         tags:
           - User Authentication
@@ -33,14 +34,19 @@ class RegistrationView(MethodView):
                 # Register the user
                 email = post_data['email']
                 password = post_data['password']
-                user = User(email=email, password=password)
-                user.save()
+                if len(password) > 6 and re.match("[^@]+@[^@]+\.[^@]+", email):
+                    user = User(email=email, password=password)
+                    user.save()
 
+                    response = {
+                        'message': 'You registered successfully. Please login.'
+                    }
+                    # return a response notifying the user that they registered successfully
+                    return make_response(jsonify(response)), 201
                 response = {
-                    'message': 'You registered successfully. Please login.'
+                    'message': 'Invalid email or password, Please try again with a valid email and a password with morethan 6 characters'
                 }
-                # return a response notifying the user that they registered successfully
-                return make_response(jsonify(response)), 201
+                return make_response(jsonify(response)), 401
             except Exception as e:
                 # An error occured, therefore return a string message containing the error
                 response = {
@@ -61,7 +67,7 @@ class LoginView(MethodView):
 
     def post(self):
         """
-        Handle POST request for this view. Url ---> /auth/login
+        Handle POST request for this view. Url ---> /api/v1/auth/login
         ---
         tags:
           - User Authentication
@@ -103,22 +109,64 @@ class LoginView(MethodView):
             }
             # Return a server error using the HTTP Error Code 500 (Internal Server Error)
             return make_response(jsonify(response)), 500
+class ResetPasswordView(MethodView):
+    
+    def post(self):
+        """
+        Allows user to change password. Url ---> /api/v1/auth/reset_password 
+        ---
+        tags:
+          - User Authentication
+        parameters:
+          - in: body
+            name: body
+            required: true
+            type: string
+            description: Input new password 
+        responses:
+          200:
+            description: User successfully created   
 
+        """
+        auth_header = request.headers.get('Authorization')
+        access_token = auth_header.split(" ")[1]
+        if access_token:
+            user_id = User.decode_token(access_token)
+            if not isinstance(user_id, str):
+                try:
+                    user = User.query.filter_by(id=user_id).first()
+                    password = request.data['password']
+                    user.password = password
+                    user.save()
+                    response = {'message': 'Your password has been reset.'}
+                    return make_response(jsonify(response)), 200
+                except Exception as e:
+                    response = {'message': str(e)}
+                    return make_response(jsonify(response)), 401
+            else:
+                message = user_id
+                response = {'message': message}
+                return make_response(jsonify(response)), 401
 # Define the API resource
 registration_view = RegistrationView.as_view('registration_view')
 login_view = LoginView.as_view('login_view')
+reset_password_view = ResetPasswordView.as_view('reset_password_view')
 
 # Define the rule for the registration url --->  /auth/register
 # Then add the rule to the blueprint
 auth_blueprint.add_url_rule(
-    '/auth/register',
+    '/api/v1/auth/register',
     view_func=registration_view,
     methods=['POST'])
 
 # Define the rule for the registration url --->  /auth/login
 # Then add the rule to the blueprint
 auth_blueprint.add_url_rule(
-    '/auth/login',
+    '/api/v1/auth/login',
     view_func=login_view,
-    methods=['POST']
-)
+    methods=['POST'])
+
+auth_blueprint.add_url_rule(
+    '/api/v1/auth/reset_password', view_func=reset_password_view, 
+        methods=['POST'])
+
