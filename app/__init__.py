@@ -23,7 +23,7 @@ def create_app(config_name):
         Method for posting categories
         ---
         tags:
-          - Add categories
+          - Category functions
         parameters:
           - in: body
             name: body
@@ -87,7 +87,7 @@ def create_app(config_name):
         This method is for getting categories
         ---
         tags:
-          - Get categories by q or pagination
+          - Category functions
         parameters:
 
           - in: query
@@ -172,7 +172,7 @@ def create_app(config_name):
         This method is for delete category by id
         ---
         tags:
-          - Delete category
+          - Category functions
         parameters:
 
           - in: path
@@ -227,7 +227,7 @@ def create_app(config_name):
         This method is for editing categories
         ---
         tags:
-          - Edit category
+          - Category functions
         parameters:
           - in: path
             name: id
@@ -284,7 +284,7 @@ def create_app(config_name):
         This method is for getting category by id
         ---
         tags:
-          - Get a category by id
+          - Category functions
         parameters:
           - in: path
             name: id
@@ -336,7 +336,7 @@ def create_app(config_name):
         Method for posting recipes
         ---
         tags:
-          - Add recipes
+          - Recipe functions
         parameters:
           - in: path
             name: id
@@ -390,7 +390,7 @@ def create_app(config_name):
         This route is for a user to get recipes by q or pagination
         ---
         tags:
-          - Get recipes by q or pagination
+          - Recipe functions
         
         parameters:
           - in: path
@@ -472,7 +472,7 @@ def create_app(config_name):
         This method is for deleting recipe by id
         ---
         tags:
-          - Delete recipe
+          - Recipe functions
         parameters:
           - in: path
             name: id
@@ -509,7 +509,7 @@ def create_app(config_name):
         This method is for editing categories
         ---
         tags:
-          - Edit recipe
+          - Recipe functions
         parameters:
           - in: path
             name: id
@@ -563,7 +563,7 @@ def create_app(config_name):
         This method is for getting category by id
         ---
         tags:
-          - Get a recipe by id
+          - Recipe functions
         parameters:
           - in: path
             name: id

@@ -2,6 +2,12 @@
 [![Build Status](https://travis-ci.org/hadijahkyampeire/newyummy_api.svg?branch=api)](https://travis-ci.org/hadijahkyampeire/newyummy_api)
 [![Coverage Status](https://coveralls.io/repos/github/hadijahkyampeire/newyummy_api/badge.svg?branch=master&service=github)](https://coveralls.io/github/hadijahkyampeire/newyummy_api?branch=master)
 [![Maintainability](https://api.codeclimate.com/v1/badges/930b41f7e96ab8f63f98/maintainability)](https://codeclimate.com/github/hadijahkyampeire/newyummy_api/maintainability)
+<a href="https://www.python.org/dev/peps/pep-0008/">
+<img class="notice-badge" src="https://img.shields.io/badge/code%20style-pep8-orange.svg" alt="Badge"/>
+</a>
+<a href="https://github.com/pndemo/yummy-recipes/blob/develop/Licence.md">
+<img class="notice-badge" src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="Badge"/>
+</a>
 # yummyrecipes_api
 # Description
 yummyrecipes_api is a RESTFul web api that let's users create accounts, login and create, view, edit and delete categories and recipes.
@@ -9,7 +15,7 @@ yummyrecipes_api is a RESTFul web api that let's users create accounts, login an
 # API-Documentation
 The api documentation can be found at http://127.0.0.1:5000/apidocs/#/
 # Demo
-The API demo is deployed on heroku at http://hadijahyummyrecipe-api.herokuapp.com/
+The API demo is deployed on heroku at https://hadijahyummyrecipe-api.herokuapp.com/apidocs/#/
 ## Technologies used
 * **[Python3](https://www.python.org/downloads/)** - A programming language that lets you work more quickly (The universe loves speed!).
 * **[Flask](flask.pocoo.org/)** - A microframework for Python based on Werkzeug, Jinja 2 and good  environments
