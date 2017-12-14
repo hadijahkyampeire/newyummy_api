@@ -7,7 +7,7 @@ app = create_app(config_name)
 swag= Swagger(app,
    template={
        "info": {
-       "title": "Hadijahz YummyRecipes API",
+       "title": "Hadijahz YummyRecipes API Version 1",
        "description": "API that creates and logs in a user so as to manipulate yummyrecipes. Find source code and guidelines on 'https://github.com/hadijahkyampeire/newyummy_api'"},
        "securityDefinitions":{
            "TokenHeader": {
