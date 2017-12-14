@@ -52,7 +52,8 @@ def create_app(config_name):
                     name = request.data.get('name')
                     if not name or name.isspace():
                         return jsonify({'message': 'Category name is required', 'status': False})
-                    result = Category.query.filter_by(name=name).first()
+                    name = name.title()
+                    result = Category.query.filter_by(name=name, created_by=user_id).first()
 
                     if result:
                         return jsonify({"message": "Category already exists"}),400
@@ -123,7 +124,7 @@ def create_app(config_name):
                     # GET METHOD/categories/
                 page = int(request.args.get('page', 1))
                 per_page = int(request.args.get('per_page', 5))
-                q = str(request.args.get('q', '')).lower()
+                q = str(request.args.get('q', '')).title()
                 categories = Category.query.filter_by(
                     created_by=user_id).paginate(page=page, per_page=per_page)
                 results = []
@@ -131,7 +132,7 @@ def create_app(config_name):
                     return jsonify({'message': 'No categories available'})
                 if q:
                     for category in categories.items:
-                        if q in category.name.lower():
+                        if q in category.name:
                             obj = {}
                             obj = {
                                 'id': category.id,
