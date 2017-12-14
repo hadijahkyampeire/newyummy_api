@@ -191,6 +191,23 @@ class CategoryTestCase(unittest.TestCase):
             '/api/v1/categories/1',
             headers=dict(Authorization="Bearer " + access_token))
         self.assertEqual(result.status_code, 404)
+    def test_if_category_already_exists(self):
+       
+        self.register_user()
+        result = self.login_user()
+        # obtain the access token
+        access_token = json.loads(result.data.decode())['access_token']
+        category_name={"name":"matoke"}
+        # ensure the request has an authorization header set with the access token in it
+        res = self.client().post(
+            '/api/v1/categories/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=category_name)
+        result = self.client().post(
+            '/api/v1/categories/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=category_name)
+        self.assertEqual(result.status_code, 400)
 
     def tearDown(self):
         """teardown all initialized variables."""
