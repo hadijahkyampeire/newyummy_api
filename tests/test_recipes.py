@@ -10,7 +10,7 @@ class RecipeTestCase(unittest.TestCase):
         """Define test variables and initialize app."""
         self.app = create_app(config_name="testing")
         self.client = self.app.test_client
-        self.category = {'name': 'supper'}
+        self.category = {'name': 'Supper'}
         self.recipe = {'title': 'fruit', 'description': 'mix well'}
          # binds the app to the current context
         with self.app.app_context():
@@ -44,7 +44,7 @@ class RecipeTestCase(unittest.TestCase):
             '/api/v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
             data=self.category)
-        self.assertIn('supper', str(res.data))
+        self.assertIn('Supper', str(res.data))
 
         result = self.client().post(
             '/api/v1/categories/1/recipes',
@@ -69,7 +69,7 @@ class RecipeTestCase(unittest.TestCase):
             '/api/v1/categories/1',
             headers=dict(Authorization="Bearer " + access_token))
         # assert that the category is actually returned given its ID
-        self.assertIn('supper', str(result.data))
+        self.assertIn('Supper', str(result.data))
         res = self.client().post('/api/v1/categories/1/recipes', data=self.recipe)
         self.assertEqual(res.status_code, 201)
 
@@ -93,7 +93,7 @@ class RecipeTestCase(unittest.TestCase):
             '/api/v1/categories/1',
             headers=dict(Authorization="Bearer " + access_token))
         # assert that the category is actually returned given its ID
-        self.assertIn('supper', str(result.data))
+        self.assertIn('Supper', str(result.data))
         res = self.client().post('/api/v1/categories/1/recipes', data=self.recipe)
         self.assertEqual(res.status_code, 201)
 
@@ -117,7 +117,7 @@ class RecipeTestCase(unittest.TestCase):
             '/api/v1/categories/1',
             headers=dict(Authorization="Bearer " + access_token))
         # assert that the category is actually returned given its ID
-        self.assertIn('supper', str(result.data))
+        self.assertIn('Supper', str(result.data))
         res = self.client().post('/api/v1/categories/1/recipes', data=self.recipe)
         self.assertEqual(res.status_code, 201)
 
@@ -142,7 +142,7 @@ class RecipeTestCase(unittest.TestCase):
             headers=dict(Authorization="Bearer " + access_token))
         # assert that the category is actually returned given its ID
         self.assertEqual(result.status_code, 200)
-        self.assertIn('supper', str(result.data))
+        self.assertIn('Supper', str(result.data))
         res = self.client().post('/api/v1/categories/1/recipes', data=self.recipe)
         self.assertEqual(res.status_code, 201)
         # results = json.loads(rv.data.decode())
@@ -168,7 +168,7 @@ class RecipeTestCase(unittest.TestCase):
             headers=dict(Authorization="Bearer " + access_token))
         # assert that the category is actually returned given its ID
         self.assertEqual(result.status_code, 200)
-        self.assertIn('supper', str(result.data))
+        self.assertIn('Supper', str(result.data))
         res = self.client().post('/api/v1/categories/1/recipes', data=self.recipe)
         self.assertEqual(res.status_code, 201)
         rv = self.client().put(
@@ -191,7 +191,7 @@ class RecipeTestCase(unittest.TestCase):
             '/api/v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
             data=self.category)
-        self.assertIn('supper', str(res.data))
+        self.assertIn('Supper', str(res.data))
 
         result = self.client().post(
             '/api/v1/categories/1/recipes',
