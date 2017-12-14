@@ -10,7 +10,7 @@ class CategoryTestCase(unittest.TestCase):
         """Define test variables and initialize app."""
         self.app = create_app(config_name="testing")
         self.client = self.app.test_client
-        self.category = {'name': 'supper'}
+        self.category = {'name': 'Supper'}
 
         # binds the app to the current context
         with self.app.app_context():
@@ -58,7 +58,7 @@ class CategoryTestCase(unittest.TestCase):
             headers=dict(Authorization="Bearer " + access_token),
             data=self.category)
         self.assertEqual(res.status_code, 201)
-        self.assertIn('supper', str(res.data))
+        self.assertIn('Supper', str(res.data))
 
     def test_api_can_get_all_categories(self):
         """Test API can get a category (GET request)."""
@@ -78,7 +78,7 @@ class CategoryTestCase(unittest.TestCase):
             headers=dict(Authorization="Bearer " + access_token),
         )
         self.assertEqual(res.status_code, 200)
-        self.assertIn('supper', str(res.data))
+        self.assertIn('Supper', str(res.data))
 
     def test_api_can_get_category_by_id(self):
         """Test API can get a single category by using it's id."""
@@ -98,7 +98,7 @@ class CategoryTestCase(unittest.TestCase):
             headers=dict(Authorization="Bearer " + access_token))
         # assert that the category is actually returned given its ID
         self.assertEqual(result.status_code, 200)
-        self.assertIn('supper', str(result.data))
+        self.assertIn('Supper', str(result.data))
     def test_category_can_be_got_using_q(self):
         self.register_user()
         result = self.login_user()
@@ -112,11 +112,11 @@ class CategoryTestCase(unittest.TestCase):
 
         # get all the categories that belong to the test user by making a GET request
         res = self.client().get(
-            '/api/v1/categories/?q=supper',
+            '/api/v1/categories/?q=Supper',
             headers=dict(Authorization="Bearer " + access_token),
         )
         self.assertEqual(res.status_code, 200)
-        self.assertIn('supper', str(res.data))
+        self.assertIn('Supper', str(res.data))
     def test_category_can_be_got_using_pagination(self):
         self.register_user()
         result = self.login_user()
@@ -134,7 +134,7 @@ class CategoryTestCase(unittest.TestCase):
             headers=dict(Authorization="Bearer " + access_token),
         )
         self.assertEqual(res.status_code, 200)
-        self.assertIn('supper', str(res.data))
+        self.assertIn('Supper', str(res.data))
 
     def test_category_can_be_edited(self):
         """Test API can edit an existing category. (PUT request)"""
@@ -146,7 +146,7 @@ class CategoryTestCase(unittest.TestCase):
         rv = self.client().post(
             '/api/v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
-            data={'name': 'lunch, supper'})
+            data={'name': 'lunch, Supper'})
         self.assertEqual(rv.status_code, 201)
         # get the json with the category
         results = json.loads(rv.data.decode())
@@ -191,6 +191,23 @@ class CategoryTestCase(unittest.TestCase):
             '/api/v1/categories/1',
             headers=dict(Authorization="Bearer " + access_token))
         self.assertEqual(result.status_code, 404)
+    def test_if_category_already_exists(self):
+       
+        self.register_user()
+        result = self.login_user()
+        # obtain the access token
+        access_token = json.loads(result.data.decode())['access_token']
+        category_name={"name":"matoke"}
+        # ensure the request has an authorization header set with the access token in it
+        res = self.client().post(
+            '/api/v1/categories/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=category_name)
+        result = self.client().post(
+            '/api/v1/categories/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=category_name)
+        self.assertEqual(result.status_code, 400)
 
     def tearDown(self):
         """teardown all initialized variables."""
