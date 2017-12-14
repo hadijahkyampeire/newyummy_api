@@ -52,10 +52,10 @@ def create_app(config_name):
                     name = request.data.get('name')
                     if not name or name.isspace():
                         return jsonify({'message': 'Category name is required', 'status': False})
-                    result = Category.query.filter_by(name=name).filter_by(created_by=user_id).first()
+                    result = Category.query.filter_by(name=name).first()
 
                     if result:
-                        return jsonify({"message": "Category already exists"})
+                        return jsonify({"message": "Category already exists"}),400
 
                     category = Category(name=name, created_by=user_id)
                     category.save()
