@@ -174,7 +174,7 @@ class RecipeTestCase(unittest.TestCase):
         rv = self.client().put(
             '/api/v1/categories/1/recipes/1',
             data={
-                "title": "fruit :-)"
+                "title": "fruit" ,"description":"blend"
             })
         self.assertEqual(rv.status_code, 200)
         results = self.client().get('/api/v1/categories/1/recipes/1')
@@ -204,6 +204,22 @@ class RecipeTestCase(unittest.TestCase):
         # Test to see if it exists, should return a 404
         result = self.client().get('/api/v1/categories/1/recipes/1')
         self.assertEqual(result.status_code, 404) 
+    def test_deleting_a_recipe_that_doesnot_exist(self):
+        self.register_user()
+        result = self.login_user()
+        # obtain the access token
+        access_token = json.loads(result.data.decode())['access_token']
+        # ensure the request has an authorization header set with the access token in it
+        res = self.client().post(
+            '/api/v1/categories/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.category)
+        self.assertIn('Supper', str(res.data))
+        rv = self.client().delete(
+            '/api/v1/categories/1/recipes/1')
+        self.assertEqual(rv.status_code, 404)
+
+
     def tearDown(self):
         """teardown all initialized variables."""
         with self.app.app_context():
