@@ -23,7 +23,7 @@ class CategoryTestCase(unittest.TestCase):
             'email': email,
             'password': password
         }
-        return self.client().post('/auth/register', data=user_data)
+        return self.client().post('/api/v1/auth/register', data=user_data)
 
     def login_user(self, email="user@test.com", password="test1234"):
         """This helper method helps log in a test user."""
@@ -31,7 +31,7 @@ class CategoryTestCase(unittest.TestCase):
             'email': email,
             'password': password
         }
-        return self.client().post('/auth/login', data=user_data)
+        return self.client().post('/api/v1/auth/login', data=user_data)
 
 
     def test_accessing_category_view_with_invalid_or_expired_token(self):
@@ -41,7 +41,7 @@ class CategoryTestCase(unittest.TestCase):
         result = self.login_user()
         # obtain the access token
         access_token = json.loads(result.data.decode())['access_token']
-        response = self.client().get('/categories/',
+        response = self.client().get('/api/v1/categories/',
                                   headers=dict(Authorization="Bearer " + 'XBA5567SJ2K119'))
         self.assertEqual(response.status_code, 401)
     def test_category_creation(self):
@@ -54,7 +54,7 @@ class CategoryTestCase(unittest.TestCase):
 
         # ensure the request has an authorization header set with the access token in it
         res = self.client().post(
-            '/categories/',
+            '/api/v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
             data=self.category)
         self.assertEqual(res.status_code, 201)
@@ -67,14 +67,14 @@ class CategoryTestCase(unittest.TestCase):
         access_token = json.loads(result.data.decode())['access_token']
 
         res = self.client().post(
-            '/categories/',
+            '/api/v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
             data=self.category)
         self.assertEqual(res.status_code, 201)
 
         # get all the categories that belong to the test user by making a GET request
         res = self.client().get(
-            '/categories/',
+            '/api/v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
         )
         self.assertEqual(res.status_code, 200)
@@ -87,14 +87,14 @@ class CategoryTestCase(unittest.TestCase):
         access_token = json.loads(result.data.decode())['access_token']
 
         rv = self.client().post(
-            '/categories/',
+            '/api/v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
             data=self.category)
         self.assertEqual(rv.status_code, 201)
         results = json.loads(rv.data.decode())
 
         result = self.client().get(
-            '/categories/1',
+            '/api/v1/categories/1',
             headers=dict(Authorization="Bearer " + access_token))
         # assert that the category is actually returned given its ID
         self.assertEqual(result.status_code, 200)
@@ -105,14 +105,14 @@ class CategoryTestCase(unittest.TestCase):
         access_token = json.loads(result.data.decode())['access_token']
 
         res = self.client().post(
-            '/categories/',
+            '/api/v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
             data=self.category)
         self.assertEqual(res.status_code, 201)
 
         # get all the categories that belong to the test user by making a GET request
         res = self.client().get(
-            '/categories/?q=supper',
+            '/api/v1/categories/?q=supper',
             headers=dict(Authorization="Bearer " + access_token),
         )
         self.assertEqual(res.status_code, 200)
@@ -123,14 +123,14 @@ class CategoryTestCase(unittest.TestCase):
         access_token = json.loads(result.data.decode())['access_token']
 
         res = self.client().post(
-            '/categories/',
+            '/api/v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
             data=self.category)
         self.assertEqual(res.status_code, 201)
 
         # get all the categories that belong to the test user by making a GET request
         res = self.client().get(
-            '/categories/?page=1&per_page=1',
+            '/api/v1/categories/?page=1&per_page=1',
             headers=dict(Authorization="Bearer " + access_token),
         )
         self.assertEqual(res.status_code, 200)
@@ -144,7 +144,7 @@ class CategoryTestCase(unittest.TestCase):
 
         # first, we create a category by making a POST request
         rv = self.client().post(
-            '/categories/',
+            '/api/v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
             data={'name': 'lunch, supper'})
         self.assertEqual(rv.status_code, 201)
@@ -153,7 +153,7 @@ class CategoryTestCase(unittest.TestCase):
 
         # then, we edit the created category by making a PUT request
         rv = self.client().put(
-            '/categories/1',
+            '/api/v1/categories/1',
             headers=dict(Authorization="Bearer " + access_token),
             data={
                 "name": "dinner, dissert :-)"
@@ -162,7 +162,7 @@ class CategoryTestCase(unittest.TestCase):
 
         # finally, we get the edited category to see if it is actually edited.
         results = self.client().get(
-            '/categories/1',
+            '/api/v1/categories/1',
             headers=dict(Authorization="Bearer " + access_token))
         self.assertIn('dinner', str(results.data))
 
@@ -173,7 +173,7 @@ class CategoryTestCase(unittest.TestCase):
         access_token = json.loads(result.data.decode())['access_token']
 
         rv = self.client().post(
-            '/categories/',
+            '/api/v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
             data={'name': 'lunch'})
         self.assertEqual(rv.status_code, 201)
@@ -182,13 +182,13 @@ class CategoryTestCase(unittest.TestCase):
 
         # delete the category we just created
         res = self.client().delete(
-            '/categories/1',
+            '/api/v1/categories/1',
             headers=dict(Authorization="Bearer " + access_token),)
         self.assertEqual(res.status_code, 200)
 
         # Test to see if it exists, should return a 404
         result = self.client().get(
-            '/categories/1',
+            '/api/v1/categories/1',
             headers=dict(Authorization="Bearer " + access_token))
         self.assertEqual(result.status_code, 404)
 
