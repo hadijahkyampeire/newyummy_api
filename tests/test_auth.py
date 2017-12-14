@@ -1,4 +1,4 @@
-# import unittest
+
 import unittest
 import json
 from app import create_app, db
@@ -25,7 +25,7 @@ class AuthTestCase(unittest.TestCase):
 
     def test_registration(self):
         """Test user registration works correcty."""
-        res = self.client().post('/auth/register', data=self.user_data)
+        res = self.client().post('/api/v1/auth/register', data=self.user_data)
         result = json.loads(res.data.decode())
         self.assertEqual(
             result['message'], "You registered successfully. Please login.")
@@ -33,9 +33,9 @@ class AuthTestCase(unittest.TestCase):
 
     def test_already_registered_user(self):
         """Test that a user cannot be registered twice."""
-        res = self.client().post('/auth/register', data=self.user_data)
+        res = self.client().post('/api/v1/auth/register', data=self.user_data)
         self.assertEqual(res.status_code, 201)
-        second_res = self.client().post('/auth/register', data=self.user_data)
+        second_res = self.client().post('/api/v1/auth/register', data=self.user_data)
         self.assertEqual(second_res.status_code, 202)
         # get the results returned in json format
         result = json.loads(second_res.data.decode())
@@ -45,9 +45,9 @@ class AuthTestCase(unittest.TestCase):
 
     def test_user_login(self):
         """Test registered user can login."""
-        res = self.client().post('/auth/register', data=self.user_data)
+        res = self.client().post('/api/v1/auth/register', data=self.user_data)
         self.assertEqual(res.status_code, 201)
-        login_res = self.client().post('/auth/login', data=self.user_data)
+        login_res = self.client().post('/api/v1/auth/login', data=self.user_data)
 
         # get the results in json format
         result = json.loads(login_res.data.decode())
@@ -65,7 +65,7 @@ class AuthTestCase(unittest.TestCase):
             'password': 'nope'
         }
         # send a POST request to /auth/login with the data above
-        res = self.client().post('/auth/login', data=not_a_user)
+        res = self.client().post('/api/v1/auth/login', data=not_a_user)
         # get the result in json
         result = json.loads(res.data.decode())
 
@@ -74,3 +74,31 @@ class AuthTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 401)
         self.assertEqual(
             result['message'], "Invalid email or password, Please try again")
+    def test_user_registers_with_valid_email(self):
+        """Test for valid email on registration"""
+        email={
+            "email":"hadijah"
+        }
+        res = self.client().post('/api/v1/auth/register', data=email)
+        self.assertEqual(res.status_code,401)
+    def test_user_registers_with_valid_password(self):
+        """Test for valid password on registration"""
+        password={
+            "email":"123"
+        }
+        res = self.client().post('/api/v1/auth/register', data=password)
+        self.assertEqual(res.status_code,401)
+    def test_password_reset(self):
+        """Test API for password reset (PUT request)"""
+        res = self.client().post('/api/v1/auth/register', data=self.user_data)
+        self.assertEqual(res.status_code, 201)
+        login_res = self.client().post('/api/v1/auth/login', data=self.user_data)
+        self.assertEqual(login_res.status_code, 200)
+        result = json.loads(login_res.data.decode())
+        access_token = result['access_token']
+        password = {'password': 'test12'}
+        res = self.client().post('/api/v1/auth/reset_password', headers=dict(Authorization=
+                "Bearer " + access_token), data=password)
+        self.assertEqual(res.status_code, 200)
+        result = json.loads(res.data.decode())
+        self.assertEqual(result['message'], "Your password has been reset.")
