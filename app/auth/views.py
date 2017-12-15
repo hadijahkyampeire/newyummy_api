@@ -143,10 +143,7 @@ class ResetPasswordView(MethodView):
                 except Exception as e:# pragma: no cover
                     response = {'message': str(e)}
                     return make_response(jsonify(response)), 401
-            else:
-                message = user_id
-                response = {'message': message}
-                return make_response(jsonify(response)), 401
+            
 # Define the API resource
 registration_view = RegistrationView.as_view('registration_view')
 login_view = LoginView.as_view('login_view')
