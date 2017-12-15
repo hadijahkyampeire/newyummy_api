@@ -222,8 +222,20 @@ class CategoryTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 422)
         self.assertEqual(
             result['message'], 'Category name is required')
+    def test_if_category_to_edit_doesnot_exist(self):
+        """Test if category to edit doesnot exist"""
+        self.register_user()
+        result = self.login_user()
+        # obtain the access token
+        access_token = json.loads(result.data.decode())['access_token']
+        # ensure the request has an authorization header set with the access token in it
+        res = self.client().put(
+            '/api/v1/categories/1',
+            headers=dict(Authorization="Bearer " + access_token),
+        )
+        self.assertEqual(res.status_code, 404)
     def test_if_category_to_get_doesnot_exist(self):
-        """Test if category doesnot exists already"""
+        """Test if category doesnot exist"""
         self.register_user()
         result = self.login_user()
         # obtain the access token
