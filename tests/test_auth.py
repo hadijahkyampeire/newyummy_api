@@ -2,6 +2,7 @@
 import unittest
 import json
 from app import create_app, db
+from app.models import User
 
 class AuthTestCase(unittest.TestCase):
     """Test case for the authentication blueprint."""
@@ -99,3 +100,4 @@ class AuthTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         result = json.loads(res.data.decode())
         self.assertEqual(result['message'], "Your password has been reset.")
+    

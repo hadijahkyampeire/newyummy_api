@@ -239,6 +239,63 @@ class RecipeTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 404)
         self.assertEqual(
             result['message'], 'No recipes found')
+    def test_if_recipe_to_edit_doesnot_exist(self):
+        """Test if recipe to edit doesnot exists already"""
+        self.register_user()
+        result = self.login_user()
+        # obtain the access token
+        access_token = json.loads(result.data.decode())['access_token']
+        # ensure the request has an authorization header set with the access token in it
+        res = self.client().post(
+            '/api/v1/categories/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.category)
+        self.assertIn('Supper', str(res.data))
+        res = self.client().put(
+            '/api/v1/categories/1/recipes/1',
+            headers=dict(Authorization="Bearer " + access_token),
+        )
+        self.assertEqual(res.status_code, 404)
+        
+    def test_recipe_added_is_space(self):
+        """Test API can't add a space as recipe (POST request)"""
+        self.register_user()
+        result = self.login_user()
+        # obtain the access token
+        access_token = json.loads(result.data.decode())['access_token']
+        # ensure the request has an authorization header set with the access token in it
+        res = self.client().post(
+            '/api/v1/categories/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.category)
+        recipe={"title":" ","description":" "}
+        res = self.client().post(
+            '/api/v1/categories/1/recipes',
+            data=recipe)
+        result = json.loads(res.data.decode())
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(
+            result['message'], 'Recipe title and description are required')
+    def test_recipe_added_already_exists(self):
+        """Test API can't add existing recipe (POST request)"""
+        self.register_user()
+        result = self.login_user()
+        # obtain the access token
+        access_token = json.loads(result.data.decode())['access_token']
+        # ensure the request has an authorization header set with the access token in it
+        result = self.client().post(
+            '/api/v1/categories/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.category)
+        recipes={"title":"veggies","description":"half cook" }
+        result = self.client().post(
+            '/api/v1/categories/1/recipes',
+            data=recipes)
+        result = self.client().post(
+            '/api/v1/categories/1/recipes',
+            data=recipes)
+        self.assertEqual(result.status_code, 400)
+        
     def tearDown(self):
         """teardown all initialized variables."""
         with self.app.app_context():
