@@ -98,7 +98,7 @@ class Category(db.Model):
         db.session.commit()
 
     @staticmethod
-    def get_all(user_id):
+    def get(user_id):
         """This method gets all the categories for a given user."""
         return Category.query.filter_by(created_by=user_id)
 
@@ -132,7 +132,7 @@ class Recipe(db.Model):
         db.session.commit()
 
     @staticmethod
-    def get_all():
+    def get():
         return Recipe.query.all()
 
     def delete(self):
