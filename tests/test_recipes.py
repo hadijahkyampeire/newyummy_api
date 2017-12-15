@@ -219,7 +219,26 @@ class RecipeTestCase(unittest.TestCase):
             '/api/v1/categories/1/recipes/1')
         self.assertEqual(rv.status_code, 404)
 
-
+    def test_if_recipe_to_get_doesnot_exist(self):
+        """Test if recipe to get doesnot exists already"""
+        self.register_user()
+        result = self.login_user()
+        # obtain the access token
+        access_token = json.loads(result.data.decode())['access_token']
+        # ensure the request has an authorization header set with the access token in it
+        res = self.client().post(
+            '/api/v1/categories/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.category)
+        self.assertIn('Supper', str(res.data))
+        res = self.client().get(
+            '/api/v1/categories/1/recipes',
+            headers=dict(Authorization="Bearer " + access_token),
+        )
+        result = json.loads(res.data.decode())
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(
+            result['message'], 'No recipes found')
     def tearDown(self):
         """teardown all initialized variables."""
         with self.app.app_context():

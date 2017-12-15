@@ -192,7 +192,7 @@ class CategoryTestCase(unittest.TestCase):
             headers=dict(Authorization="Bearer " + access_token))
         self.assertEqual(result.status_code, 404)
     def test_if_category_already_exists(self):
-       
+        """Test if category exists already"""
         self.register_user()
         result = self.login_user()
         # obtain the access token
@@ -208,6 +208,48 @@ class CategoryTestCase(unittest.TestCase):
             headers=dict(Authorization="Bearer " + access_token),
             data=category_name)
         self.assertEqual(result.status_code, 400)
+    def test_if_space_is_added_for_category(self):
+        """Test if category name is empty or space"""
+        self.register_user()
+        result = self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+        categoryname = {"name":" "}
+        res = self.client().post(
+            '/api/v1/categories/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=categoryname)
+        result = json.loads(res.data.decode())
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(
+            result['message'], 'Category name is required')
+    def test_if_category_to_get_doesnot_exist(self):
+        """Test if category doesnot exists already"""
+        self.register_user()
+        result = self.login_user()
+        # obtain the access token
+        access_token = json.loads(result.data.decode())['access_token']
+        # ensure the request has an authorization header set with the access token in it
+        res = self.client().get(
+            '/api/v1/categories/',
+            headers=dict(Authorization="Bearer " + access_token),
+        )
+        result = json.loads(res.data.decode())
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(
+            result['message'], 'No category found')
+        
+    def test_if_category_to_delete_doesnot_exist(self):
+        """Test if category to delete doesnot exists already"""
+        self.register_user()
+        result = self.login_user()
+        # obtain the access token
+        access_token = json.loads(result.data.decode())['access_token']
+        # ensure the request has an authorization header set with the access token in it
+        res = self.client().delete(
+            '/api/v1/categories/1',
+            headers=dict(Authorization="Bearer " + access_token),
+        )
+        self.assertEqual(res.status_code, 404)
 
     def tearDown(self):
         """teardown all initialized variables."""
