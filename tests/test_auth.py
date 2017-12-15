@@ -75,19 +75,16 @@ class AuthTestCase(unittest.TestCase):
         self.assertEqual(
             result['message'], "Invalid email or password, Please try again")
     def test_user_registers_with_valid_email(self):
-        """Test for valid email on registration"""
-        email={
-            "email":"hadijah"
+        """Test for invalid email and password on registration"""
+        user={
+            "email":"hadijah", "password":"123"
         }
-        res = self.client().post('/api/v1/auth/register', data=email)
-        self.assertEqual(res.status_code,401)
-    def test_user_registers_with_valid_password(self):
-        """Test for valid password on registration"""
-        password={
-            "email":"123"
-        }
-        res = self.client().post('/api/v1/auth/register', data=password)
-        self.assertEqual(res.status_code,401)
+        res = self.client().post('/api/v1/auth/register', data=user)
+        result = json.loads(res.data.decode())
+        self.assertEqual(res.status_code,400)
+        self.assertEqual(
+            result['message'], 'Invalid email or password, Please try again with a valid email and a password with morethan 6 characters')
+    
     def test_password_reset(self):
         """Test API for password reset (PUT request)"""
         res = self.client().post('/api/v1/auth/register', data=self.user_data)

@@ -51,7 +51,7 @@ def create_app(config_name):
                     # name = str(request.data.get('name', ''))
                     name = request.data.get('name')
                     if not name or name.isspace():
-                        return jsonify({'message': 'Category name is required', 'status': False})
+                        return jsonify({'message': 'Category name is required'}),422
                     name = name.title()
                     result = Category.query.filter_by(name=name, created_by=user_id).first()
 
@@ -128,8 +128,8 @@ def create_app(config_name):
                 categories = Category.query.filter_by(
                     created_by=user_id).paginate(page=page, per_page=per_page)
                 results = []
-                if not categories:
-                    return jsonify({'message': 'No categories available'})
+                # if not categories:
+                #     return jsonify({'message': 'No categories available'}),404
                 if q:
                     for category in categories.items:
                         if q in category.name:
@@ -158,7 +158,7 @@ def create_app(config_name):
                 if results:
                     return jsonify({'categories': results})
                 else:
-                    return jsonify({"message": "No category found"})
+                    return jsonify({"message": "No category found"}),404
             else:
                 # user is not legit, so the payload is an error message for expired token
                 message = user_id
@@ -203,8 +203,7 @@ def create_app(config_name):
                 # Get the category with the id specified from the URL (<int:id>)
                 category = Category.query.filter_by(id=id).first()
                 if not category:
-                    # There is no category with this ID for this User, so
-                    # Raise an HTTPException with a 404 not found status code
+                    # There is no category with this ID for this User, so return http code
                     abort(404)
 
                 if request.method == "DELETE":
@@ -430,8 +429,6 @@ def create_app(config_name):
         recipes = Recipe.query.filter_by(
             category_identity=id).paginate(page=page, per_page=per_page)
         results = []
-        if not recipes:
-            return jsonify({'message': 'No recipes available'})
         if q:
             for recipe in recipes.items:
                 if q in recipe.title.lower() or q in recipe.description.lower():
@@ -447,9 +444,6 @@ def create_app(config_name):
                     results.append(obj)
         else:
             # GET
-            # recipes = Recipe.query.filter_by(category_identity=id)
-            # results = []
-
             for recipe in recipes.items:
                 obj = {
                     'id': recipe.id,
@@ -461,11 +455,11 @@ def create_app(config_name):
 
                 }
                 results.append(obj)
-            return make_response(jsonify(results)), 200
+            # return make_response(jsonify(results)), 200
         if results:
             return jsonify({'recipes': results})
         else:
-            return jsonify({"message": "No recipes found"})
+            return jsonify({"message": "No recipes found"}),404
 
     @app.route('/api/v1/categories/<int:id>/recipes/<int:recipe_id>', methods=['DELETE'])
     def delete_recipe(id, recipe_id, **kwargs):
