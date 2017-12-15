@@ -46,8 +46,8 @@ class RegistrationView(MethodView):
                 response = {
                     'message': 'Invalid email or password, Please try again with a valid email and a password with morethan 6 characters'
                 }
-                return make_response(jsonify(response)), 401
-            except Exception as e:
+                return make_response(jsonify(response)), 400
+            except Exception as e:# pragma: no cover
                 # An error occured, therefore return a string message containing the error
                 response = {
                     'message': str(e)
@@ -102,7 +102,7 @@ class LoginView(MethodView):
                 }
                 return make_response(jsonify(response)), 401
 
-        except Exception as e:
+        except Exception as e:# pragma: no cover
             # Create a response containing an string error message
             response = {
                 'message': str(e)
@@ -140,7 +140,7 @@ class ResetPasswordView(MethodView):
                     user.save()
                     response = {'message': 'Your password has been reset.'}
                     return make_response(jsonify(response)), 200
-                except Exception as e:
+                except Exception as e:# pragma: no cover
                     response = {'message': str(e)}
                     return make_response(jsonify(response)), 401
             else:
