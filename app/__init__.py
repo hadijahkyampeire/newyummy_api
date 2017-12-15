@@ -74,13 +74,13 @@ def create_app(config_name):
                     })
 
                     return make_response(response), 201
-            else:
-                # user is not legit, so the payload is an error message for expired token
-                message = user_id
-                response = {
-                    'message': message
-                }
-                return make_response(jsonify(response)), 401
+            # else:
+            #     # user is not legit, so the payload is an error message for expired token
+            #     message = user_id
+            #     response = {
+            #         'message': message
+            #     }
+            #     return make_response(jsonify(response)), 401
 
     @app.route('/api/v1/categories/', methods=['GET'])
     def get_categories():
