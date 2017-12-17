@@ -4,6 +4,7 @@ import re
 from flask.views import MethodView
 from flask import make_response, request, jsonify
 from app.models import User
+from flask_bcrypt import Bcrypt
 
 class RegistrationView(MethodView):
     """This class registers a new user."""
@@ -118,11 +119,18 @@ class ResetPasswordView(MethodView):
         tags:
           - User Authentication
         parameters:
+          - in: user_id
+            name: path
+            required: true
+            type: string
+            description: User_id
           - in: body
             name: body
             required: true
             type: string
             description: Input new password 
+        security:
+          - TokenHeader: []
         responses:
           200:
             description: User successfully created   
@@ -136,7 +144,7 @@ class ResetPasswordView(MethodView):
                 try:
                     user = User.query.filter_by(id=user_id).first()
                     password = request.data['password']
-                    user.password = password
+                    user.password = Bcrypt().generate_password_hash(password).decode()
                     user.save()
                     response = {'message': 'Your password has been reset.'}
                     return make_response(jsonify(response)), 200
