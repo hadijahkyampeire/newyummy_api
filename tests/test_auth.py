@@ -87,17 +87,31 @@ class AuthTestCase(unittest.TestCase):
             result['message'], 'Invalid email or password, Please try again with a valid email and a password with morethan 6 characters')
     
     def test_password_reset(self):
-        """Test API for password reset (PUT request)"""
+        """Test API for password reset (Post request)"""
         res = self.client().post('/api/v1/auth/register', data=self.user_data)
         self.assertEqual(res.status_code, 201)
         login_res = self.client().post('/api/v1/auth/login', data=self.user_data)
         self.assertEqual(login_res.status_code, 200)
         result = json.loads(login_res.data.decode())
         access_token = result['access_token']
-        password = {'password': 'test12'}
+        new_data = {'email':'test@example.com', 'password':'test_password','new_password': 'test12345'}
         res = self.client().post('/api/v1/auth/reset_password', headers=dict(Authorization=
-                "Bearer " + access_token), data=password)
+                "Bearer " + access_token), data=new_data)
         self.assertEqual(res.status_code, 200)
         result = json.loads(res.data.decode())
         self.assertEqual(result['message'], "Your password has been reset.")
-    
+
+    def test_user_logout(self):
+        """ Test a user can logout from the session"""
+        res = self.client().post('/api/v1/auth/register', data=self.user_data)
+        self.assertEqual(res.status_code, 201)
+        login_res = self.client().post('/api/v1/auth/login', data=self.user_data)
+        self.assertEqual(login_res.status_code, 200)
+        result = json.loads(login_res.data.decode())
+        access_token = result['access_token']
+        res = self.client().post('/api/v1/auth/logout', headers=dict(
+            Authorization="Bearer " + access_token))
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data.decode())
+        self.assertTrue(data['message'] == 'Your have been logged out.')
+        
