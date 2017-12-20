@@ -2,11 +2,18 @@ from flask_api import FlaskAPI
 from flask_sqlalchemy import SQLAlchemy
 from flask import request, jsonify, abort, make_response
 
+
 # local import
 from instance.config import app_config
 
 # initialize sql-alchemy
 db = SQLAlchemy()
+
+def is_valid(name_string):    
+    special_character = "~!@#$%^&*()_={}|\[]<>?/,;:"
+    return any(char in special_character for char in name_string)
+def hasNumbers(inputString):
+    return any(char.isdigit() for char in inputString)
 
 
 def create_app(config_name):
@@ -36,7 +43,32 @@ def create_app(config_name):
         responses:
           200:
             description:  category successfully created   
-
+          201:
+            description: You successfully registered 
+            schema:
+              id: Register User
+              properties:
+                name:
+                  type: string
+                  default: Dinner
+                
+          400:
+            description: For exceptions like empty strings, duplication, not json data, special characters or numbers
+            schema:
+              id: Register User
+              properties:
+                name:
+                  type: string
+                  default: invalid name
+          422:
+            description: If space or nothing is entered
+            schema:
+              id: Add category
+              properties:
+                name:
+                  type: string
+                  default: " "
+        
         """
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split(" ")[1]
@@ -50,8 +82,16 @@ def create_app(config_name):
                 if request.method == "POST":
                     # name = str(request.data.get('name', ''))
                     name = request.data.get('name')
+                    
+                    if isinstance(name, int):
+                        return jsonify({"message": "category name should not be an integer" }),400
                     if not name or name.isspace():
                         return jsonify({'message': 'Category name is required'}),422
+                    if is_valid(name):
+                        return jsonify({'message': 'Category name should not have special characters'}),400
+                    if hasNumbers(name):
+                        return jsonify({'message': 'Category name should not have numbers'}),400
+                    
                     name = name.title()
                     result = Category.query.filter_by(name=name, created_by=user_id).first()
 
@@ -74,13 +114,13 @@ def create_app(config_name):
                     })
 
                     return make_response(response), 201
-            # else:
-            #     # user is not legit, so the payload is an error message for expired token
-            #     message = user_id
-            #     response = {
-            #         'message': message
-            #     }
-            #     return make_response(jsonify(response)), 401
+            else:#pragma no cover
+                # user is not legit, so the payload is an error message for expired token
+                message = user_id
+                response = {
+                    'message': message
+                }
+                return make_response(jsonify(response)), 401
 
     @app.route('/api/v1/categories/', methods=['GET'])
     def get_categories():
@@ -204,7 +244,7 @@ def create_app(config_name):
                 category = Category.query.filter_by(id=id).first()
                 if not category:
                     # There is no category with this ID for this User, so return http code
-                    abort(404)
+                    return jsonify({"message": "No category to delete"}),404
 
                 if request.method == "DELETE":
                     # delete the category using our delete method
@@ -212,14 +252,14 @@ def create_app(config_name):
                     return {
                         "message": "category {} deleted".format(category.id)
                     }, 200
-            # else:
-            #     # user is not legit, so the payload is an error message to handle expired token
-            #     message = user_id
-            #     response = {
-            #         'message': message
-            #     }
-            #     # return an error response, telling the user he is Unauthorized
-            #     return make_response(jsonify(response)), 401
+            else:#pragma no cover
+                # user is not legit, so the payload is an error message to handle expired token
+                message = user_id
+                response = {
+                    'message': message
+                }
+                # return an error response, telling the user he is Unauthorized
+                return make_response(jsonify(response)), 401
 
     @app.route('/api/v1/categories/<int:id>', methods=['PUT'])
     def edit_category(id, **kwargs):
@@ -253,7 +293,7 @@ def create_app(config_name):
             if not isinstance(user_id, str):
                 category = Category.query.filter_by(id=id).first()
                 if not category:
-                    abort(404)
+                    return jsonify({"message": "No category found to edit"}),404
                 else:
                     name = str(request.data.get('name', ''))
                     category.name = name
@@ -269,14 +309,14 @@ def create_app(config_name):
                         }
                     }
                     return make_response(jsonify(response)), 200
-            # else:
-            #     # user is not legit, so the payload is an error message to handle expired token
-            #     message = user_id
-            #     response = {
-            #         'message': message
-            #     }
-            #     # return an error response, telling the user he is Unauthorized
-            #     return make_response(jsonify(response)), 401
+            else:
+                # user is not legit, so the payload is an error message to handle expired token
+                message = user_id
+                response = {
+                    'message': message
+                }
+                # return an error response, telling the user he is Unauthorized
+                return make_response(jsonify(response)), 401
 
     @app.route('/api/v1/categories/<int:id>', methods=['GET'])
     def get_category_by_id(id, **kwargs):
@@ -307,7 +347,7 @@ def create_app(config_name):
             if not isinstance(user_id, str):
                 category = Category.query.filter_by(id=id).first()
                 if not category:
-                    abort(404)
+                    return jsonify({"message": "No category found by id"}),404
                 else:
                     # Handle GET request, sending back category to the user
                     response = {
@@ -321,14 +361,14 @@ def create_app(config_name):
                         }
                     }
                     return make_response(jsonify(response)), 200
-            # else:
-            #     # user is not legit, so the payload is an error message to handle expired token
-            #     message = user_id
-            #     response = {
-            #         'message': message
-            #     }
-            #     # return an error response, telling the user he is Unauthorized
-            #     return make_response(jsonify(response)), 401
+            else:
+                # user is not legit, so the payload is an error message to handle expired token
+                message = user_id
+                response = {
+                    'message': message
+                }
+                # return an error response, telling the user he is Unauthorized
+                return make_response(jsonify(response)), 401
 
     @app.route('/api/v1/categories/<int:id>/recipes', methods=['POST'])
     def add_recipes(id,  **kwargs):
@@ -359,12 +399,18 @@ def create_app(config_name):
         if request.method == "POST":
             title = str(request.data.get('title', ''))
             description = str(request.data.get('description', ''))
-            if not title or not description or title.isspace() or description.isspace():
-                return jsonify({'message': 'Recipe title and description are required'}),422
-            result = Recipe.query.filter_by(title=title).first()
+            if isinstance(title, int):
+                return jsonify({"message": "Recipe title should not be an integer"}),400
+            if is_valid(title):
+                return jsonify({'message': 'Recipe title should not have special characters'}),400
+            if hasNumbers(title):
+                return jsonify({'message': 'Recipe title should not have numbers'}),400
+            if not title or title.isspace():
+                return jsonify({'message': 'Recipe title is mostly required'}),422
+            result = Recipe.query.filter_by(title=title, category_identity=id).first()
             if result:
                 return jsonify({"message": "Recipe already exists"}),400
-            if title and description:
+            if title:
                 recipe = Recipe(
                     title=title, description=description, category_identity=id)
                 recipe.save()
@@ -490,8 +536,7 @@ def create_app(config_name):
         # retrieve a recipe using it's ID
         recipe = Recipe.query.filter_by(id=recipe_id).first()
         if not recipe:
-            # Raise an HTTPException with a 404 not found status code
-            abort(404)
+            return jsonify({"message":"No recipes with that id to delete "}),400
 
         else:
             recipe.delete()
@@ -530,8 +575,7 @@ def create_app(config_name):
                 # retrieve a recipe using it's ID
         recipe = Recipe.query.filter_by(id=recipe_id).first()
         if not recipe:
-            # Raise an HTTPException with a 404 not found status code
-            abort(404)
+            return jsonify({"message":"No recipes with that id to edit "}),400
         else:
             title = str(request.data.get('title', ''))
             description = str(request.data.get('description', ''))
@@ -577,8 +621,7 @@ def create_app(config_name):
         # retrieve a recipe using it's ID
         recipe = Recipe.query.filter_by(id=recipe_id).first()
         if not recipe:
-            # Raise an HTTPException with a 404 not found status code
-            abort(404)
+            return jsonify({"message":"No recipes with that id to get"}),400
         else:
             # GET
             response = jsonify({
@@ -595,3 +638,4 @@ def create_app(config_name):
     app.register_blueprint(auth_blueprint)
 
     return app
+# app = create_app(config_name="development")

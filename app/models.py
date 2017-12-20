@@ -42,7 +42,7 @@ class User(db.Model):
         try:
             # set up a payload with an expiration time
             payload = {
-                'exp': datetime.utcnow() + timedelta(minutes=10),
+                'exp': datetime.utcnow() + timedelta(minutes=20),
                 'iat': datetime.utcnow(),
                 'sub': user_id
             }
@@ -72,7 +72,26 @@ class User(db.Model):
             # the token is invalid, return an error string
             return "Invalid token. Please register or login"
 
+class RevokedToken(db.Model):
+    """Define the 'RevokedToken' model mapped to database table 'revoked_tokens'."""
 
+    __tablename__ = 'revoked_tokens'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    token = db.Column(db.String(500), unique=True, nullable=False)
+    revoked_on = db.Column(db.DateTime, nullable=False)
+
+    def __init__(self, token):
+        self.token = token
+        self.revoked_on = datetime.now()
+
+    def __repr__(self):
+        return '<id: token: {}'.format(self.token)
+
+    def save(self):
+        """Save to database table"""
+        db.session.add(self)
+        db.session.commit()
 class Category(db.Model):
     """This class represents the categories table."""
 
@@ -115,7 +134,7 @@ class Recipe(db.Model):
 
     __tablename__ = 'recipes'
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(256), unique=True)
+    title = db.Column(db.String(256))
     description = db.Column(db.Text)
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(db.DateTime, default=db.func.current_timestamp(),

@@ -146,7 +146,7 @@ class CategoryTestCase(unittest.TestCase):
         rv = self.client().post(
             '/api/v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
-            data={'name': 'lunch, Supper'})
+            data={'name': ' Supper'})
         self.assertEqual(rv.status_code, 201)
         # get the json with the category
         results = json.loads(rv.data.decode())
@@ -156,7 +156,7 @@ class CategoryTestCase(unittest.TestCase):
             '/api/v1/categories/1',
             headers=dict(Authorization="Bearer " + access_token),
             data={
-                "name": "dinner, dissert :-)"
+                "name": "dinner"
             })
         self.assertEqual(rv.status_code, 200)
 
@@ -262,7 +262,47 @@ class CategoryTestCase(unittest.TestCase):
             headers=dict(Authorization="Bearer " + access_token),
         )
         self.assertEqual(res.status_code, 404)
-
+    def test_category_name_has_characters(self):
+        """Test if category name can have special characters"""
+        self.register_user()
+        result = self.login_user()
+        # obtain the access token
+        access_token = json.loads(result.data.decode())['access_token']
+        categorydata = {"name":"~!@#$%^&*()_={}|\[]<>?/,;:"}
+        res = self.client().post('/api/v1/categories/', 
+            headers=dict(Authorization = "Bearer " + access_token),
+            data=categorydata)
+        result = json.loads(res.data.decode())
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(
+            result['message'], 'Category name should not have special characters')
+    def test_category_name_has_numbers_but_is_string(self):
+        """Test if category name can have Number in a string"""
+        self.register_user()
+        result = self.login_user()
+        # obtain the access token
+        access_token = json.loads(result.data.decode())['access_token']
+        categorydata = {"name":"12345678"}
+        res = self.client().post('/api/v1/categories/', 
+            headers=dict(Authorization = "Bearer " + access_token),
+            data=categorydata)
+        result = json.loads(res.data.decode())
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(
+            result['message'], 'Category name should not have numbers')
+    def test_category_name_is_integer(self):
+        """Test if category name can be an integer"""
+        self.register_user()
+        result = self.login_user()
+        # obtain the access token
+        access_token = json.loads(result.data.decode())['access_token']
+        categoryint = {"name": 4567893 }
+        result1 = self.client().post('/api/v1/categories/', 
+            headers=dict(Authorization = "Bearer " + access_token),
+            data=categoryint)
+        result = json.loads(result1.data.decode())
+        self.assertEqual(result1.status_code, 400)
+        
     def tearDown(self):
         """teardown all initialized variables."""
         with self.app.app_context():
