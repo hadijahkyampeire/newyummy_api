@@ -13,6 +13,9 @@ omit =
     *encodings/*
     *hmac.py*
     *html/*
+    *asyncio/*
+    *concurrent/*
+    *multiprocessing/*
     *mimetypes.py*
     *numbers.py*
     *pydoc.py*
