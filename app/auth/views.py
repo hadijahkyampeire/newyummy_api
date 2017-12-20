@@ -25,34 +25,7 @@ class RegistrationView(MethodView):
         responses:
           201:
             description: You successfully registered 
-            schema:
-              id: Register User
-              properties:
-                email:
-                  type: string
-                  default: test@example.com
-                password:
-                  type: string
-                  default: test_password
-          400:
-            description: If user doesnot fill all the required filled with json data
-            schema:
-              id: Register User
-              properties:
-                email:
-                  type: string
-                  default: test@example.com
-          202:
-            description: If user being registered already exists
-            schema:
-              id: Register User
-              properties:
-                email:
-                  type: string
-                  default: test@example.com
-                password:
-                  type: string
-                  default: test_password       
+    
             
         """
         
@@ -112,15 +85,7 @@ class LoginView(MethodView):
         responses:
           200:
             description: User logged in successfully
-            schema:
-              id: Register User
-              properties:
-                email:
-                  type: string
-                  default: hadijah.kyampeire@andela.com
-                password:
-                  type: string
-                  default: 1234567  
+             
         """
         try:
             # Get the user object using their email (unique to every user)
@@ -130,6 +95,7 @@ class LoginView(MethodView):
             if user and user.password_is_valid(request.data['password']):
                 # Generate the access token. This will be used as the authorization header
                 access_token = user.generate_token(user.id)
+                print(access_token)
                 if access_token:
                     response = {
                         'message': 'You logged in successfully.',
@@ -146,10 +112,11 @@ class LoginView(MethodView):
         except Exception as e:# pragma: no cover
             # Create a response containing an string error message
             response = {
-                'message': str(e)
+                # 'message': str(e)
+                'message': "An error occured ensure proper login"
             }
             # Return a server error using the HTTP Error Code 500 (Internal Server Error)
-            return make_response(jsonify(response)), 500
+            return make_response(jsonify(response)), 401
 class ResetPasswordView(MethodView):
     
     def post(self):
@@ -230,7 +197,7 @@ class Logout_view(MethodView):
                     message = user_id
                     response = {'message': message}
                     return make_response(jsonify(response)), 401
-            except Exception as e:
+            except Exception as e:#pragma no cover
                 response = {'message': str(e)}
                 return make_response(jsonify(response)), 401
 
