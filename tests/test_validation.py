@@ -44,3 +44,4 @@ class TestValidation(unittest.TestCase):
         """ Tests adding a category with valid details """
         response = self.create_valid_category()
         self.assertEqual(response.status_code, 201)
+    

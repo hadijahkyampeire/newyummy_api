@@ -203,7 +203,7 @@ class RecipeTestCase(unittest.TestCase):
         self.assertEqual(rv.status_code, 200)
         # Test to see if it exists, should return a 404
         result = self.client().get('/api/v1/categories/1/recipes/1')
-        self.assertEqual(result.status_code, 404) 
+        self.assertEqual(result.status_code, 400) 
     def test_deleting_a_recipe_that_doesnot_exist(self):
         self.register_user()
         result = self.login_user()
@@ -217,7 +217,7 @@ class RecipeTestCase(unittest.TestCase):
         self.assertIn('Supper', str(res.data))
         rv = self.client().delete(
             '/api/v1/categories/1/recipes/1')
-        self.assertEqual(rv.status_code, 404)
+        self.assertEqual(rv.status_code, 400)
 
     def test_if_recipe_to_get_doesnot_exist(self):
         """Test if recipe to get doesnot exists already"""
@@ -255,7 +255,7 @@ class RecipeTestCase(unittest.TestCase):
             '/api/v1/categories/1/recipes/1',
             headers=dict(Authorization="Bearer " + access_token),
         )
-        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.status_code, 400)
         
     def test_recipe_added_is_space(self):
         """Test API can't add a space as recipe (POST request)"""
@@ -268,14 +268,14 @@ class RecipeTestCase(unittest.TestCase):
             '/api/v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
             data=self.category)
-        recipe={"title":" ","description":" "}
+        recipe={"title":" "}
         res = self.client().post(
             '/api/v1/categories/1/recipes',
             data=recipe)
         result = json.loads(res.data.decode())
         self.assertEqual(res.status_code, 422)
         self.assertEqual(
-            result['message'], 'Recipe title and description are required')
+            result['message'], 'Recipe title is mostly required')
     def test_recipe_added_already_exists(self):
         """Test API can't add existing recipe (POST request)"""
         self.register_user()
@@ -295,7 +295,43 @@ class RecipeTestCase(unittest.TestCase):
             '/api/v1/categories/1/recipes',
             data=recipes)
         self.assertEqual(result.status_code, 400)
-        
+    def test_if_recipe_has_special_characters(self):
+        """Test API can't add recipe title with special characters (POST request)"""
+        self.register_user()
+        result = self.login_user()
+        # obtain the access token
+        access_token = json.loads(result.data.decode())['access_token']
+        # ensure the request has an authorization header set with the access token in it
+        result = self.client().post(
+            '/api/v1/categories/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.category) 
+        recipetitle={"title":"~!@#$%^&*()_={}|\[]<>?/,;:"} 
+        res = self.client().post('/api/v1/categories/1/recipes',
+             headers=dict(Authorization="Bearer " + access_token), data=recipetitle)
+        result = json.loads(res.data.decode())
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(
+            result['message'],'Recipe title should not have special characters')
+    def test_recipetitle_is_not_numbers(self):
+        """Test if recipe title can allow numbers"""
+        self.register_user()
+        result = self.login_user()
+        # obtain the access token
+        access_token = json.loads(result.data.decode())['access_token']
+        # ensure the request has an authorization header set with the access token in it
+        result = self.client().post(
+            '/api/v1/categories/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.category) 
+        inttitle={"title":"987654"}
+        res = self.client().post('/api/v1/categories/1/recipes',
+             headers=dict(Authorization= "Bearer " + access_token), data=inttitle)
+        result = json.loads(res.data.decode())
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(
+            result['message'], 'Recipe title should not have numbers')
+
     def tearDown(self):
         """teardown all initialized variables."""
         with self.app.app_context():
