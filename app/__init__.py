@@ -46,7 +46,7 @@ def create_app(config_name):
           201:
             description: You successfully registered 
             schema:
-              id: Register User
+              id: Register 
               properties:
                 name:
                   type: string
@@ -59,7 +59,7 @@ def create_app(config_name):
               properties:
                 name:
                   type: string
-                  default: invalid name
+                  default: Invalid json data
           422:
             description: If space or nothing is entered
             schema:
