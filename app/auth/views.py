@@ -23,10 +23,63 @@ class RegistrationView(MethodView):
             type: string
             description: This route registers a new user
         responses:
-          201:
+          200:
             description: You successfully registered 
-    
-            
+          201:
+            description: You successfully registered , please login
+            schema:
+              id: successful Register 
+              properties:
+                email:
+                  type: string
+                  default: hadijah.kyampeire@andela.com
+                password:
+                  type: string
+                  default: 1234567
+                response:
+                  type: string
+                  default: You registered successfully. Please login.
+          400:
+            description: For invalid data
+            schema:
+              id: Register User with invalid
+              properties:
+                email:
+                  type: string
+                  default: hadijah
+                password:
+                  type: string
+                  default: 12345
+                response:
+                  type: string
+                  default: Invalid email or password, Please try again with a valid email and a password with morethan 6 characters
+          400:
+            description: wrong json
+            schema:
+              id: Invalid Register
+              properties:
+                email:
+                  default: hadijah@gmail.com
+                password:
+                  type: string
+                  default: 1234897
+                response:
+                  type: string
+                  default: please input both email and password in json form'
+          202:
+            description: Duplication
+            schema:
+              id: Exceptions
+              properties:
+                email:
+                  type: string
+                  default: hadijah.kyampeire@andela.com
+                password:
+                  type: string
+                  default: 1234567
+                response:
+                  type: string
+                  default: User already exists. Please login.'
         """
         
         try:
@@ -85,7 +138,34 @@ class LoginView(MethodView):
         responses:
           200:
             description: User logged in successfully
-             
+          201:
+            description: You successfully registered , please login
+            schema:
+              id: successful login
+              properties:
+                email:
+                  type: string
+                  default: hadijah.kyampeire@andela.com
+                password:
+                  type: string
+                  default: 1234567
+                response:
+                  type: string
+                  default: access_token="eyJ0eXAiOiJKV1QiLCJhbGci" You logged in successfully..
+          400:
+            description: login before signup
+            schema:
+              id: Register User with invalid
+              properties:
+                email:
+                  type: string
+                  default: hadijah@gmail.com
+                password:
+                  type: string
+                  default: 0987654
+                response:
+                  type: string
+                  default: Invalid email or password, Please try again' 
         """
         try:
             # Get the user object using their email (unique to every user)
@@ -136,6 +216,20 @@ class ResetPasswordView(MethodView):
         responses:
           200:
             description: User successfully created   
+          201:
+            description: You successfully registered , please login
+            schema:
+              id: successful reset password
+              properties:
+                email:
+                  type: string
+                  default: hadijah.kyampeire@andela.com
+                password:
+                  type: string
+                  default: 0987654
+                response:
+                  type: string
+                  default: password reset successfully..
 
         """
         auth_header = request.headers.get('Authorization')
@@ -152,11 +246,11 @@ class ResetPasswordView(MethodView):
                     new = post_data['new_password']
                     reset_data=[new]
                     user = User.query.filter_by(email=email).first()
-                    if not user and not user.password_is_valid(password):
-                        responce = jsonify({
-                            'message': 'User not found or inccorect password'
+                    if not user:
+                        response = jsonify({
+                            'message': 'User not found'
                         })
-                        return make_response(responce), 404
+                        return make_response(response),401
                     if reset_data:
                         if len(new) > 6 :
                             user.password = Bcrypt().generate_password_hash(new).decode()
@@ -166,7 +260,7 @@ class ResetPasswordView(MethodView):
                         response = {
                                 'message': "Password needs to be more than 6 characters"
                             }
-                        return make_response(jsonify(response))
+                        return make_response(jsonify(response)), 400
                 except Exception as e:# pragma: no cover
                     response = {'message': str(e)}
                     return make_response(jsonify(response)), 401
