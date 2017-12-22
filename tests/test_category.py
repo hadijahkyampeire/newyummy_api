@@ -282,7 +282,7 @@ class CategoryTestCase(unittest.TestCase):
         result = self.login_user()
         # obtain the access token
         access_token = json.loads(result.data.decode())['access_token']
-        categorydata = {"name":"12345678"}
+        categorydata = {"name":"12345678lkyhn"}
         res = self.client().post('/api/v1/categories/', 
             headers=dict(Authorization = "Bearer " + access_token),
             data=categorydata)
@@ -302,6 +302,30 @@ class CategoryTestCase(unittest.TestCase):
             data=categoryint)
         result = json.loads(result1.data.decode())
         self.assertEqual(result1.status_code, 400)
+    def test_when_token_expired_or_invalid_when_getting_categories(self):
+        """Test for expired or invalid when getting categories"""
+        response = self.client().get('/api/v1/categories/',
+                                  headers=dict(Authorization='Bearer '+ 'Invalid.token'))
+        self.assertEqual(response.status_code, 401)   
+        self.assertIn('invalid'or 'expired', str(response.data).lower()) 
+    def test_when_token_expired_or_invalid_when_deleting_categories(self):
+        """Test for expired or invalid when deleting categories"""
+        response = self.client().delete('/api/v1/categories/1',
+                                  headers=dict(Authorization='Bearer '+ 'Invalid.token'))
+        self.assertEqual(response.status_code, 401)   
+        self.assertIn('invalid'or 'expired', str(response.data).lower()) 
+    def test_when_token_expired_or_invalid_when_putting_categories(self):
+        """Test for expired or invalid when putting categories"""
+        response = self.client().put('/api/v1/categories/1',
+                                  headers=dict(Authorization='Bearer '+ 'Invalid.token'))
+        self.assertEqual(response.status_code, 401)   
+        self.assertIn('invalid'or 'expired', str(response.data).lower())  
+    def test_when_token_expired_or_invalid_when_getting_one_category_by_id(self):
+        """Test for expired or invalid when getting category by id"""
+        response = self.client().get('/api/v1/categories/1',
+                                  headers=dict(Authorization='Bearer '+ 'Invalid.token'))
+        self.assertEqual(response.status_code, 401)   
+        self.assertIn('invalid'or 'expired', str(response.data).lower())  
         
     def tearDown(self):
         """teardown all initialized variables."""
