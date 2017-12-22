@@ -44,31 +44,38 @@ def create_app(config_name):
           200:
             description:  category successfully created   
           201:
-            description: You successfully registered 
+            description: Category created successfully 
             schema:
-              id: Register 
+              id: Add category 
               properties:
                 name:
                   type: string
                   default: Dinner
-                
+                response:
+                  type: string
+                  default: {'id': 1, 'name': Dinner, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'created_by': 1} 
           400:
-            description: For exceptions like empty strings, duplication, not json data, special characters or numbers
+            description: For exceptions like not json data, special characters or numbers 
             schema:
-              id: Register User
+              id: Invalid name with special characters or numbers or invalid json being added
               properties:
                 name:
                   type: string
-                  default: Invalid json data
+                  default: '@@@@111'
+                response:
+                  type: string
+                  default: Category name should not have special characters or numbers
           422:
-            description: If space or nothing is entered
+            description: If space or nothing is entered for name
             schema:
-              id: Add category
+              id: Add empty category
               properties:
                 name:
                   type: string
                   default: " "
-        
+                response:
+                  type: string
+                  default: Category name required
         """
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split(" ")[1]
@@ -114,7 +121,7 @@ def create_app(config_name):
                     })
 
                     return make_response(response), 201
-            else:#pragma no cover
+            else:
                 # user is not legit, so the payload is an error message for expired token
                 message = user_id
                 response = {
@@ -152,7 +159,28 @@ def create_app(config_name):
         responses:
           200:
             description:  category successfully retrieved 
-
+          201:
+            description: For getting a valid categoryname by q or pagination
+            schema:
+              id: successful retrieve of category
+              properties:
+                name:
+                  type: string
+                  default: Lunch
+                response:
+                  type: string
+                  default: {'id': 1, 'name': Lunch, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'created_by': 1}
+          400:
+            description: Searching for a name that is not there or invalid
+            schema:
+              id: invalid GET
+              properties:
+                name:
+                  type: string
+                  default: '33erdg@@'
+                response:
+                  type: string
+                  default: No category found
         """
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split(" ")[1]
@@ -227,7 +255,27 @@ def create_app(config_name):
         responses:
           200:
             description:  category successfully deleted 
-
+          201:
+            description: For successful deletion of an existing category
+            schema:
+              id: successful deletion
+              properties:
+                id:
+                  default: 1
+                response:
+                  type: string
+                  default: category 1 deleted
+          400:
+            description: Deleting a category which doesnot exist
+            schema:
+              id: invalid Delete
+              properties:
+                id:
+                  type: string
+                  default: 100
+                response:
+                  type: string
+                  default: No category found to delete
 
         """
         # retrieve a category using it's ID
@@ -252,7 +300,7 @@ def create_app(config_name):
                     return {
                         "message": "category {} deleted".format(category.id)
                     }, 200
-            else:#pragma no cover
+            else:
                 # user is not legit, so the payload is an error message to handle expired token
                 message = user_id
                 response = {
@@ -284,6 +332,30 @@ def create_app(config_name):
         responses:
           200:
             description:  category successfully updated 
+          201:
+            description: For successful update of an existing category
+            schema:
+              id: successful update
+              properties:
+                id:
+                  default: 1
+                name:
+                  type: string
+                  default: Supper
+                response:
+                  type: string
+                  default: {'id': 1, 'name': Supper, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'created_by': 1}
+          400:
+            description: updating category which doesnot exist
+            schema:
+              id: invalid update
+              properties:
+                id:
+                  type: string
+                  default: 100
+                response:
+                  type: string
+                  default: No category found to edit
         """
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split(" ")[1]
@@ -337,7 +409,28 @@ def create_app(config_name):
         responses:
           200:
             description:  category successfully retrieved 
-
+          201:
+            description: For getting a valid categoryname by id
+            schema:
+              id: successful retrieve by id
+              properties:
+                id:
+                  type: integer
+                  default: 1
+                response:
+                  type: string
+                  default: {'id': 1, 'name': Lunch, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'created_by': 1}
+          400:
+            description: Searching for the id that is not there
+            schema:
+              id: invalid GET by id
+              properties:
+                name:
+                  type: integer
+                  default: 100
+                response:
+                  type: string
+                  default: No category found with that id
         """
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split(" ")[1]
@@ -394,7 +487,48 @@ def create_app(config_name):
         responses:
           200:
             description:  recipe successfully created   
-
+          201:
+            description: Recipe created successfully 
+            schema:
+              id: Add recipe 
+              properties:
+                title:
+                  type: string
+                  default: pilau
+                description: 
+                  type: string
+                  default: burn onions
+                response:
+                  type: string
+                  default: {'id': 1, 'title': pilau, 'description': burn onions, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'category_identity': 1} 
+          400:
+            description: For exceptions like not json data, special characters or numbers in the recipes
+            schema:
+              id: Invalid name with special characters or numbers or invalid json being added in the recipe
+              properties:
+                title:
+                  type: string
+                  default: '@@@kl'
+                description: 
+                  type: string
+                  default: burn onions
+                response:
+                  type: string
+                  default: Recipe title should not have special characters or numbers
+          422:
+            description: If space or nothing is entered for title
+            schema:
+              id: Add empty recipe
+              properties:
+                title:
+                  type: string
+                  default: " "
+                description: 
+                  type: string
+                  default: burn onions
+                response:
+                  type: string
+                  default: Recipe title mostly required
         """
         if request.method == "POST":
             title = str(request.data.get('title', ''))
@@ -466,7 +600,31 @@ def create_app(config_name):
         responses:
           200:
             description:  recipe successfully retrieved 
-
+          201:
+            description: For getting a valid recipe by q or pagination
+            schema:
+              id: successful retrieve of recipe
+              properties:
+                q search by title:
+                  type: string
+                  default: ?q=p
+                pagination search:
+                  type: string
+                  default: ?page=1&per_page=1
+                response:
+                  type: string
+                  default: {'id': 1, 'title': pilau, 'description': burn onions, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'category_identity': 1} 
+          400:
+            description: Searching for a title that is not there or invalid
+            schema:
+              id: invalid GET recipe
+              properties:
+                title:
+                  type: string
+                  default: '33erdg@@'
+                response:
+                  type: string
+                  default: No recipe found
         """
         # GET all the categories created by this user
         page = int(request.args.get('page', 1))
@@ -531,7 +689,27 @@ def create_app(config_name):
         responses:
           200:
             description:  recipe successfully deleted 
-
+          201:
+            description: For successful deletion of an existing recipe
+            schema:
+              id: successful deletion of recipe
+              properties:
+                id:
+                  default: 1
+                response:
+                  type: string
+                  default: recipe 1 deleted
+          400:
+            description: Deleting a recipe which doesnot exist
+            schema:
+              id: invalid Delete of recipes
+              properties:
+                id:
+                  type: string
+                  default: 50
+                response:
+                  type: string
+                  default: No recipe with that id  found to delete
         """
         # retrieve a recipe using it's ID
         recipe = Recipe.query.filter_by(id=recipe_id).first()
@@ -570,7 +748,34 @@ def create_app(config_name):
           - TokenHeader: []
         responses:
           200:
-            description:  category successfully updated 
+            description:  recipe successfully updated 
+          201:
+            description: For successful update of an existing recipe
+            schema:
+              id: successful update of recipe
+              properties:
+                id:
+                  default: 1
+                title:
+                  type: string
+                  default: milkshake
+                description:
+                  type: string
+                  default: mix with coffee
+                response:
+                  type: string
+                  default: {'id': 1, 'title': milkshake, 'description': mix with coffee, date_created': 22-12-2017, 'date_modified': 22-12-2017, 'category_id': 1}
+          400:
+            description: updating recipe which doesnot exist
+            schema:
+              id: invalid update of recipes
+              properties:
+                id:
+                  type: string
+                  default: 100
+                response:
+                  type: string
+                  default: No recipe found to edit
         """
                 # retrieve a recipe using it's ID
         recipe = Recipe.query.filter_by(id=recipe_id).first()
@@ -616,7 +821,28 @@ def create_app(config_name):
         responses:
           200:
             description:  recipe successfully retrieved 
-
+          201:
+            description: For getting a valid recipe title by id
+            schema:
+              id: successful retrieve recipe by id
+              properties:
+                name:
+                  type: integer
+                  default: 1
+                response:
+                  type: string
+                  default: {'id': 1, 'title': milkshake, 'description': mix with coffee, date_created': 22-12-2017, 'date_modified': 22-12-2017, 'category_id': 1}
+          400:
+            description: Searching for the recipe id that is not there
+            schema:
+              id: invalid GET recipe by id
+              properties:
+                id:
+                  type: integer
+                  default: 100
+                response:
+                  type: string
+                  default: No recipe found with that id
         """
         # retrieve a recipe using it's ID
         recipe = Recipe.query.filter_by(id=recipe_id).first()
