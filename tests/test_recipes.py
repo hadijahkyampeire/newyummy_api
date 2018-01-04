@@ -217,7 +217,7 @@ class RecipeTestCase(unittest.TestCase):
         self.assertIn('Supper', str(res.data))
         rv = self.client().delete(
             '/api/v1/categories/1/recipes/1')
-        self.assertEqual(rv.status_code, 400)
+        self.assertEqual(rv.status_code, 204)
 
     def test_if_recipe_to_get_doesnot_exist(self):
         """Test if recipe to get doesnot exists already"""
@@ -255,7 +255,7 @@ class RecipeTestCase(unittest.TestCase):
             '/api/v1/categories/1/recipes/1',
             headers=dict(Authorization="Bearer " + access_token),
         )
-        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res.status_code, 204)
         
     def test_recipe_added_is_space(self):
         """Test API can't add a space as recipe (POST request)"""

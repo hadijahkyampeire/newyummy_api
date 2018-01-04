@@ -233,7 +233,7 @@ class CategoryTestCase(unittest.TestCase):
             '/api/v1/categories/1',
             headers=dict(Authorization="Bearer " + access_token),
         )
-        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.status_code, 204)
     def test_if_category_to_get_doesnot_exist(self):
         """Test if category doesnot exist"""
         self.register_user()
@@ -261,7 +261,7 @@ class CategoryTestCase(unittest.TestCase):
             '/api/v1/categories/1',
             headers=dict(Authorization="Bearer " + access_token),
         )
-        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.status_code, 204)
     def test_category_name_has_characters(self):
         """Test if category name can have special characters"""
         self.register_user()

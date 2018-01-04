@@ -292,8 +292,7 @@ def create_app(config_name):
                 category = Category.query.filter_by(id=id).first()
                 if not category:
                     # There is no category with this ID for this User, so return http code
-                    return jsonify({"message": "No category to delete"}),404
-
+                    return jsonify({"message": "No category to delete"}),204
                 if request.method == "DELETE":
                     # delete the category using our delete method
                     category.delete()
@@ -365,7 +364,7 @@ def create_app(config_name):
             if not isinstance(user_id, str):
                 category = Category.query.filter_by(id=id).first()
                 if not category:
-                    return jsonify({"message": "No category found to edit"}),404
+                    return jsonify({"message": "No category found to edit"}),204
                 else:
                     name = str(request.data.get('name', ''))
                     category.name = name
@@ -699,7 +698,7 @@ def create_app(config_name):
                 response:
                   type: string
                   default: recipe 1 deleted
-          400:
+          204:
             description: Deleting a recipe which doesnot exist
             schema:
               id: invalid Delete of recipes
@@ -714,7 +713,7 @@ def create_app(config_name):
         # retrieve a recipe using it's ID
         recipe = Recipe.query.filter_by(id=recipe_id).first()
         if not recipe:
-            return jsonify({"message":"No recipes with that id to delete "}),400
+            return jsonify({"message":"No recipes with that id to delete "}),204
 
         else:
             recipe.delete()
@@ -780,7 +779,7 @@ def create_app(config_name):
                 # retrieve a recipe using it's ID
         recipe = Recipe.query.filter_by(id=recipe_id).first()
         if not recipe:
-            return jsonify({"message":"No recipes with that id to edit "}),400
+            return jsonify({"message":"No recipes with that id to edit "}),204
         else:
             title = str(request.data.get('title', ''))
             description = str(request.data.get('description', ''))
