@@ -1,8 +1,10 @@
+import os
+
 from flask import render_template, redirect
 from flasgger import Swagger
 from app import create_app
 
-config_name = "development"
+config_name = os.getenv('APP_SETTINGS')
 app = create_app(config_name)
 swag= Swagger(app,
    template={
