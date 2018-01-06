@@ -64,7 +64,11 @@ class User(db.Model):
         try:
             # try to decode the token using our SECRET variable
             payload = jwt.decode(token, current_app.config.get('SECRET'))
-            return payload['sub']
+            token_is_revoked = RevokedToken.check_revoked_token(auth_token=token)
+            if token_is_revoked:
+                return 'Revoked token. please login'
+            else:
+                return payload['sub']
         except jwt.ExpiredSignatureError:
             # the token is expired, return an error string
             return "Expired token. Please login to get a new token"
@@ -79,19 +83,28 @@ class RevokedToken(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     token = db.Column(db.String(500), unique=True, nullable=False)
-    revoked_on = db.Column(db.DateTime, nullable=False)
+    revoked_on = db.Column(db.DateTime, default=db.func.current_timestamp(), nullable=False)
 
     def __init__(self, token):
         self.token = token
-        self.revoked_on = datetime.now()
-
-    def __repr__(self):
-        return '<id: token: {}'.format(self.token)
 
     def save(self):
         """Save to database table"""
         db.session.add(self)
         db.session.commit()
+    @staticmethod
+    def check_revoked_token(auth_token):
+        """function to check if token is revoked
+        """
+        # check whether token has been revoked
+        res = RevokedToken.query.filter_by(token=str(auth_token)).first()
+        if res:
+            return True
+        else:
+            return False
+    def __repr__(self):
+        return '<id: token: {}'.format(self.token)
+
 class Category(db.Model):
     """This class represents the categories table."""
 
