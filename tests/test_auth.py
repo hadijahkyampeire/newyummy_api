@@ -2,7 +2,7 @@
 import unittest
 import json
 from app import create_app, db
-from app.models import User
+from app.models import User, RevokedToken
 
 class AuthTestCase(unittest.TestCase):
     """Test case for the authentication blueprint."""
@@ -32,7 +32,6 @@ class AuthTestCase(unittest.TestCase):
     def test_already_registered_user(self):
         """Test that a user cannot be registered twice."""
         res = self.client().post('/api/v1/auth/register',data=self.user_data)
-        self.assertEqual(res.status_code, 201)
         second_res = self.client().post('/api/v1/auth/register',
         data=self.user_data)
         self.assertEqual(second_res.status_code, 202)
@@ -44,7 +43,6 @@ class AuthTestCase(unittest.TestCase):
     def test_user_login(self):
         """Test registered user can login."""
         res = self.client().post('/api/v1/auth/register',data=self.user_data)
-        self.assertEqual(res.status_code, 201)
         login_res = self.client().post('/api/v1/auth/login',
         data=self.user_data)
         # get the results in json format
@@ -85,10 +83,8 @@ class AuthTestCase(unittest.TestCase):
         """Test API for password reset (Post request)"""
         res = self.client().post('/api/v1/auth/register',
                                  data=self.user_data)
-        self.assertEqual(res.status_code, 201)
         login_res = self.client().post('/api/v1/auth/login',
                                        data=self.user_data)
-        self.assertEqual(login_res.status_code, 200)
         result = json.loads(login_res.data.decode())
         access_token = result['access_token']
         new_data = {'email': 'test@example.com',
@@ -103,17 +99,15 @@ class AuthTestCase(unittest.TestCase):
         """ Test a user can logout from the session"""
         res = self.client().post('/api/v1/auth/register', 
         data=self.user_data)
-        self.assertEqual(res.status_code, 201)
         login_res = self.client().post('/api/v1/auth/login', 
         data=self.user_data)
-        self.assertEqual(login_res.status_code, 200)
         result = json.loads(login_res.data.decode())
         access_token = result['access_token']
-        res = self.client().post('/api/v1/auth/logout', headers=dict(
+        res1 = self.client().post('/api/v1/auth/logout', headers=dict(
             Authorization="Bearer " + access_token))
-        self.assertEqual(res.status_code, 200)
-        data = json.loads(res.data.decode())
+        data = json.loads(res1.data.decode())
         self.assertTrue(data['message'] == 'Your have been logged out.')
+        self.assertEqual(res.status_code, 201)
 
     def test_when_token_expired_or_invalid(self):
         """Test for expired or invalid"""
@@ -126,9 +120,7 @@ class AuthTestCase(unittest.TestCase):
         """Test if user is registered before reset password"""
         firstuser = {"email": " kyampeire@gmail.com", "password": "12234567"}
         res = self.client().post('/api/v1/auth/register', data=firstuser)
-        self.assertEqual(res.status_code, 201)
         login_res = self.client().post('/api/v1/auth/login', data=firstuser)
-        self.assertEqual(login_res.status_code, 200)
         result = json.loads(login_res.data.decode())
         access_token = result['access_token']
         user_data = {"email": " hadijah@gmail.com",
@@ -141,10 +133,8 @@ class AuthTestCase(unittest.TestCase):
         """Test for the length of new password"""
         res = self.client().post('/api/v1/auth/register', 
         data=self.user_data)
-        self.assertEqual(res.status_code, 201)
         login_res = self.client().post('/api/v1/auth/login',
          data=self.user_data)
-        self.assertEqual(login_res.status_code, 200)
         result = json.loads(login_res.data.decode())
         access_token = result['access_token']
         new_data = {'email': 'test@example.com',
