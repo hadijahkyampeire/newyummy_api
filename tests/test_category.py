@@ -51,7 +51,6 @@ class CategoryTestCase(unittest.TestCase):
         result = self.login_user()
         # obtain the access token
         access_token = json.loads(result.data.decode())['access_token']
-
         # ensure the request has an authorization header set with the access token in it
         res = self.client().post(
             '/api/v1/categories/',
@@ -65,14 +64,12 @@ class CategoryTestCase(unittest.TestCase):
         self.register_user()
         result = self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
-
         res = self.client().post(
             '/api/v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
             data=self.category)
         self.assertEqual(res.status_code, 201)
-
-        # get all the categories that belong to the test user by making a GET request
+        # get all the categories that belong to the test user
         res = self.client().get(
             '/api/v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
@@ -85,14 +82,10 @@ class CategoryTestCase(unittest.TestCase):
         self.register_user()
         result = self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
-
         rv = self.client().post(
             '/api/v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
             data=self.category)
-        self.assertEqual(rv.status_code, 201)
-        results = json.loads(rv.data.decode())
-
         result = self.client().get(
             '/api/v1/categories/1',
             headers=dict(Authorization="Bearer " + access_token))
@@ -100,17 +93,15 @@ class CategoryTestCase(unittest.TestCase):
         self.assertEqual(result.status_code, 200)
         self.assertIn('Supper', str(result.data))
     def test_category_can_be_got_using_q(self):
+        """Test API can get a single category by q search."""
         self.register_user()
         result = self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
-
         res = self.client().post(
             '/api/v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
             data=self.category)
-        self.assertEqual(res.status_code, 201)
-
-        # get all the categories that belong to the test user by making a GET request
+        # get all the categories by seearching for name
         res = self.client().get(
             '/api/v1/categories/?q=Supper',
             headers=dict(Authorization="Bearer " + access_token),
@@ -118,17 +109,14 @@ class CategoryTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertIn('Supper', str(res.data))
     def test_category_can_be_got_using_pagination(self):
+        """Test API can get a single category by limiting items per page."""
         self.register_user()
         result = self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
-
         res = self.client().post(
             '/api/v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
             data=self.category)
-        self.assertEqual(res.status_code, 201)
-
-        # get all the categories that belong to the test user by making a GET request
         res = self.client().get(
             '/api/v1/categories/?page=1&per_page=1',
             headers=dict(Authorization="Bearer " + access_token),
@@ -141,17 +129,10 @@ class CategoryTestCase(unittest.TestCase):
         self.register_user()
         result = self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
-
-        # first, we create a category by making a POST request
         rv = self.client().post(
             '/api/v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
             data={'name': ' Supper'})
-        self.assertEqual(rv.status_code, 201)
-        # get the json with the category
-        results = json.loads(rv.data.decode())
-
-        # then, we edit the created category by making a PUT request
         rv = self.client().put(
             '/api/v1/categories/1',
             headers=dict(Authorization="Bearer " + access_token),
@@ -159,7 +140,6 @@ class CategoryTestCase(unittest.TestCase):
                 "name": "dinner"
             })
         self.assertEqual(rv.status_code, 200)
-
         # finally, we get the edited category to see if it is actually edited.
         results = self.client().get(
             '/api/v1/categories/1',
@@ -176,16 +156,11 @@ class CategoryTestCase(unittest.TestCase):
             '/api/v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
             data={'name': 'lunch'})
-        self.assertEqual(rv.status_code, 201)
-        # get the category in json
-        results = json.loads(rv.data.decode())
-
         # delete the category we just created
         res = self.client().delete(
             '/api/v1/categories/1',
             headers=dict(Authorization="Bearer " + access_token),)
         self.assertEqual(res.status_code, 200)
-
         # Test to see if it exists, should return a 404
         result = self.client().get(
             '/api/v1/categories/1',
@@ -229,11 +204,14 @@ class CategoryTestCase(unittest.TestCase):
         # obtain the access token
         access_token = json.loads(result.data.decode())['access_token']
         # ensure the request has an authorization header set with the access token in it
+        res = self.client().post(
+            '/api/v1/categories/',
+            headers=dict(Authorization="Bearer " + access_token))
         res = self.client().put(
             '/api/v1/categories/1',
-            headers=dict(Authorization="Bearer " + access_token),
-        )
-        self.assertEqual(res.status_code, 204)
+            headers=dict(Authorization="Bearer " + access_token), 
+            data={"name":"breakfast"})
+        self.assertEqual(res.status_code, 404)
     def test_if_category_to_get_doesnot_exist(self):
         """Test if category doesnot exist"""
         self.register_user()
@@ -261,7 +239,7 @@ class CategoryTestCase(unittest.TestCase):
             '/api/v1/categories/1',
             headers=dict(Authorization="Bearer " + access_token),
         )
-        self.assertEqual(res.status_code, 204)
+        self.assertEqual(res.status_code, 404)
     def test_category_name_has_characters(self):
         """Test if category name can have special characters"""
         self.register_user()
@@ -326,7 +304,51 @@ class CategoryTestCase(unittest.TestCase):
                                   headers=dict(Authorization='Bearer '+ 'Invalid.token'))
         self.assertEqual(response.status_code, 401)   
         self.assertIn('invalid'or 'expired', str(response.data).lower())  
-        
+    def test_category_name_has_characters_when_putting(self):
+        """Test if category name can have special characters on editing"""
+        self.register_user()
+        result = self.login_user()
+        # obtain the access token
+        access_token = json.loads(result.data.decode())['access_token']
+        categorydata = {"name":"~!@#$%^&*()_={}|\[]<>?/,;:"}
+        res = self.client().put('/api/v1/categories/1', 
+            headers=dict(Authorization = "Bearer " + access_token),
+            data=categorydata)
+        result = json.loads(res.data.decode())
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(
+            result['message'], 'Category name should not have special characters')
+    def test_category_name_has_numbers_on_editing(self):
+        """Test if category name can have Number in a string on editing"""
+        self.register_user()
+        result = self.login_user()
+        # obtain the access token
+        access_token = json.loads(result.data.decode())['access_token']
+        categorydata = {"name":"12345678lkyhn"}
+        res = self.client().put('/api/v1/categories/1', 
+            headers=dict(Authorization = "Bearer " + access_token),
+            data=categorydata)
+        result = json.loads(res.data.decode())
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(
+            result['message'], 'Category name should not have numbers')
+    def test_if_name_used_for_editing_exists(self):
+        """Test for duplication of category when editing"""
+        self.register_user()
+        result = self.login_user()
+        # obtain the access token
+        access_token = json.loads(result.data.decode())['access_token']
+        category_name={"name":"matoke"}
+        # ensure the request has an authorization header set with the access token in it
+        res = self.client().post(
+            '/api/v1/categories/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=category_name)
+        result = self.client().put(
+            '/api/v1/categories/1',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=category_name)
+        self.assertEqual(result.status_code, 400)
     def tearDown(self):
         """teardown all initialized variables."""
         with self.app.app_context():
