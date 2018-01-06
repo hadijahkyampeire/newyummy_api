@@ -229,7 +229,7 @@ class ResetPasswordView(MethodView):
 
         """
         auth_header = request.headers.get('Authorization')
-        access_token = auth_header.split(" ")[1]
+        access_token = auth_header.split()[1]
         if access_token:
             user_id = User.decode_token(access_token)
             if not isinstance(user_id, str):
@@ -276,22 +276,19 @@ class Logout_view(MethodView):
             description: you logged out successfully   
         """
         auth_header = request.headers.get('Authorization')
-        access_token = auth_header.split(" ")[1]
+        access_token = auth_header.split( )[1]
         if access_token:
             user_id = User.decode_token(access_token)
-            try:
-                if not isinstance(user_id, str):
-                    revoked_token = RevokedToken(token=access_token)
-                    revoked_token.save()
-                    response = {'message': 'Your have been logged out.'}
-                    return make_response(jsonify(response)), 200
-                else:
-                    message = user_id
-                    response = {'message': message}
-                    return make_response(jsonify(response)), 401
-            except Exception as e:  # pragma no cover
-                response = {'message': str(e)}
+            if isinstance(user_id, int):
+                revoked_token = RevokedToken(token=access_token)
+                revoked_token.save()
+                return jsonify({'message': 'Your have been logged out.'}),201
+            else:
+                message = user_id
+                response = {'message': message}
                 return make_response(jsonify(response)), 401
+        else:
+            return jsonify({'message': 'please provide a  valid token'})
 
 # Define the API resource
 registration_view = RegistrationView.as_view('registration_view')
