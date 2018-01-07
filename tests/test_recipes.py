@@ -355,15 +355,22 @@ class RecipeTestCase(unittest.TestCase):
             '/api/v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
             data=self.category)
+        print('rv',rv)
+        print('rv data',rv.data)
         result = self.client().get(
             '/api/v1/categories/1',
             headers=dict(Authorization="Bearer " + access_token))
         self.assertIn('Supper', str(result.data))
+        print('result',result)
+        print('result data',result.data)
         response = self.client().post('/api/v1/categories/1/recipes',
                                   headers=dict(Authorization='Bearer '+ 'Invalid.token'),
                                   data=self.recipe)
+        print('response',response)
+        print('response data',response.data)
         self.assertEqual(response.status_code, 401)   
         self.assertIn('invalid'or 'expired', str(response.data).lower()) 
+
     def test_when_token_expired_or_invalid_when_editing_recipes(self):
         """Test for expired or invalid when editing recipes"""
         self.register_user()

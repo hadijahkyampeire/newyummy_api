@@ -86,7 +86,7 @@ class RegistrationView(MethodView):
                 post_data = request.data
                 # Register the user
                 email = post_data['email']
-                password = post_data['password']
+                password = post_data['password'].strip()
 
                 if len(password) > 6 and re.match("[^@]+@[^@]+\.[^@]+", email):
                     user = User(email=email, password=password)
@@ -170,7 +170,6 @@ class LoginView(MethodView):
             if user and user.password_is_valid(request.data['password']):
                 # Generate the access token. This will be used as the authorization header
                 access_token = user.generate_token(user.id)
-                print(access_token)
                 if access_token:
                     response = {
                         'message': 'You logged in successfully.',
@@ -231,22 +230,17 @@ class ResetPasswordView(MethodView):
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split()[1]
         if access_token:
-            user_id = User.decode_token(access_token)
-            if not isinstance(user_id, str):
-                try:
-
-                    post_data = request.data
-                # Register the user
-                    email = post_data['email']
-                    password = post_data['password']
-                    new = post_data['new_password']
-                    reset_data = [new]
-                    user = User.query.filter_by(email=email).first()
-                    if not user:
-                        response = jsonify({
-                            'message': 'User not found'
-                        })
-                        return make_response(response), 401
+          user_id = User.decode_token(access_token)
+          if not isinstance(user_id, str):
+            try:
+                post_data = request.data
+            # Register the user
+                email = post_data['email']
+                password = post_data['password'].strip()
+                new = post_data['new_password'].strip()
+                reset_data = [new]
+                user = User.query.filter_by(email=email).first()
+                if  user and user.password_is_valid(request.data['password']):   
                     if reset_data:
                         if len(new) > 6:
                             user.password = Bcrypt().generate_password_hash(new).decode()
@@ -255,12 +249,16 @@ class ResetPasswordView(MethodView):
                                 'message': 'Your password has been reset.'}
                             return make_response(jsonify(response)), 200
                         response = {
-                            'message': "Password needs to be more than 6 characters"
+                            'message': "new password needs to be more than 6 characters"
                         }
                         return make_response(jsonify(response)), 400
-                except Exception as e:  # pragma: no cover
-                    response = {'message': str(e)}
-                    return make_response(jsonify(response)), 401
+                response = jsonify({
+                        'message': 'User not found or wrong password'
+                    })
+                return make_response(response), 401
+            except Exception as e:  # pragma: no cover
+                response = {'message': str(e)}
+                return make_response(jsonify(response)), 401
 
 class Logout_view(MethodView):
     def post(self):
