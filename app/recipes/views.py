@@ -85,7 +85,7 @@ def add_recipes(id,  **kwargs):
         user_id = User.decode_token(access_token)
         if not isinstance(user_id, str):
             if request.method == "POST":
-                title = str(request.data.get('title', '')).lower()
+                title = str(request.data.get('title', '')).strip()
                 description = str(request.data.get('description', ''))
                 if isinstance(title, int):
                     return jsonify({"message": "Recipe title should not be an integer"}),400
@@ -98,6 +98,7 @@ def add_recipes(id,  **kwargs):
                 identity = Category.query.filter_by(id=id,created_by=user_id).first()
                 if not identity:
                     return jsonify({"message": "Category does not exist"}),400
+                title =title.lower()
                 result = Recipe.query.filter_by(title=title, category_identity=id).first()
                 if result:
                     return jsonify({"message": "Recipe already exists"}),400
@@ -387,7 +388,7 @@ def edit_recipe(id, recipe_id, **kwargs):
         user_id = User.decode_token(access_token)
 
         if not isinstance(user_id, str):
-            title = str(request.data.get('title', ''))
+            title = str(request.data.get('title', '')).strip()
             description = str(request.data.get('description', ''))
             identity = Category.query.filter_by(id=id,created_by=user_id).first()
             if not identity:
