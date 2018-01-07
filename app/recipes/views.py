@@ -223,9 +223,7 @@ def get_recipes(id, **kwargs):
                         results.append(obj)
             else:
                 # GET
-                print('The recipes', recipes)
                 for recipe in recipes.items:
-                    print('recipe in the recipes', recipe)
                     obj = {
                         'id': recipe.id,
                         'title': recipe.title,

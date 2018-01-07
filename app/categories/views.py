@@ -73,7 +73,7 @@ def add_categories():
 
             if request.method == "POST":
                 # name = str(request.data.get('name', ''))
-                name = request.data.get('name').strip()
+                name = str(request.data.get('name')).strip()
                 
                 if isinstance(name, int):
                     return jsonify({"message": "category name should not be an integer" }),400

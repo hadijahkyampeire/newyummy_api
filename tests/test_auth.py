@@ -144,4 +144,4 @@ class AuthTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 400)
         result = json.loads(res.data.decode())
         self.assertEqual(result['message'],
-             "Password needs to be more than 6 characters")
+             "new password needs to be more than 6 characters")

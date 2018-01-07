@@ -204,9 +204,6 @@ class CategoryTestCase(unittest.TestCase):
         # obtain the access token
         access_token = json.loads(result.data.decode())['access_token']
         # ensure the request has an authorization header set with the access token in it
-        res = self.client().post(
-            '/api/v1/categories/',
-            headers=dict(Authorization="Bearer " + access_token))
         res = self.client().put(
             '/api/v1/categories/1',
             headers=dict(Authorization="Bearer " + access_token), 
