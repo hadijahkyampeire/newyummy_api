@@ -346,6 +346,17 @@ class CategoryTestCase(unittest.TestCase):
             headers=dict(Authorization="Bearer " + access_token),
             data=category_name)
         self.assertEqual(result.status_code, 400)
+    def test_if_wrong_method_is_used_for_url(self):
+        """test_if_wrong_method_is_used_for_url"""
+        self.register_user()
+        result = self.login_user()
+        # obtain the access token
+        access_token = json.loads(result.data.decode())['access_token']
+        # ensure the request has an authorization header set with the access token in it
+        res = self.client().put(
+            '/api/v1/categories/?q=name',
+            headers=dict(Authorization="Bearer " + access_token))
+        self.assertEqual(res.status_code, 405)
     def tearDown(self):
         """teardown all initialized variables."""
         with self.app.app_context():

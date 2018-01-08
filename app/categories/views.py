@@ -63,6 +63,8 @@ def add_categories():
               default: Category name required
     """
     auth_header = request.headers.get('Authorization')
+    if auth_header is None:
+        return jsonify({"message": "No token, please provide a token" }),401
     access_token = auth_header.split(" ")[1]
 
     if access_token:
@@ -74,7 +76,8 @@ def add_categories():
             if request.method == "POST":
                 # name = str(request.data.get('name', ''))
                 name = str(request.data.get('name')).strip()
-                
+                if name =="None":
+                    return jsonify({"message": "Nothing is provided" }),400
                 if isinstance(name, int):
                     return jsonify({"message": "category name should not be an integer" }),400
                 if not name or name.isspace():
@@ -168,6 +171,8 @@ def get_categories():
               default: No category found
     """
     auth_header = request.headers.get('Authorization')
+    if auth_header is None:
+        return jsonify({"message": "No token, please provide a token" }),401
     access_token = auth_header.split()[1]
     if access_token:
         # Attempt to decode the token and get the User ID
@@ -265,6 +270,8 @@ def delete_category(id, **kwargs):
     """
     # retrieve a category using it's ID
     auth_header = request.headers.get('Authorization')
+    if auth_header is None:
+        return jsonify({"message": "No token, please provide a token" }),401
     access_token = auth_header.split(" ")[1]
 
     if access_token:
@@ -342,12 +349,16 @@ def edit_category(id, **kwargs):
               default: No category found to edit
     """
     auth_header = request.headers.get('Authorization')
+    if auth_header is None:
+        return jsonify({"message": "No token, please provide a token" }),401
     access_token = auth_header.split(" ")[1]
 
     if access_token:
         user_id = User.decode_token(access_token)
         if not isinstance(user_id, str):
-            name = request.data.get('name').strip()
+            name = str(request.data.get('name')).strip()
+            if name =="None":
+                    return jsonify({"message": "Nothing is provided" }),400
             if isinstance(name, int):
                 return jsonify({"message": "category name should not be an integer" }),400
             if not name or name.isspace():
@@ -431,6 +442,8 @@ def get_category_by_id(id, **kwargs):
               default: No category found with that id
     """
     auth_header = request.headers.get('Authorization')
+    if auth_header is None:
+        return jsonify({"message": "No token, please provide a token" }),401
     access_token = auth_header.split(" ")[1]
 
     if access_token:

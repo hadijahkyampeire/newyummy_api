@@ -228,6 +228,8 @@ class ResetPasswordView(MethodView):
 
         """
         auth_header = request.headers.get('Authorization')
+        if auth_header is None:
+          return jsonify({"message": "No token, please provide a token" }),401
         access_token = auth_header.split()[1]
         if access_token:
           user_id = User.decode_token(access_token)
@@ -274,6 +276,8 @@ class Logout_view(MethodView):
             description: you logged out successfully   
         """
         auth_header = request.headers.get('Authorization')
+        if auth_header is None:
+          return jsonify({"message": "No token, please provide a token" }),401
         access_token = auth_header.split( )[1]
         if access_token:
             user_id = User.decode_token(access_token)

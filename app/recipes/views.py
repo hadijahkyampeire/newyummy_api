@@ -78,6 +78,8 @@ def add_recipes(id,  **kwargs):
               default: Recipe title mostly required
     """
     auth_header = request.headers.get('Authorization')
+    if auth_header is None:
+        return jsonify({"message": "No token, please provide a token" }),401
     access_token = auth_header.split(" ")[1]
 
     if access_token:
@@ -87,6 +89,8 @@ def add_recipes(id,  **kwargs):
             if request.method == "POST":
                 title = str(request.data.get('title', '')).strip()
                 description = str(request.data.get('description', ''))
+                if title =="None":
+                    return jsonify({"message": "Nothing is provided for title" }),400
                 if isinstance(title, int):
                     return jsonify({"message": "Recipe title should not be an integer"}),400
                 if is_valid(title):
@@ -193,6 +197,8 @@ def get_recipes(id, **kwargs):
               default: No recipe found
     """
     auth_header = request.headers.get('Authorization')
+    if auth_header is None:
+        return jsonify({"message": "No token, please provide a token" }),401
     access_token = auth_header.split(" ")[1]
     if access_token:
         # Attempt to decode the token and get the User ID
@@ -295,6 +301,8 @@ def delete_recipe(id, recipe_id, **kwargs):
               default: No recipe with that id  found to delete
     """
     auth_header = request.headers.get('Authorization')
+    if auth_header is None:
+        return jsonify({"message": "No token, please provide a token" }),401
     access_token = auth_header.split(" ")[1]
 
     if access_token:
@@ -380,6 +388,8 @@ def edit_recipe(id, recipe_id, **kwargs):
               default: No recipe found to edit
     """
     auth_header = request.headers.get('Authorization')
+    if auth_header is None:
+        return jsonify({"message": "No token, please provide a token" }),401
     access_token = auth_header.split(" ")[1]
     if access_token:
         # Get the user id related to this access token
@@ -388,6 +398,8 @@ def edit_recipe(id, recipe_id, **kwargs):
         if not isinstance(user_id, str):
             title = str(request.data.get('title', '')).strip()
             description = str(request.data.get('description', ''))
+            if title =="None":
+                return jsonify({"message": "Nothing is provided for title" }),400
             identity = Category.query.filter_by(id=id,created_by=user_id).first()
             if not identity:
                 return jsonify({"message": "You do not have that recipe in that category"}),400
@@ -481,6 +493,8 @@ def get_recipe_by_id(id, recipe_id, **kwargs):
               default: No recipe found with that id
     """
     auth_header = request.headers.get('Authorization')
+    if auth_header is None:
+        return jsonify({"message": "No token, please provide a token" }),401
     access_token = auth_header.split(" ")[1]
     if access_token:
         # Get the user id related to this access token
