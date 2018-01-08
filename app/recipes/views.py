@@ -17,65 +17,65 @@ def add_recipes(id,  **kwargs):
         - Recipe functions
     parameters:
         - in: path
-        name: id
-        required: true
-        type: integer
-        description: input the category id where you want to add recipes
+          name: id
+          required: true
+          type: integer
+          description: input the category id where you want to add recipes
         - in: body
-        name: body
-        required: true
-        type: string
-        description: input json data as recipe details
+          name: body
+          required: true
+          type: string
+          description: input json data as recipe details
     security:
         - TokenHeader: []
 
     responses:
-        200:
+      200:
         description:  recipe successfully created   
-        201:
+      201:
         description: Recipe created successfully 
         schema:
-            id: Add recipe 
-            properties:
+          id: Add recipe 
+          properties:
             title:
-                type: string
-                default: pilau
+              type: string
+              default: pilau
             description: 
-                type: string
-                default: burn onions
+              type: string
+              default: burn onions
             response:
-                type: string
-                default: {'id': 1, 'title': pilau, 'description': burn onions, 
+              type: string
+              default: {'id': 1, 'title': pilau, 'description': burn onions, 
                         'date_created': 22-12-2017, 'date_modified': 22-12-2017, 
                         'category_identity': 1} 
-        400:
+      400:
         description: For exceptions like not json data, special characters or numbers in the recipes
         schema:
-            id: Invalid name with special characters or numbers or invalid json being added in the recipe
-            properties:
+          id: Invalid name with special characters or numbers or invalid json being added in the recipe
+          properties:
             title:
-                type: string
-                default: '@@@kl'
+              type: string
+              default: '@@@kl'
             description: 
-                type: string
-                default: burn onions
+              type: string
+              default: burn onions
             response:
-                type: string
-                default: Recipe title should not have special characters or numbers
-        422:
+              type: string
+              default: Recipe title should not have special characters or numbers
+      422:
         description: If space or nothing is entered for title
         schema:
-            id: Add empty recipe
-            properties:
+          id: Add empty recipe
+          properties:
             title:
-                type: string
-                default: " "
+              type: string
+              default: " "
             description: 
-                type: string
-                default: burn onions
+              type: string
+              default: burn onions
             response:
-                type: string
-                default: Recipe title mostly required
+              type: string
+              default: Recipe title mostly required
     """
     auth_header = request.headers.get('Authorization')
     access_token = auth_header.split(" ")[1]
@@ -140,57 +140,57 @@ def get_recipes(id, **kwargs):
     
     parameters:
         - in: path
-        name: id
-        required: true
-        type: integer
-        description: specify the category id where the recipe belongs
+          name: id
+          required: true
+          type: integer
+          description: specify the category id where the recipe belongs
         - in: query
-        name: q
-        required: false
-        type: string
-        description: query by recipe name
+          name: q
+          required: false
+          type: string
+          description: query by recipe name
         - in: query
-        name: page
-        required: false
-        type: integer
-        description: query by specifying the page number
+          name: page
+          required: false
+          type: integer
+          description: query by specifying the page number
         - in: query
-        name: per_page
-        required: false
-        type: integer
-        description: query by specifying the number of items per_page
+          name: per_page
+          required: false
+          type: integer
+          description: query by specifying the number of items per_page
         
     security:
         - TokenHeader: []
 
     responses:
-        200:
+      200:
         description:  recipe successfully retrieved 
-        201:
+      201:
         description: For getting a valid recipe by q or pagination
         schema:
-            id: successful retrieve of recipe
-            properties:
+          id: successful retrieve of recipe
+          properties:
             q search by title:
-                type: string
-                default: ?q=p
+              type: string
+              default: ?q=p
             pagination search:
-                type: string
-                default: ?page=1&per_page=1
+              type: string
+              default: ?page=1&per_page=1
             response:
-                type: string
-                default: {'id': 1, 'title': pilau, 'description': burn onions, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'category_identity': 1} 
-        400:
+              type: string
+              default: {'id': 1, 'title': pilau, 'description': burn onions, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'category_identity': 1} 
+      400:
         description: Searching for a title that is not there or invalid
         schema:
-            id: invalid GET recipe
-            properties:
+          id: invalid GET recipe
+          properties:
             title:
-                type: string
-                default: '33erdg@@'
+              type: string
+              default: '33erdg@@'
             response:
-                type: string
-                default: No recipe found
+              type: string
+              default: No recipe found
     """
     auth_header = request.headers.get('Authorization')
     access_token = auth_header.split(" ")[1]
@@ -257,42 +257,42 @@ def delete_recipe(id, recipe_id, **kwargs):
         - Recipe functions
     parameters:
         - in: path
-        name: id
-        required: true
-        type: integer
-        description: specify the category id for the recipe
+          name: id
+          required: true
+          type: integer
+          description: specify the category id for the recipe
         - in: path
-        name: recipe_id
-        required: true
-        type: integer
-        description: specify the recipe id you want to delete
+          name: recipe_id
+          required: true
+          type: integer
+          description: specify the recipe id you want to delete
     security:
         - TokenHeader: []
 
     responses:
-        200:
+      200:
         description:  recipe successfully deleted 
-        201:
+      201:
         description: For successful deletion of an existing recipe
         schema:
-            id: successful deletion of recipe
-            properties:
+          id: successful deletion of recipe
+          properties:
             id:
-                default: 1
+              default: 1
             response:
-                type: string
-                default: recipe 1 deleted
-        204:
+              type: string
+              default: recipe 1 deleted
+      204:
         description: Deleting a recipe which doesnot exist
         schema:
-            id: invalid Delete of recipes
-            properties:
+          id: invalid Delete of recipes
+          properties:
             id:
-                type: string
-                default: 50
+              type: string
+              default: 50
             response:
-                type: string
-                default: No recipe with that id  found to delete
+              type: string
+              default: No recipe with that id  found to delete
     """
     auth_header = request.headers.get('Authorization')
     access_token = auth_header.split(" ")[1]
@@ -332,52 +332,52 @@ def edit_recipe(id, recipe_id, **kwargs):
         - Recipe functions
     parameters:
         - in: path
-        name: id
-        required: true
-        type: integer
-        description: specify the category id for the recipe
+          name: id
+          required: true
+          type: integer
+          description: specify the category id for the recipe
         - in: path
-        name: recipe_id
-        required: true
-        type: integer
-        description: specify the recipe id you want to update
+          name: recipe_id
+          required: true
+          type: integer
+          description: specify the recipe id you want to update
         - in: body
-        name: body
-        required: true
-        type: string
-        description: input new recipe details to edit a recipe 
+          name: body
+          required: true
+          type: string
+          description: input new recipe details to edit a recipe 
     security:
         - TokenHeader: []
     responses:
-        200:
+      200:
         description:  recipe successfully updated 
-        201:
+      201:
         description: For successful update of an existing recipe
         schema:
-            id: successful update of recipe
-            properties:
+          id: successful update of recipe
+          properties:
             id:
-                default: 1
+              default: 1
             title:
-                type: string
-                default: milkshake
+              type: string
+              default: milkshake
             description:
-                type: string
-                default: mix with coffee
+              type: string
+              default: mix with coffee
             response:
-                type: string
-                default: {'id': 1, 'title': milkshake, 'description': mix with coffee, date_created': 22-12-2017, 'date_modified': 22-12-2017, 'category_id': 1}
-        400:
+              type: string
+              default: {'id': 1, 'title': milkshake, 'description': mix with coffee, date_created': 22-12-2017, 'date_modified': 22-12-2017, 'category_id': 1}
+      400:
         description: updating recipe which doesnot exist
         schema:
-            id: invalid update of recipes
-            properties:
+          id: invalid update of recipes
+          properties:
             id:
-                type: string
-                default: 100
+              type: string
+              default: 100
             response:
-                type: string
-                default: No recipe found to edit
+              type: string
+              default: No recipe found to edit
     """
     auth_header = request.headers.get('Authorization')
     access_token = auth_header.split(" ")[1]
@@ -442,43 +442,43 @@ def get_recipe_by_id(id, recipe_id, **kwargs):
         - Recipe functions
     parameters:
         - in: path
-        name: id
-        required: true
-        type: integer
-        description: specify the category id for the recipe
+          name: id
+          required: true
+          type: integer
+          description: specify the category id for the recipe
         - in: path
-        name: recipe_id
-        required: true
-        type: integer
-        description: specify the recipe id you want to get
+          name: recipe_id
+          required: true
+          type: integer
+          description: specify the recipe id you want to get
     security:
         - TokenHeader: []
 
     responses:
-        200:
+      200:
         description:  recipe successfully retrieved 
-        201:
+      201:
         description: For getting a valid recipe title by id
         schema:
-            id: successful retrieve recipe by id
-            properties:
+          id: successful retrieve recipe by id
+          properties:
             name:
-                type: integer
-                default: 1
+              type: integer
+              default: 1
             response:
-                type: string
-                default: {'id': 1, 'title': milkshake, 'description': mix with coffee, date_created': 22-12-2017, 'date_modified': 22-12-2017, 'category_id': 1}
-        400:
+              type: string
+              default: {'id': 1, 'title': milkshake, 'description': mix with coffee, date_created': 22-12-2017, 'date_modified': 22-12-2017, 'category_id': 1}
+      400:
         description: Searching for the recipe id that is not there
         schema:
-            id: invalid GET recipe by id
-            properties:
+          id: invalid GET recipe by id
+          properties:
             id:
-                type: integer
-                default: 100
+              type: integer
+              default: 100
             response:
-                type: string
-                default: No recipe found with that id
+              type: string
+              default: No recipe found with that id
     """
     auth_header = request.headers.get('Authorization')
     access_token = auth_header.split(" ")[1]

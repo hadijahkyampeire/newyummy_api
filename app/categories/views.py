@@ -18,49 +18,49 @@ def add_categories():
         - Category functions
     parameters:
         - in: body
-        name: body
-        required: true
-        type: string
-        description: input json data for a category
+          name: body
+          required: true
+          type: string
+          description: input json data for a category
     security:
         - TokenHeader: []
 
     responses:
-        200:
+      200:
         description:  category successfully created   
-        201:
+      201:
         description: Category created successfully 
         schema:
-            id: Add category 
-            properties:
+          id: Add category 
+          properties:
             name:
                 type: string
                 default: Dinner
             response:
                 type: string
                 default: {'id': 1, 'name': Dinner, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'created_by': 1} 
-        400:
+      400:
         description: For exceptions like not json data, special characters or numbers 
         schema:
-            id: Invalid name with special characters or numbers or invalid json being added
-            properties:
+          id: Invalid name with special characters or numbers or invalid json being added
+          properties:
             name:
-                type: string
-                default: '@@@@111'
+              type: string
+              default: '@@@@111'
             response:
-                type: string
-                default: Category name should not have special characters or numbers
-        422:
+              type: string
+              default: Category name should not have special characters or numbers
+      422:
         description: If space or nothing is entered for name
         schema:
-            id: Add empty category
-            properties:
+          id: Add empty category
+          properties:
             name:
-                type: string
-                default: " "
+              type: string
+              default: " "
             response:
-                type: string
-                default: Category name required
+              type: string
+              default: Category name required
     """
     auth_header = request.headers.get('Authorization')
     access_token = auth_header.split(" ")[1]
@@ -124,48 +124,48 @@ def get_categories():
     parameters:
 
         - in: query
-        name: q
-        required: false
-        type: string
-        description: search category by querying the name
+          name: q
+          required: false
+          type: string
+          description: search category by querying the name
         - in: query
-        name: page
-        required: false
-        type: integer
-        description: search categories by querying the page number
+          name: page
+          required: false
+          type: integer
+          description: search categories by querying the page number
         - in: query
-        name: per_page
-        required: false
-        type: integer
-        description: search by specifying number of items on a page
+          name: per_page
+          required: false
+          type: integer
+          description: search by specifying number of items on a page
     security:
         - TokenHeader: []
 
     responses:
-        200:
+      200:
         description:  category successfully retrieved 
-        201:
+      201:
         description: For getting a valid categoryname by q or pagination
         schema:
-            id: successful retrieve of category
-            properties:
+          id: successful retrieve of category
+          properties:
             name:
-                type: string
-                default: Lunch
+              type: string
+              default: Lunch
             response:
-                type: string
-                default: {'id': 1, 'name': Lunch, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'created_by': 1}
-        400:
+              type: string
+              default: {'id': 1, 'name': Lunch, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'created_by': 1}
+      400:
         description: Searching for a name that is not there or invalid
         schema:
-            id: invalid GET
-            properties:
+          id: invalid GET
+          properties:
             name:
-                type: string
-                default: '33erdg@@'
+              type: string
+              default: '33erdg@@'
             response:
-                type: string
-                default: No category found
+              type: string
+              default: No category found
     """
     auth_header = request.headers.get('Authorization')
     access_token = auth_header.split()[1]
@@ -230,37 +230,37 @@ def delete_category(id, **kwargs):
     parameters:
 
         - in: path
-        name: id
-        required: true
-        type: integer
-        description: delete a category by specifying its id
+          name: id
+          required: true
+          type: integer
+          description: delete a category by specifying its id
     security:
         - TokenHeader: []
 
     responses:
-        200:
+      200:
         description:  category successfully deleted 
-        201:
+      201:
         description: For successful deletion of an existing category
         schema:
-            id: successful deletion
-            properties:
+          id: successful deletion
+          properties:
             id:
-                default: 1
+              default: 1
             response:
-                type: string
-                default: category 1 deleted
-        400:
+              type: string
+              default: category 1 deleted
+      400:
         description: Deleting a category which doesnot exist
         schema:
-            id: invalid Delete
-            properties:
+          id: invalid Delete
+          properties:
             id:
-                type: string
-                default: 100
+              type: string
+              default: 100
             response:
-                type: string
-                default: No category found to delete
+              type: string
+              default: No category found to delete
 
     """
     # retrieve a category using it's ID
@@ -302,44 +302,44 @@ def edit_category(id, **kwargs):
         - Category functions
     parameters:
         - in: path
-        name: id
-        required: true
-        type: integer
-        description: first specify the category id
+          name: id
+          required: true
+          type: integer
+          description: first specify the category id
         - in: body
-        name: body
-        required: true
-        type: string
-        description: input new json data to replace the existing on
+          name: body
+          required: true
+          type: string
+          description: input new json data to replace the existing on
     security:
         - TokenHeader: []
     responses:
-        200:
+      200:
         description:  category successfully updated 
-        201:
+      201:
         description: For successful update of an existing category
         schema:
-            id: successful update
-            properties:
+          id: successful update
+          properties:
             id:
-                default: 1
+              default: 1
             name:
-                type: string
-                default: Supper
+              type: string
+              default: Supper
             response:
-                type: string
-                default: {'id': 1, 'name': Supper, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'created_by': 1}
-        400:
+              type: string
+              default: {'id': 1, 'name': Supper, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'created_by': 1}
+      400:
         description: updating category which doesnot exist
         schema:
-            id: invalid update
-            properties:
+          id: invalid update
+          properties:
             id:
-                type: string
-                default: 100
+              type: string
+              default: 100
             response:
-                type: string
-                default: No category found to edit
+              type: string
+              default: No category found to edit
     """
     auth_header = request.headers.get('Authorization')
     access_token = auth_header.split(" ")[1]
@@ -397,38 +397,38 @@ def get_category_by_id(id, **kwargs):
         - Category functions
     parameters:
         - in: path
-        name: id
-        required: true
-        type: integer
-        description: search by a category id
+          name: id
+          required: true
+          type: integer
+          description: search by a category id
     security:
         - TokenHeader: []
 
     responses:
-        200:
+      200:
         description:  category successfully retrieved 
-        201:
+      201:
         description: For getting a valid categoryname by id
         schema:
-            id: successful retrieve by id
-            properties:
+          id: successful retrieve by id
+          properties:
             id:
-                type: integer
-                default: 1
+              type: integer
+              default: 1
             response:
-                type: string
-                default: {'id': 1, 'name': Lunch, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'created_by': 1}
-        400:
+              type: string
+              default: {'id': 1, 'name': Lunch, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'created_by': 1}
+      400:
         description: Searching for the id that is not there
         schema:
-            id: invalid GET by id
-            properties:
+          id: invalid GET by id
+          properties:
             name:
-                type: integer
-                default: 100
+              type: integer
+              default: 100
             response:
-                type: string
-                default: No category found with that id
+              type: string
+              default: No category found with that id
     """
     auth_header = request.headers.get('Authorization')
     access_token = auth_header.split(" ")[1]
