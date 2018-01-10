@@ -2,14 +2,17 @@ from .import recipe
 from flask import request, jsonify, abort, make_response
 from app.models import Category, User, Recipe
 
-def is_valid(name_string):    
+def is_valid(name_string):
     special_character = "~!@#$%^&*()_={}|\[]<>?/,;:"
     return any(char in special_character for char in name_string)
-def hasNumbers(inputString):
+
+
+def has_numbers(inputString):
     return any(char.isdigit() for char in inputString)
 
+
 @recipe.route('/api/v1/categories/<int:id>/recipes', methods=['POST'])
-def add_recipes(id,  **kwargs):
+def add_recipes(id, **kwargs):
     """
     Method for posting recipes
     ---
@@ -31,32 +34,32 @@ def add_recipes(id,  **kwargs):
 
     responses:
       200:
-        description:  recipe successfully created   
+        description:  recipe successfully created
       201:
-        description: Recipe created successfully 
+        description: Recipe created successfully
         schema:
-          id: Add recipe 
+          id: Add recipe
           properties:
             title:
               type: string
               default: pilau
-            description: 
+            description:
               type: string
               default: burn onions
             response:
               type: string
-              default: {'id': 1, 'title': pilau, 'description': burn onions, 
-                        'date_created': 22-12-2017, 'date_modified': 22-12-2017, 
-                        'category_identity': 1} 
+              default: {'id': 1, 'title': pilau, 'description': burn onions,
+                        'date_created': 22-12-2017, 'date_modified': 22-12-2017,
+                        'category_identity': 1}
       400:
         description: For exceptions like not json data, special characters or numbers in the recipes
         schema:
-          id: Invalid name with special characters or numbers or invalid json being added in the recipe
+          id: Invalid name
           properties:
             title:
               type: string
               default: '@@@kl'
-            description: 
+            description:
               type: string
               default: burn onions
             response:
@@ -70,7 +73,7 @@ def add_recipes(id,  **kwargs):
             title:
               type: string
               default: " "
-            description: 
+            description:
               type: string
               default: burn onions
             response:
@@ -79,7 +82,7 @@ def add_recipes(id,  **kwargs):
     """
     auth_header = request.headers.get('Authorization')
     if auth_header is None:
-        return jsonify({"message": "No token, please provide a token" }),401
+        return jsonify({"message": "No token, please provide a token"}), 401
     access_token = auth_header.split(" ")[1]
 
     if access_token:
@@ -90,22 +93,23 @@ def add_recipes(id,  **kwargs):
                 title = str(request.data.get('title', '')).strip()
                 description = str(request.data.get('description', ''))
                 if title =="None":
-                    return jsonify({"message": "Nothing is provided for title" }),400
+                    return jsonify({"message": "Nothing is provided for title" }), 400
                 if isinstance(title, int):
-                    return jsonify({"message": "Recipe title should not be an integer"}),400
+                    return jsonify({"message": "Recipe title should not be an integer"}), 400
                 if is_valid(title):
-                    return jsonify({'message': 'Recipe title should not have special characters'}),400
-                if hasNumbers(title):
-                    return jsonify({'message': 'Recipe title should not have numbers'}),400
+                    return jsonify({'message': 'Recipe title should'
+                                               'not have special characters'}), 400
+                if has_numbers(title):
+                    return jsonify({'message': 'Recipe title should not have numbers'}), 400
                 if not title or title.isspace():
-                    return jsonify({'message': 'Recipe title is mostly required'}),422
-                identity = Category.query.filter_by(id=id,created_by=user_id).first()
+                    return jsonify({'message': 'Recipe title is mostly required'}), 422
+                identity = Category.query.filter_by(id=id, created_by=user_id).first()
                 if not identity:
-                    return jsonify({"message": "Category does not exist"}),400
-                title =title.lower()
+                    return jsonify({"message": "Category does not exist"}), 400
+                title = title.lower()
                 result = Recipe.query.filter_by(title=title, category_identity=id).first()
                 if result:
-                    return jsonify({"message": "Recipe already exists"}),400
+                    return jsonify({"message": "Recipe already exists"}), 400
                 if title:
                     recipe = Recipe(
                         title=title, description=description, category_identity=id)
@@ -134,6 +138,7 @@ def add_recipes(id,  **kwargs):
             # return an error response, telling the user he is Unauthorized
             return make_response(jsonify(response)), 401
 
+
 @recipe.route('/api/v1/categories/<int:id>/recipes', methods=['GET'])
 def get_recipes(id, **kwargs):
     """
@@ -141,7 +146,7 @@ def get_recipes(id, **kwargs):
     ---
     tags:
         - Recipe functions
-    
+
     parameters:
         - in: path
           name: id
@@ -163,13 +168,11 @@ def get_recipes(id, **kwargs):
           required: false
           type: integer
           description: query by specifying the number of items per_page
-        
     security:
         - TokenHeader: []
-
     responses:
       200:
-        description:  recipe successfully retrieved 
+        description:  recipe successfully retrieved
       201:
         description: For getting a valid recipe by q or pagination
         schema:
@@ -183,7 +186,10 @@ def get_recipes(id, **kwargs):
               default: ?page=1&per_page=1
             response:
               type: string
-              default: {'id': 1, 'title': pilau, 'description': burn onions, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'category_identity': 1} 
+              default: {'id': 1, 'title': pilau,
+                'description': burn onions,
+                'date_created': 22-12-2017,
+                'date_modified': 22-12-2017, 'category_identity': 1}
       400:
         description: Searching for a title that is not there or invalid
         schema:
@@ -205,14 +211,14 @@ def get_recipes(id, **kwargs):
         user_id = User.decode_token(access_token)
         if not isinstance(user_id, str):
             # GET all the categories created by this user
-            page = int(request.args.get('page', 1))
-            per_page = int(request.args.get('per_page', 5))
+            page = request.args.get('page', 1, type=int)
+            limit = request.args.get('limit', 2, type=int)
             q = str(request.args.get('q', '')).lower()
             identity = Category.query.filter_by(id=id,created_by=user_id).first()
             if not identity:
                 return jsonify({"message": "You don't have the recipes in that category"}),400
             recipes = Recipe.query.filter_by(
-                category_identity=id).paginate(page=page, per_page=per_page)
+                category_identity=id).paginate(page=page, per_page=limit, error_out=False)
             results = []
             if q:
                 for recipe in recipes.items:
@@ -236,11 +242,16 @@ def get_recipes(id, **kwargs):
                         'description': recipe.description,
                         'date_created': recipe.date_created,
                         'date_modified': recipe.date_modified,
-                        'category_identity': id
+                        'category_identity': id,
+                        'Next_page': recipes.next_num,
+                        'Previous_page':recipes.prev_num
 
                     }
                     results.append(obj)
                 # return make_response(jsonify(results)), 200
+                print(results)
+            if len(results) <= 0:
+                return jsonify({"Error": "No recipes on that page"})
             if results:
                 return jsonify({'recipes': results})
             else:
@@ -253,6 +264,7 @@ def get_recipes(id, **kwargs):
             }
             # return an error response, telling the user he is Unauthorized
             return make_response(jsonify(response)), 401
+
 
 @recipe.route('/api/v1/categories/<int:id>/recipes/<int:recipe_id>', methods=['DELETE'])
 def delete_recipe(id, recipe_id, **kwargs):
@@ -277,7 +289,7 @@ def delete_recipe(id, recipe_id, **kwargs):
 
     responses:
       200:
-        description:  recipe successfully deleted 
+        description:  recipe successfully deleted
       201:
         description: For successful deletion of an existing recipe
         schema:
@@ -302,7 +314,7 @@ def delete_recipe(id, recipe_id, **kwargs):
     """
     auth_header = request.headers.get('Authorization')
     if auth_header is None:
-        return jsonify({"message": "No token, please provide a token" }),401
+        return jsonify({"message": "No token, please provide a token" }), 401
     access_token = auth_header.split(" ")[1]
 
     if access_token:
@@ -311,12 +323,12 @@ def delete_recipe(id, recipe_id, **kwargs):
 
         if not isinstance(user_id, str):
             # retrieve a recipe using it's ID
-            identity = Category.query.filter_by(id=id,created_by=user_id).first()
+            identity = Category.query.filter_by(id=id, created_by=user_id).first()
             if not identity:
                 return jsonify({"message": "You don't have that recipe in that category"}),400
-            recipe = Recipe.query.filter_by(id=recipe_id,category_identity=id).first()
+            recipe = Recipe.query.filter_by(id=recipe_id, category_identity=id).first()
             if not recipe:
-                return jsonify({"message":"No recipes with that id to delete "}),204
+                return jsonify({"message":"No recipes with that id to delete "}),404
 
             else:
                 recipe.delete()
@@ -331,6 +343,8 @@ def delete_recipe(id, recipe_id, **kwargs):
             }
             # return an error response, telling the user he is Unauthorized
             return make_response(jsonify(response)), 401
+
+
 @recipe.route('/api/v1/categories/<int:id>/recipes/<int:recipe_id>', methods=['PUT'])
 def edit_recipe(id, recipe_id, **kwargs):
     """
@@ -353,12 +367,12 @@ def edit_recipe(id, recipe_id, **kwargs):
           name: body
           required: true
           type: string
-          description: input new recipe details to edit a recipe 
+          description: input new recipe details to edit a recipe
     security:
         - TokenHeader: []
     responses:
       200:
-        description:  recipe successfully updated 
+        description:  recipe successfully updated
       201:
         description: For successful update of an existing recipe
         schema:
@@ -374,7 +388,10 @@ def edit_recipe(id, recipe_id, **kwargs):
               default: mix with coffee
             response:
               type: string
-              default: {'id': 1, 'title': milkshake, 'description': mix with coffee, date_created': 22-12-2017, 'date_modified': 22-12-2017, 'category_id': 1}
+              default: {'id': 1, 'title': milkshake,
+                    'description': mix with coffee,
+                     date_created': 22-12-2017,
+                     'date_modified': 22-12-2017, 'category_id': 1}
       400:
         description: updating recipe which doesnot exist
         schema:
@@ -389,7 +406,7 @@ def edit_recipe(id, recipe_id, **kwargs):
     """
     auth_header = request.headers.get('Authorization')
     if auth_header is None:
-        return jsonify({"message": "No token, please provide a token" }),401
+        return jsonify({"message": "No token, please provide a token" }), 401
     access_token = auth_header.split(" ")[1]
     if access_token:
         # Get the user id related to this access token
@@ -398,28 +415,27 @@ def edit_recipe(id, recipe_id, **kwargs):
         if not isinstance(user_id, str):
             title = str(request.data.get('title', '')).strip()
             description = str(request.data.get('description', ''))
-            if title =="None":
-                return jsonify({"message": "Nothing is provided for title" }),400
-            identity = Category.query.filter_by(id=id,created_by=user_id).first()
+            identity = Category.query.filter_by(id=id, created_by=user_id).first()
             if not identity:
-                return jsonify({"message": "You do not have that recipe in that category"}),400
+                return jsonify({"message": "You do not have that recipe in that category"}), 400
             if isinstance(title, int):
-                return jsonify({"message": "Recipe title should not be an integer"}),400
+                return jsonify({"message": "Recipe title should not be an integer"}), 400
             if is_valid(title):
-                return jsonify({'message': 'Recipe title should not have special characters'}),400
-            if hasNumbers(title):
-                return jsonify({'message': 'Recipe title should not have numbers'}),400
+                return jsonify({'message': 'Recipe title'
+                                           'should not have special characters'}), 400
+            if has_numbers(title):
+                return jsonify({'message': 'Recipe title should not have numbers'}), 400
             if not title or title.isspace():
-                return jsonify({'message': 'Recipe title is mostly required'}),422
+                return jsonify({'message': 'Recipe title is mostly required'}), 422
             title=title.lower()
             result = Recipe.query.filter_by(title=title, category_identity=id).first()
             if result:
-                return jsonify({"message": "Recipe already exists"}),400
+                return jsonify({"message": "Recipe already exists"}), 400
             # retrieve a recipe using it's ID
-            recipe = Recipe.query.filter_by(id=recipe_id,category_identity=id).first()
+            recipe = Recipe.query.filter_by(id=recipe_id, category_identity=id).first()
             if not recipe:
-                return jsonify({"message":"No recipes with that id to edit "}),204
-            
+                return jsonify({"message":"No recipes with that id to edit "}), 404
+
             else:
                 title = str(request.data.get('title', '')).lower()
                 description = str(request.data.get('description', ''))
@@ -436,7 +452,7 @@ def edit_recipe(id, recipe_id, **kwargs):
                 })
                 response.status_code = 200
                 return response
-            
+
         else:
             # user is not legit, so the payload is an error message to handle expired token
             message = user_id
@@ -445,6 +461,8 @@ def edit_recipe(id, recipe_id, **kwargs):
             }
             # return an error response, telling the user he is Unauthorized
             return make_response(jsonify(response)), 401
+
+
 @recipe.route('/api/v1/categories/<int:id>/recipes/<int:recipe_id>', methods=['GET'])
 def get_recipe_by_id(id, recipe_id, **kwargs):
     """
@@ -468,7 +486,7 @@ def get_recipe_by_id(id, recipe_id, **kwargs):
 
     responses:
       200:
-        description:  recipe successfully retrieved 
+        description:  recipe successfully retrieved
       201:
         description: For getting a valid recipe title by id
         schema:
@@ -494,20 +512,20 @@ def get_recipe_by_id(id, recipe_id, **kwargs):
     """
     auth_header = request.headers.get('Authorization')
     if auth_header is None:
-        return jsonify({"message": "No token, please provide a token" }),401
+        return jsonify({"message": "No token, please provide a token" }), 401
     access_token = auth_header.split(" ")[1]
     if access_token:
         # Get the user id related to this access token
         user_id = User.decode_token(access_token)
 
         if not isinstance(user_id, str):
-            identity = Category.query.filter_by(id=id,created_by=user_id).first()
+            identity = Category.query.filter_by(id=id, created_by=user_id).first()
             if not identity:
-                return jsonify({"message": "You don't have that recipe in that category"}),400
+                return jsonify({"message": "You don't have that recipe in that category"}), 400
             # retrieve a recipe using it's ID
             recipe = Recipe.query.filter_by(id=recipe_id, category_identity=id).first()
             if not recipe:
-                return jsonify({"message":"No recipes with that id to get"}),400
+                return jsonify({"message":"No recipes with that id to get"}), 400
             else:
                 # GET
                 response = jsonify({
