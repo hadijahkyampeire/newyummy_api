@@ -92,7 +92,7 @@ class RecipeTestCase(unittest.TestCase):
         res = self.client().post('/api/v1/categories/1/recipes', 
            headers=dict(Authorization="Bearer " + access_token),
            data=self.recipe)
-        res = self.client().get('/api/v1/categories/1/recipes?page=1&per_page=1',
+        res = self.client().get('/api/v1/categories/1/recipes?page=1&limit=1',
          headers=dict(Authorization="Bearer " + access_token))
         self.assertEqual(res.status_code, 200)
         self.assertIn('fruit',str(res.data))
@@ -206,7 +206,7 @@ class RecipeTestCase(unittest.TestCase):
         rv = self.client().delete(
             '/api/v1/categories/1/recipes/1',
             headers=dict(Authorization="Bearer " + access_token))
-        self.assertEqual(rv.status_code, 204)
+        self.assertEqual(rv.status_code, 404)
 
     def test_if_recipe_to_get_doesnot_exist(self):
         """Test if recipe to get doesnot exists already"""
@@ -228,6 +228,7 @@ class RecipeTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 404)
         self.assertEqual(
             result['message'], 'No recipes found')
+
     def test_if_recipe_to_edit_doesnot_exist(self):
         """Test if recipe to edit doesnot exist """
         self.register_user()
@@ -247,7 +248,7 @@ class RecipeTestCase(unittest.TestCase):
             '/api/v1/categories/1/recipes/1',
             headers=dict(Authorization="Bearer " + access_token),
             data={"title":"salads", "description":"chop"})
-        self.assertEqual(result.status_code, 204)
+        self.assertEqual(result.status_code, 404)
         
     def test_recipe_added_is_space(self):
         """Test API can't add a space as recipe (POST request)"""
@@ -269,6 +270,7 @@ class RecipeTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 422)
         self.assertEqual(
             result['message'], 'Recipe title is mostly required')
+            
     def test_recipe_added_already_exists(self):
         """Test API can't add existing recipe (POST request)"""
         self.register_user()
@@ -285,11 +287,13 @@ class RecipeTestCase(unittest.TestCase):
             '/api/v1/categories/1/recipes',
             headers=dict(Authorization="Bearer " + access_token),
             data=recipes)
-        result = self.client().post(
+        result1 = self.client().post(
             '/api/v1/categories/1/recipes',
             headers=dict(Authorization="Bearer " + access_token),
             data=recipes)
-        self.assertEqual(result.status_code, 400)
+        result = json.loads(result1.data.decode())
+        self.assertEqual(result1.status_code, 400)
+
     def test_if_recipe_has_special_characters(self):
         """Test API can't add recipe title with special characters (POST request)"""
         self.register_user()
@@ -498,6 +502,76 @@ class RecipeTestCase(unittest.TestCase):
         res = self.client().put('/api/v1/categories/1/recipes/1',
              headers=dict(Authorization= "Bearer " + access_token), data=newtitle)
         self.assertEqual(res.status_code, 400)
+    def test_when_no_token_when_getting_recipes(self):
+        """Test when no token when getting recipes"""
+        self.register_user()
+        result = self.login_user()
+        # obtain the access token
+        access_token = json.loads(result.data.decode())['access_token']
+        rv = self.client().post(
+            '/api/v1/categories/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.category)
+        result = self.client().get(
+            '/api/v1/categories/1',
+            headers=dict(Authorization="Bearer " + access_token))
+        res = self.client().post('/api/v1/categories/1/recipes', 
+         headers=dict(Authorization="Bearer " + access_token),
+         data=self.recipe)
+        response = self.client().get('/api/v1/categories/1/recipes')
+        self.assertEqual(response.status_code, 401)   
+    def test_when_no_token_when_posting_recipes(self):
+        """Test when no token when posting recipes"""
+        self.register_user()
+        result = self.login_user()
+        # obtain the access token
+        access_token = json.loads(result.data.decode())['access_token']
+        rv = self.client().post(
+            '/api/v1/categories/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.category)
+        result = self.client().get(
+            '/api/v1/categories/1',
+            headers=dict(Authorization="Bearer " + access_token))
+        res = self.client().post('/api/v1/categories/1/recipes', 
+         data=self.recipe)
+        self.assertEqual(res.status_code, 401)   
+    def test_when_no_token_when_editing_recipes(self):
+        """Test when no token when editing recipes"""
+        self.register_user()
+        result = self.login_user()
+        # obtain the access token
+        access_token = json.loads(result.data.decode())['access_token']
+        rv = self.client().post(
+            '/api/v1/categories/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.category)
+        result = self.client().get(
+            '/api/v1/categories/1',
+            headers=dict(Authorization="Bearer " + access_token))
+        res = self.client().post('/api/v1/categories/1/recipes', 
+         headers=dict(Authorization="Bearer " + access_token),
+         data=self.recipe)
+        response = self.client().put('/api/v1/categories/1/recipes/1')
+        self.assertEqual(response.status_code, 401)  
+    def test_when_no_token_when_deleting_recipes(self):
+        """Test when no token when deleting recipes"""
+        self.register_user()
+        result = self.login_user()
+        # obtain the access token
+        access_token = json.loads(result.data.decode())['access_token']
+        rv = self.client().post(
+            '/api/v1/categories/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.category)
+        result = self.client().get(
+            '/api/v1/categories/1',
+            headers=dict(Authorization="Bearer " + access_token))
+        res = self.client().post('/api/v1/categories/1/recipes', 
+         headers=dict(Authorization="Bearer " + access_token),
+         data=self.recipe)
+        response = self.client().delete('/api/v1/categories/1/recipes/1')
+        self.assertEqual(response.status_code, 401)    
     def tearDown(self):
         """teardown all initialized variables."""
         with self.app.app_context():
