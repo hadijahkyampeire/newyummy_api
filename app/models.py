@@ -76,6 +76,7 @@ class User(db.Model):
             # the token is invalid, return an error string
             return "Invalid token. Please register or login"
 
+
 class RevokedToken(db.Model):
     """Define the 'RevokedToken' model mapped to database table 'revoked_tokens'."""
 
@@ -92,6 +93,7 @@ class RevokedToken(db.Model):
         """Save to database table"""
         db.session.add(self)
         db.session.commit()
+
     @staticmethod
     def check_revoked_token(auth_token):
         """function to check if token is revoked
@@ -102,8 +104,10 @@ class RevokedToken(db.Model):
             return True
         else:
             return False
+
     def __repr__(self):
         return '<id: token: {}'.format(self.token)
+
 
 class Category(db.Model):
     """This class represents the categories table."""
