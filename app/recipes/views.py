@@ -1,14 +1,7 @@
 from .import recipe
 from flask import request, jsonify, abort, make_response
 from app.models import Category, User, Recipe
-
-def is_valid(name_string):
-    special_character = "~!@#$%^&*()_={}|\[]<>?/,;:"
-    return any(char in special_character for char in name_string)
-
-
-def has_numbers(inputString):
-    return any(char.isdigit() for char in inputString)
+from app.categories.views import is_valid, has_numbers
 
 
 @recipe.route('/api/v1/categories/<int:id>/recipes', methods=['POST'])
@@ -135,7 +128,6 @@ def add_recipes(id, **kwargs):
             response = {
                 'message': message
             }
-            # return an error response, telling the user he is Unauthorized
             return make_response(jsonify(response)), 401
 
 
