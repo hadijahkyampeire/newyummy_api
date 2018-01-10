@@ -1,11 +1,13 @@
 from .import category
-from flask import request, jsonify, abort, make_response
+from flask import request, jsonify, abort, make_response,url_for
 from app.models import Category, User, Recipe
 
-def is_valid(name_string):    
+def is_valid(name_string):
     special_character = "~!@#$%^&*()_={}|\[]<>?/,;:"
     return any(char in special_character for char in name_string)
-def hasNumbers(inputString):
+
+
+def has_numbers(inputString):
     return any(char.isdigit() for char in inputString)
 
 
@@ -24,23 +26,22 @@ def add_categories():
           description: input json data for a category
     security:
         - TokenHeader: []
-
     responses:
       200:
-        description:  category successfully created   
+        description:  category successfully created
       201:
-        description: Category created successfully 
+        description: Category created successfully
         schema:
-          id: Add category 
+          id: Add category
           properties:
             name:
                 type: string
                 default: Dinner
             response:
                 type: string
-                default: {'id': 1, 'name': Dinner, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'created_by': 1} 
+                default: {'id': 1, 'name': Dinner, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'created_by': 1}
       400:
-        description: For exceptions like not json data, special characters or numbers 
+        description: For exceptions like not json data, special characters or numbers
         schema:
           id: Invalid name with special characters or numbers or invalid json being added
           properties:
@@ -84,9 +85,9 @@ def add_categories():
                     return jsonify({'message': 'Category name is required'}),422
                 if is_valid(name):
                     return jsonify({'message': 'Category name should not have special characters'}),400
-                if hasNumbers(name):
+                if has_numbers(name):
                     return jsonify({'message': 'Category name should not have numbers'}),400
-                
+
                 name = name.title()
                 result = Category.query.filter_by(name=name, created_by=user_id).first()
 
@@ -117,6 +118,7 @@ def add_categories():
             }
             return make_response(jsonify(response)), 401
 
+
 @category.route('/api/v1/categories/', methods=['GET'])
 def get_categories():
     """
@@ -146,7 +148,7 @@ def get_categories():
 
     responses:
       200:
-        description:  category successfully retrieved 
+        description:  category successfully retrieved
       201:
         description: For getting a valid categoryname by q or pagination
         schema:
@@ -172,7 +174,7 @@ def get_categories():
     """
     auth_header = request.headers.get('Authorization')
     if auth_header is None:
-        return jsonify({"message": "No token, please provide a token" }),401
+        return jsonify({"message": "No token, please provide a token"}), 401
     access_token = auth_header.split()[1]
     if access_token:
         # Attempt to decode the token and get the User ID
@@ -180,14 +182,12 @@ def get_categories():
         if not isinstance(user_id, str):
                 # GET all the categories created by this user
                 # GET METHOD/categories/
-            page = int(request.args.get('page', 1))
-            per_page = int(request.args.get('per_page', 5))
+            page = request.args.get('page', 1, type=int)
+            limit = request.args.get('limit', 2, type=int)
             q = str(request.args.get('q', '')).title()
             categories = Category.query.filter_by(
-                created_by=user_id).paginate(page=page, per_page=per_page)
+                created_by=user_id).paginate(page=page, per_page=limit, error_out=False)
             results = []
-            # if not categories:
-            #     return jsonify({'message': 'No categories available'}),404
             if q:
                 for category in categories.items:
                     if q in category.name:
@@ -208,15 +208,17 @@ def get_categories():
                         'name': category.name,
                         'date_created': category.date_created,
                         'date_modified': category.date_modified,
-                        'created_by': category.created_by
+                        'created_by': category.created_by,
+                        'Next_page':categories.next_num,
+                        'Previous_page':categories.prev_num
                     }
                     results.append(obj)
-
-            # return make_response(jsonify(results)), 200
+            if len(results) <= 0:
+                return jsonify({"message": "No categories on that page"}), 404
             if results:
                 return jsonify({'categories': results})
             else:
-                return jsonify({"message": "No category found"}),404
+                return jsonify({"message": "No category found"}), 404
         else:
             # user is not legit, so the payload is an error message for expired token
             message = user_id
@@ -224,6 +226,7 @@ def get_categories():
                 'message': message
             }
             return make_response(jsonify(response)), 401
+
 
 @category.route('/api/v1/categories/<int:id>', methods=['DELETE'])
 def delete_category(id, **kwargs):
@@ -244,7 +247,7 @@ def delete_category(id, **kwargs):
 
     responses:
       200:
-        description:  category successfully deleted 
+        description:  category successfully deleted
       201:
         description: For successful deletion of an existing category
         schema:
@@ -300,6 +303,7 @@ def delete_category(id, **kwargs):
             # return an error response, telling the user he is Unauthorized
             return make_response(jsonify(response)), 401
 
+
 @category.route('/api/v1/categories/<int:id>', methods=['PUT'])
 def edit_category(id, **kwargs):
     """
@@ -322,7 +326,7 @@ def edit_category(id, **kwargs):
         - TokenHeader: []
     responses:
       200:
-        description:  category successfully updated 
+        description:  category successfully updated
       201:
         description: For successful update of an existing category
         schema:
@@ -358,22 +362,22 @@ def edit_category(id, **kwargs):
         if not isinstance(user_id, str):
             name = str(request.data.get('name')).strip()
             if name =="None":
-                    return jsonify({"message": "Nothing is provided" }),400
+                    return jsonify({"message": "Nothing is provided" }), 400
             if isinstance(name, int):
-                return jsonify({"message": "category name should not be an integer" }),400
+                return jsonify({"message": "category name should not be an integer" }), 400
             if not name or name.isspace():
-                return jsonify({'message': 'Category name is required'}),422
+                return jsonify({'message': 'Category name is required'}), 422
             if is_valid(name):
-                return jsonify({'message': 'Category name should not have special characters'}),400
-            if hasNumbers(name):
-                return jsonify({'message': 'Category name should not have numbers'}),400
+                return jsonify({'message': 'Category name should not have special characters'}), 400
+            if has_numbers(name):
+                return jsonify({'message': 'Category name should not have numbers'}), 400
             name = name.title()
             result = Category.query.filter_by(name=name, created_by=user_id).first()
             if result:
-                return jsonify({"message": "name already exists"}),400
+                return jsonify({"message": "name already exists"}), 400
             category = Category.query.filter_by(id=id,created_by=user_id).first()
             if not category:
-                return jsonify({"message": "No category found to edit"}),404
+                return jsonify({"message": "No category found to edit"}), 404
             else:
                 name = str(request.data.get('name', ''))
                 category.name = name
@@ -417,7 +421,7 @@ def get_category_by_id(id, **kwargs):
 
     responses:
       200:
-        description:  category successfully retrieved 
+        description:  category successfully retrieved
       201:
         description: For getting a valid categoryname by id
         schema:
@@ -443,7 +447,7 @@ def get_category_by_id(id, **kwargs):
     """
     auth_header = request.headers.get('Authorization')
     if auth_header is None:
-        return jsonify({"message": "No token, please provide a token" }),401
+        return jsonify({"message": "No token, please provide a token" }), 401
     access_token = auth_header.split(" ")[1]
 
     if access_token:
@@ -451,7 +455,7 @@ def get_category_by_id(id, **kwargs):
         if not isinstance(user_id, str):
             category = Category.query.filter_by(id=id,created_by=user_id).first()
             if not category:
-                return jsonify({"message": "No category found by id"}),404
+                return jsonify({"message": "No category found by id"}), 404
             else:
                 # Handle GET request, sending back category to the user
                 response = {

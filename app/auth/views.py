@@ -21,7 +21,7 @@ class RegistrationView(MethodView):
             type: string
             description: This route registers a new user
         responses:
-          200:
+          201:
             description: You successfully registered 
           201:
             description: You successfully registered , please login
@@ -85,9 +85,10 @@ class RegistrationView(MethodView):
             if not user:
                 post_data = request.data
                 # Register the user
-                email = post_data['email']
+                email = post_data['email'].strip()
                 password = post_data['password'].strip()
-
+                if not password:
+                  return jsonify({"message":"password required please"}), 401
                 if len(password) > 6 and re.match("[^@]+@[^@]+\.[^@]+", email):
                     user = User(email=email, password=password)
                     user.save()
@@ -111,7 +112,7 @@ class RegistrationView(MethodView):
             # An error occured, therefore return a string message containing the error
             response = {
                 # 'message': str(e)
-                'message': 'please input both email and password in json form'
+                'message': 'Invalid data, ensure proper json'
             }
             return make_response(jsonify(response)), 400
 

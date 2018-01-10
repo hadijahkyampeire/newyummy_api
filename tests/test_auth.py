@@ -28,6 +28,13 @@ class AuthTestCase(unittest.TestCase):
         self.assertEqual(
             result['message'], "You registered successfully. Please login.")
         self.assertEqual(res.status_code, 201)
+        
+    def test_registration_with_no_password(self):
+        """Test user registration with no password."""
+        half_data={"email":"example@gmail.com","password":""}
+        res = self.client().post('/api/v1/auth/register',data=half_data)
+        result = json.loads(res.data.decode())
+        self.assertEqual(res.status_code, 401)
 
     def test_already_registered_user(self):
         """Test that a user cannot be registered twice."""
@@ -116,17 +123,11 @@ class AuthTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 401)
         self.assertIn('invalid'or 'expired', str(response.data).lower())
 
-    def test_if_the_user_is_registered_on_reset_password(self):
-        """Test if user is registered before reset password"""
-        firstuser = {"email": " kyampeire@gmail.com", "password": "12234567"}
-        res = self.client().post('/api/v1/auth/register', data=firstuser)
-        login_res = self.client().post('/api/v1/auth/login', data=firstuser)
-        result = json.loads(login_res.data.decode())
-        access_token = result['access_token']
+    def test_token_is_needed_before_changing_password(self):
+        """Test for token required on reset password"""
         user_data = {"email": " hadijah@gmail.com",
                      "password": "7890654", "new_password": "8765432"}
-        res = self.client().post('/api/v1/auth/reset_password', headers=dict(
-            Authorization="Bearer " + access_token), data=user_data)
+        res = self.client().post('/api/v1/auth/reset_password', data=user_data)
         self.assertEqual(res.status_code, 401)
 
     def test_new_password_length_is_morethan_6(self):
@@ -145,3 +146,4 @@ class AuthTestCase(unittest.TestCase):
         result = json.loads(res.data.decode())
         self.assertEqual(result['message'],
              "new password needs to be more than 6 characters")
+    
