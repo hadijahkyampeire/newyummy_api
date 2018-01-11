@@ -215,7 +215,7 @@ def get_recipes(id, **kwargs):
             results = []
             if q:
                 for recipe in recipes.items:
-                    if q in recipe.title.lower() or q in recipe.description.lower():
+                    if q in recipe.title.lower() or q in recipe.description:
                         obj = {}
                         obj = {
                             'id': recipe.id,
@@ -236,7 +236,7 @@ def get_recipes(id, **kwargs):
                         'date_modified': recipe.date_modified,
                         'category_identity': id,
                         'Next_page': recipes.next_num,
-                        'Previous_page':recipes.prev_num
+                        'Previous_page': recipes.prev_num
                     }
                     results.append(obj)
             if len(results) <= 0:
@@ -307,14 +307,14 @@ def delete_recipe(id, recipe_id, **kwargs):
         user_id = User.decode_token(access_token)
         if not isinstance(user_id, str):
             identity = Category.query.filter_by(id=id,
-                       created_by=user_id).first()
+                                                created_by=user_id).first()
             if not identity:
-                return jsonify({"message":"You don't have"
-                                    " that recipe in that category"}), 400
+                return jsonify({"message": "You don't have"
+                                " that recipe in that category"}), 400
             recipe = Recipe.query.filter_by(id=recipe_id,
                                             category_identity=id).first()
             if not recipe:
-                return jsonify({"message":"No recipes with"
+                return jsonify({"message": "No recipes with"
                                           " that id to delete "}), 404
             else:
                 recipe.delete()
@@ -396,17 +396,17 @@ def edit_recipe(id, recipe_id, **kwargs):
         if not isinstance(user_id, str):
             title = str(request.data.get('title', '')).strip()
             description = str(request.data.get('description', '')).strip()
-            identity = Category.query.filter_by(id=id, 
+            identity = Category.query.filter_by(id=id,
                                                 created_by=user_id).first()
             if not identity:
                 return jsonify({"message": "You do not have"
-                                      " that recipe in that category"}), 400
+                                " that recipe in that category"}), 400
             if isinstance(title, int):
                 return jsonify({"message": "Recipe title"
                                            " should not be an integer"}), 400
             if is_valid(title):
                 return jsonify({'message': 'Recipe title'
-                                 ' should not have special characters'}), 400
+                                ' should not have special characters'}), 400
             if has_numbers(title):
                 return jsonify({'message': 'Recipe title'
                                            ' should not have numbers'}), 400
@@ -506,7 +506,8 @@ def get_recipe_by_id(id, recipe_id, **kwargs):
         # Get the user id related to this access token
         user_id = User.decode_token(access_token)
         if not isinstance(user_id, str):
-            identity = Category.query.filter_by(id=id, created_by=user_id).first()
+            identity = Category.query.filter_by(id=id,
+                                                created_by=user_id).first()
             if not identity:
                 return jsonify({"message": "You don't have"
                                " that recipe in that category"}), 400
