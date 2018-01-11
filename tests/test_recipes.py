@@ -67,14 +67,14 @@ class RecipeTestCase(unittest.TestCase):
             '/api/v1/categories/1',
             headers=dict(Authorization="Bearer " + access_token))
         self.assertIn('Supper', str(result.data))
-        res = self.client().post('/api/v1/categories/1/recipes', 
+        res = self.client().post('/api/v1/categories/1/recipes',
          headers=dict(Authorization="Bearer " + access_token),
          data=self.recipe)
         res = self.client().get('/api/v1/categories/1/recipes',
          headers=dict(Authorization="Bearer " + access_token))
         self.assertEqual(res.status_code, 200)
         self.assertIn('fruit',str(res.data))
-        
+
     def test_api_can_get_recipes_by_pagination(self):
         """Test API can get a recipe by pagination (GET request)."""
         self.register_user()
@@ -89,14 +89,14 @@ class RecipeTestCase(unittest.TestCase):
             headers=dict(Authorization="Bearer " + access_token))
         # assert that the category is actually returned by pagination
         self.assertIn('Supper', str(result.data))
-        res = self.client().post('/api/v1/categories/1/recipes', 
+        res = self.client().post('/api/v1/categories/1/recipes',
            headers=dict(Authorization="Bearer " + access_token),
            data=self.recipe)
         res = self.client().get('/api/v1/categories/1/recipes?page=1&limit=1',
          headers=dict(Authorization="Bearer " + access_token))
         self.assertEqual(res.status_code, 200)
         self.assertIn('fruit',str(res.data))
-        
+
     def test_api_can_get_arecipe_by_q(self):
         """Test API can get a recipe by q search (GET request)."""
         self.register_user()
@@ -111,7 +111,7 @@ class RecipeTestCase(unittest.TestCase):
             headers=dict(Authorization="Bearer " + access_token))
         # assert that the category is actually returned by q
         self.assertIn('Supper', str(result.data))
-        res = self.client().post('/api/v1/categories/1/recipes', 
+        res = self.client().post('/api/v1/categories/1/recipes',
          headers=dict(Authorization="Bearer " + access_token),
          data=self.recipe)
         res = self.client().get('/api/v1/categories/1/recipes?q=fruit',
@@ -133,7 +133,7 @@ class RecipeTestCase(unittest.TestCase):
             headers=dict(Authorization="Bearer " + access_token))
         # assert that the category is actually returned given its ID
         self.assertIn('Supper', str(result.data))
-        res = self.client().post('/api/v1/categories/1/recipes', 
+        res = self.client().post('/api/v1/categories/1/recipes',
          headers=dict(Authorization="Bearer " + access_token),
          data=self.recipe)
         result = self.client().get(
@@ -154,7 +154,7 @@ class RecipeTestCase(unittest.TestCase):
             '/api/v1/categories/1',
             headers=dict(Authorization="Bearer " + access_token))
         self.assertIn('Supper', str(result.data))
-        res = self.client().post('/api/v1/categories/1/recipes', 
+        res = self.client().post('/api/v1/categories/1/recipes',
          headers=dict(Authorization="Bearer " + access_token),
          data=self.recipe)
         rv = self.client().put(
@@ -165,7 +165,7 @@ class RecipeTestCase(unittest.TestCase):
         self.assertEqual(rv.status_code, 200)
         results = self.client().get('/api/v1/categories/1/recipes/1',
          headers=dict(Authorization="Bearer " + access_token))
-        self.assertIn('salads',str(results.data))  
+        self.assertIn('salads',str(results.data))
 
     def test_recipe_deletion(self):
         """Test API can delete an existing recipe. (DELETE request)."""
@@ -191,7 +191,7 @@ class RecipeTestCase(unittest.TestCase):
         # Test to see if it exists, should return a 400
         result = self.client().get('/api/v1/categories/1/recipes/1',
          headers=dict(Authorization="Bearer " + access_token))
-        self.assertEqual(result.status_code, 400) 
+        self.assertEqual(result.status_code, 400)
     def test_deleting_a_recipe_that_doesnot_exist(self):
         self.register_user()
         result = self.login_user()
@@ -226,8 +226,6 @@ class RecipeTestCase(unittest.TestCase):
         )
         result = json.loads(res.data.decode())
         self.assertEqual(res.status_code, 404)
-        self.assertEqual(
-            result['message'], 'No recipes found')
 
     def test_if_recipe_to_edit_doesnot_exist(self):
         """Test if recipe to edit doesnot exist """
@@ -249,7 +247,7 @@ class RecipeTestCase(unittest.TestCase):
             headers=dict(Authorization="Bearer " + access_token),
             data={"title":"salads", "description":"chop"})
         self.assertEqual(result.status_code, 404)
-        
+
     def test_recipe_added_is_space(self):
         """Test API can't add a space as recipe (POST request)"""
         self.register_user()
@@ -270,7 +268,7 @@ class RecipeTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 422)
         self.assertEqual(
             result['message'], 'Recipe title is mostly required')
-            
+
     def test_recipe_added_already_exists(self):
         """Test API can't add existing recipe (POST request)"""
         self.register_user()
@@ -304,8 +302,8 @@ class RecipeTestCase(unittest.TestCase):
         result = self.client().post(
             '/api/v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
-            data=self.category) 
-        recipetitle={"title":"~!@#$%^&*()_={}|\[]<>?/,;:"} 
+            data=self.category)
+        recipetitle={"title":"~!@#$%^&*()_={}|\[]<>?/,;:"}
         res = self.client().post('/api/v1/categories/1/recipes',
              headers=dict(Authorization="Bearer " + access_token), data=recipetitle)
         result = json.loads(res.data.decode())
@@ -322,7 +320,7 @@ class RecipeTestCase(unittest.TestCase):
         result = self.client().post(
             '/api/v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
-            data=self.category) 
+            data=self.category)
         inttitle={"title":"987654"}
         res = self.client().post('/api/v1/categories/1/recipes',
              headers=dict(Authorization= "Bearer " + access_token), data=inttitle)
@@ -343,13 +341,13 @@ class RecipeTestCase(unittest.TestCase):
             '/api/v1/categories/1',
             headers=dict(Authorization="Bearer " + access_token))
         self.assertIn('Supper', str(result.data))
-        res = self.client().post('/api/v1/categories/1/recipes', 
+        res = self.client().post('/api/v1/categories/1/recipes',
          headers=dict(Authorization="Bearer " + access_token),
          data=self.recipe)
         response = self.client().get('/api/v1/categories/1/recipes',
                                   headers=dict(Authorization='Bearer '+ 'Invalid.token'))
-        self.assertEqual(response.status_code, 401)   
-        self.assertIn('invalid'or 'expired', str(response.data).lower()) 
+        self.assertEqual(response.status_code, 401)
+        self.assertIn('invalid'or 'expired', str(response.data).lower())
     def test_when_token_expired_or_invalid_when_posting_recipes(self):
         """Test for expired or invalid when posting recipes"""
         self.register_user()
@@ -372,8 +370,8 @@ class RecipeTestCase(unittest.TestCase):
                                   data=self.recipe)
         print('response',response)
         print('response data',response.data)
-        self.assertEqual(response.status_code, 401)   
-        self.assertIn('invalid'or 'expired', str(response.data).lower()) 
+        self.assertEqual(response.status_code, 401)
+        self.assertIn('invalid'or 'expired', str(response.data).lower())
 
     def test_when_token_expired_or_invalid_when_editing_recipes(self):
         """Test for expired or invalid when editing recipes"""
@@ -391,8 +389,8 @@ class RecipeTestCase(unittest.TestCase):
         response = self.client().put('/api/v1/categories/1/recipes/1',
                                   headers=dict(Authorization='Bearer '+ 'Invalid.token'),
                                   )
-        self.assertEqual(response.status_code, 401)   
-        self.assertIn('invalid'or 'expired', str(response.data).lower()) 
+        self.assertEqual(response.status_code, 401)
+        self.assertIn('invalid'or 'expired', str(response.data).lower())
     def test_when_token_expired_or_invalid_when_getting_recipe_by_id(self):
         """Test for expired or invalid when getting recipes by id"""
         self.register_user()
@@ -409,8 +407,8 @@ class RecipeTestCase(unittest.TestCase):
         response = self.client().get('/api/v1/categories/1/recipes/1',
                                   headers=dict(Authorization='Bearer '+ 'Invalid.token'),
                                   )
-        self.assertEqual(response.status_code, 401)   
-        self.assertIn('invalid'or 'expired', str(response.data).lower()) 
+        self.assertEqual(response.status_code, 401)
+        self.assertIn('invalid'or 'expired', str(response.data).lower())
     def test_when_token_expired_or_invalid_when_deleting_recipes(self):
         """Test for expired or invalid when deleting recipes"""
         self.register_user()
@@ -427,8 +425,8 @@ class RecipeTestCase(unittest.TestCase):
         response = self.client().delete('/api/v1/categories/1/recipes/1',
                                   headers=dict(Authorization='Bearer '+ 'Invalid.token'),
                                   )
-        self.assertEqual(response.status_code, 401)   
-        self.assertIn('invalid'or 'expired', str(response.data).lower()) 
+        self.assertEqual(response.status_code, 401)
+        self.assertIn('invalid'or 'expired', str(response.data).lower())
     def test_when_user_is_getting_arecipe_not_his(self):
         """test_when_user_is_getting_arecipe_not_his"""
         self.register_user()
@@ -479,8 +477,8 @@ class RecipeTestCase(unittest.TestCase):
         result = self.client().post(
             '/api/v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
-            data=self.category) 
-        title={"title":"~!@#$%^&*()_={}|\[]<>?/,;:"} 
+            data=self.category)
+        title={"title":"~!@#$%^&*()_={}|\[]<>?/,;:"}
         res = self.client().put('/api/v1/categories/1/recipes/1',
              headers=dict(Authorization="Bearer " + access_token), data=title)
         result = json.loads(res.data.decode())
@@ -497,7 +495,7 @@ class RecipeTestCase(unittest.TestCase):
         result = self.client().post(
             '/api/v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
-            data=self.category) 
+            data=self.category)
         newtitle={"title":"987654"}
         res = self.client().put('/api/v1/categories/1/recipes/1',
              headers=dict(Authorization= "Bearer " + access_token), data=newtitle)
@@ -515,11 +513,11 @@ class RecipeTestCase(unittest.TestCase):
         result = self.client().get(
             '/api/v1/categories/1',
             headers=dict(Authorization="Bearer " + access_token))
-        res = self.client().post('/api/v1/categories/1/recipes', 
+        res = self.client().post('/api/v1/categories/1/recipes',
          headers=dict(Authorization="Bearer " + access_token),
          data=self.recipe)
         response = self.client().get('/api/v1/categories/1/recipes')
-        self.assertEqual(response.status_code, 401)   
+        self.assertEqual(response.status_code, 401)
     def test_when_no_token_when_posting_recipes(self):
         """Test when no token when posting recipes"""
         self.register_user()
@@ -533,9 +531,9 @@ class RecipeTestCase(unittest.TestCase):
         result = self.client().get(
             '/api/v1/categories/1',
             headers=dict(Authorization="Bearer " + access_token))
-        res = self.client().post('/api/v1/categories/1/recipes', 
+        res = self.client().post('/api/v1/categories/1/recipes',
          data=self.recipe)
-        self.assertEqual(res.status_code, 401)   
+        self.assertEqual(res.status_code, 401)
     def test_when_no_token_when_editing_recipes(self):
         """Test when no token when editing recipes"""
         self.register_user()
@@ -549,11 +547,11 @@ class RecipeTestCase(unittest.TestCase):
         result = self.client().get(
             '/api/v1/categories/1',
             headers=dict(Authorization="Bearer " + access_token))
-        res = self.client().post('/api/v1/categories/1/recipes', 
+        res = self.client().post('/api/v1/categories/1/recipes',
          headers=dict(Authorization="Bearer " + access_token),
          data=self.recipe)
         response = self.client().put('/api/v1/categories/1/recipes/1')
-        self.assertEqual(response.status_code, 401)  
+        self.assertEqual(response.status_code, 401)
     def test_when_no_token_when_deleting_recipes(self):
         """Test when no token when deleting recipes"""
         self.register_user()
@@ -567,17 +565,17 @@ class RecipeTestCase(unittest.TestCase):
         result = self.client().get(
             '/api/v1/categories/1',
             headers=dict(Authorization="Bearer " + access_token))
-        res = self.client().post('/api/v1/categories/1/recipes', 
+        res = self.client().post('/api/v1/categories/1/recipes',
          headers=dict(Authorization="Bearer " + access_token),
          data=self.recipe)
         response = self.client().delete('/api/v1/categories/1/recipes/1')
-        self.assertEqual(response.status_code, 401)    
+        self.assertEqual(response.status_code, 401)
     def tearDown(self):
         """teardown all initialized variables."""
         with self.app.app_context():
             # drop all tables
             db.session.remove()
-            db.drop_all()    
+            db.drop_all()
 
 if __name__ == "__main__":
     unittest.main()
