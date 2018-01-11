@@ -206,9 +206,10 @@ class CategoryTestCase(unittest.TestCase):
         # ensure the request has an authorization header set with the access token in it
         res = self.client().put(
             '/api/v1/categories/1',
-            headers=dict(Authorization="Bearer " + access_token), 
+            headers=dict(Authorization="Bearer " + access_token),
             data={"name":"breakfast"})
         self.assertEqual(res.status_code, 404)
+
     def test_if_category_to_get_doesnot_exist(self):
         """Test if category doesnot exist"""
         self.register_user()
@@ -222,9 +223,7 @@ class CategoryTestCase(unittest.TestCase):
         )
         result = json.loads(res.data.decode())
         self.assertEqual(res.status_code, 404)
-        self.assertEqual(
-            result['message'], 'No category found')
-        
+
     def test_if_category_to_delete_doesnot_exist(self):
         """Test if category to delete doesnot exists already"""
         self.register_user()
@@ -245,7 +244,7 @@ class CategoryTestCase(unittest.TestCase):
         # obtain the access token
         access_token = json.loads(result.data.decode())['access_token']
         categorydata = {"name":"~!@#$%^&*()_={}|\[]<>?/,;:"}
-        res = self.client().post('/api/v1/categories/', 
+        res = self.client().post('/api/v1/categories/',
             headers=dict(Authorization = "Bearer " + access_token),
             data=categorydata)
         result = json.loads(res.data.decode())
@@ -260,7 +259,7 @@ class CategoryTestCase(unittest.TestCase):
         # obtain the access token
         access_token = json.loads(result.data.decode())['access_token']
         categorydata = {"name":"12345678lkyhn"}
-        res = self.client().post('/api/v1/categories/', 
+        res = self.client().post('/api/v1/categories/',
             headers=dict(Authorization = "Bearer " + access_token),
             data=categorydata)
         result = json.loads(res.data.decode())
@@ -274,7 +273,7 @@ class CategoryTestCase(unittest.TestCase):
         # obtain the access token
         access_token = json.loads(result.data.decode())['access_token']
         categoryint = {"name": 4567893 }
-        result1 = self.client().post('/api/v1/categories/', 
+        result1 = self.client().post('/api/v1/categories/',
             headers=dict(Authorization = "Bearer " + access_token),
             data=categoryint)
         result = json.loads(result1.data.decode())
@@ -284,29 +283,29 @@ class CategoryTestCase(unittest.TestCase):
         """Test for expired or invalid when getting categories"""
         response = self.client().get('/api/v1/categories/',
                                   headers=dict(Authorization='Bearer '+ 'Invalid.token'))
-        self.assertEqual(response.status_code, 401)   
-        self.assertIn('invalid'or 'expired', str(response.data).lower()) 
+        self.assertEqual(response.status_code, 401)
+        self.assertIn('invalid'or 'expired', str(response.data).lower())
 
     def test_when_token_expired_or_invalid_when_deleting_categories(self):
         """Test for expired or invalid when deleting categories"""
         response = self.client().delete('/api/v1/categories/1',
                                   headers=dict(Authorization='Bearer '+ 'Invalid.token'))
-        self.assertEqual(response.status_code, 401)   
-        self.assertIn('invalid'or 'expired', str(response.data).lower()) 
+        self.assertEqual(response.status_code, 401)
+        self.assertIn('invalid'or 'expired', str(response.data).lower())
 
     def test_when_token_expired_or_invalid_when_putting_categories(self):
         """Test for expired or invalid when putting categories"""
         response = self.client().put('/api/v1/categories/1',
                                   headers=dict(Authorization='Bearer '+ 'Invalid.token'))
-        self.assertEqual(response.status_code, 401)   
-        self.assertIn('invalid'or 'expired', str(response.data).lower())  
+        self.assertEqual(response.status_code, 401)
+        self.assertIn('invalid'or 'expired', str(response.data).lower())
 
     def test_when_token_expired_or_invalid_when_getting_one_category_by_id(self):
         """Test for expired or invalid when getting category by id"""
         response = self.client().get('/api/v1/categories/1',
                                   headers=dict(Authorization='Bearer '+ 'Invalid.token'))
-        self.assertEqual(response.status_code, 401)   
-        self.assertIn('invalid'or 'expired', str(response.data).lower())  
+        self.assertEqual(response.status_code, 401)
+        self.assertIn('invalid'or 'expired', str(response.data).lower())
 
     def test_category_name_has_characters_when_putting(self):
         """Test if category name can have special characters on editing"""
@@ -315,7 +314,7 @@ class CategoryTestCase(unittest.TestCase):
         # obtain the access token
         access_token = json.loads(result.data.decode())['access_token']
         categorydata = {"name":"~!@#$%^&*()_={}|\[]<>?/,;:"}
-        res = self.client().put('/api/v1/categories/1', 
+        res = self.client().put('/api/v1/categories/1',
             headers=dict(Authorization = "Bearer " + access_token),
             data=categorydata)
         result = json.loads(res.data.decode())
@@ -329,7 +328,7 @@ class CategoryTestCase(unittest.TestCase):
         # obtain the access token
         access_token = json.loads(result.data.decode())['access_token']
         categorydata = {"name":"12345678lkyhn"}
-        res = self.client().put('/api/v1/categories/1', 
+        res = self.client().put('/api/v1/categories/1',
             headers=dict(Authorization = "Bearer " + access_token),
             data=categorydata)
         result = json.loads(res.data.decode())
@@ -367,20 +366,20 @@ class CategoryTestCase(unittest.TestCase):
     def test_when_no_token_is_provided_when_getting_categories(self):
         """test_when_no_token_is_provided_when_getting_categories"""
         response = self.client().get('/api/v1/categories/?q=name')
-        self.assertEqual(response.status_code, 401)   
+        self.assertEqual(response.status_code, 401)
     def test_when_no_token_is_provided_when_creating_categories(self):
         """test_when_no_token_is_provided_when_creating_categories"""
         response = self.client().post('/api/v1/categories/')
-        self.assertEqual(response.status_code, 401)   
+        self.assertEqual(response.status_code, 401)
     def test_when_no_token_is_provided_when_updating_categories(self):
         """test_when_no_token_is_provided_when_deleting_categories"""
         response = self.client().put('/api/v1/categories/1')
-        self.assertEqual(response.status_code, 401)   
-        
+        self.assertEqual(response.status_code, 401)
+
     def test_when_no_token_is_provided_when_getting_categories(self):
         """test_when_no_token_is_provided_when_getting_categories"""
         response = self.client().delete('/api/v1/categories/1')
-        self.assertEqual(response.status_code, 401)   
+        self.assertEqual(response.status_code, 401)
     def tearDown(self):
         """teardown all initialized variables."""
         with self.app.app_context():

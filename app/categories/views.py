@@ -1,14 +1,16 @@
+from flask import request, jsonify, make_response
+from app.models import Category, User
 from .import category
-from flask import request, jsonify, abort, make_response,url_for
-from app.models import Category, User, Recipe
 
 def is_valid(name_string):
+    """Function to handle special characters in inputs"""
     special_character = "~!@#$%^&*()_={}|\[]<>?/,;:"
     return any(char in special_character for char in name_string)
 
 
-def has_numbers(inputString):
-    return any(char.isdigit() for char in inputString)
+def has_numbers(input_string):
+    """Function to handle digits in inputs"""
+    return any(char.isdigit() for char in input_string)
 
 
 @category.route('/api/v1/categories/', methods=['POST'])
@@ -39,18 +41,21 @@ def add_categories():
                 default: Dinner
             response:
                 type: string
-                default: {'id': 1, 'name': Dinner, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'created_by': 1}
+                default: {'id': 1, 'name': Dinner,
+                  'date_created': 22-12-2017,
+                  'date_modified': 22-12-2017,
+                  'created_by': 1}
       400:
-        description: For exceptions like not json data, special characters or numbers
+        description: For json data, special characters or numbers
         schema:
-          id: Invalid name with special characters or numbers or invalid json being added
+          id: Invalid name
           properties:
             name:
               type: string
               default: '@@@@111'
             response:
               type: string
-              default: Category name should not have special characters or numbers
+              default: Category name should not have special characters
       422:
         description: If space or nothing is entered for name
         schema:
@@ -80,17 +85,20 @@ def add_categories():
                 if name =="None":
                     return jsonify({"message": "Nothing is provided" }),400
                 if isinstance(name, int):
-                    return jsonify({"message": "category name should not be an integer" }),400
+                    return jsonify({"message": "category name"
+                                   " should not be an integer" }),400
                 if not name or name.isspace():
-                    return jsonify({'message': 'Category name is required'}),422
+                    return jsonify({'message': 'Category name'
+                                    ' is required'}),422
                 if is_valid(name):
-                    return jsonify({'message': 'Category name should not have special characters'}),400
+                    return jsonify({'message': 'Category name should'
+                              ' not have special characters'}),400
                 if has_numbers(name):
-                    return jsonify({'message': 'Category name should not have numbers'}),400
-
+                    return jsonify({'message': 'Category name should'
+                                    ' not have numbers'}),400
                 name = name.title()
-                result = Category.query.filter_by(name=name, created_by=user_id).first()
-
+                result = Category.query.filter_by(name=name,
+                           created_by=user_id).first()
                 if result:
                     return jsonify({"message": "Category already exists"}),400
 
@@ -111,7 +119,7 @@ def add_categories():
 
                 return make_response(response), 201
         else:
-            # user is not legit, so the payload is an error message for expired token
+            # user is not legit,an error message for expired token
             message = user_id
             response = {
                 'message': message
@@ -159,7 +167,8 @@ def get_categories():
               default: Lunch
             response:
               type: string
-              default: {'id': 1, 'name': Lunch, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'created_by': 1}
+              default: {'id': 1, 'name': Lunch, 'date_created': 22-12-2017,
+                'date_modified': 22-12-2017, 'created_by': 1}
       400:
         description: Searching for a name that is not there or invalid
         schema:
@@ -177,16 +186,15 @@ def get_categories():
         return jsonify({"message": "No token, please provide a token"}), 401
     access_token = auth_header.split()[1]
     if access_token:
-        # Attempt to decode the token and get the User ID
         user_id = User.decode_token(access_token)
         if not isinstance(user_id, str):
-                # GET all the categories created by this user
-                # GET METHOD/categories/
+                # GET all the categories by q or pagination
             page = request.args.get('page', 1, type=int)
             limit = request.args.get('limit', 2, type=int)
             q = str(request.args.get('q', '')).title()
             categories = Category.query.filter_by(
-                created_by=user_id).paginate(page=page, per_page=limit, error_out=False)
+                created_by=user_id).paginate(page=page, per_page=limit,
+                                             error_out=False)
             results = []
             if q:
                 for category in categories.items:
@@ -220,7 +228,7 @@ def get_categories():
             else:
                 return jsonify({"message": "No category found"}), 404
         else:
-            # user is not legit, so the payload is an error message for expired token
+            # user is not legit,an error message for expired token
             message = user_id
             response = {
                 'message': message
@@ -274,33 +282,25 @@ def delete_category(id, **kwargs):
     # retrieve a category using it's ID
     auth_header = request.headers.get('Authorization')
     if auth_header is None:
-        return jsonify({"message": "No token, please provide a token" }),401
+        return jsonify({"message": "No token, please provide a token"}), 401
     access_token = auth_header.split(" ")[1]
-
     if access_token:
         # Get the user id related to this access token
         user_id = User.decode_token(access_token)
-
         if not isinstance(user_id, str):
-            # If the id is not a string(error), we have a user id
-            # Get the category with the id specified from the URL (<int:id>)
-            category = Category.query.filter_by(id=id,created_by=user_id).first()
+            category = Category.query.filter_by(id=id,
+                                                created_by=user_id).first()
             if not category:
-                # There is no category with this ID for this User, so return http code
-                return jsonify({"message": "No category to delete"}),404
+                return jsonify({"message": "No category to delete"}), 404
             if request.method == "DELETE":
-                # delete the category using our delete method
                 category.delete()
                 return {
                     "message": "category {} deleted".format(category.id)
                 }, 200
         else:
-            # user is not legit, so the payload is an error message to handle expired token
+            # user is not legit,an error message to handle expired token
             message = user_id
-            response = {
-                'message': message
-            }
-            # return an error response, telling the user he is Unauthorized
+            response = {'message': message}
             return make_response(jsonify(response)), 401
 
 
@@ -339,7 +339,9 @@ def edit_category(id, **kwargs):
               default: Supper
             response:
               type: string
-              default: {'id': 1, 'name': Supper, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'created_by': 1}
+              default: {'id': 1, 'name': Supper,
+                   'date_created': 22-12-2017,
+                   'date_modified': 22-12-2017, 'created_by': 1}
       400:
         description: updating category which doesnot exist
         schema:
@@ -354,28 +356,32 @@ def edit_category(id, **kwargs):
     """
     auth_header = request.headers.get('Authorization')
     if auth_header is None:
-        return jsonify({"message": "No token, please provide a token" }),401
+        return jsonify({"message": "No token, please provide a token"}), 401
     access_token = auth_header.split(" ")[1]
-
     if access_token:
         user_id = User.decode_token(access_token)
         if not isinstance(user_id, str):
             name = str(request.data.get('name')).strip()
-            if name =="None":
-                    return jsonify({"message": "Nothing is provided" }), 400
+            if name == "None":
+                return jsonify({"message": "Nothing is provided"}), 400
             if isinstance(name, int):
-                return jsonify({"message": "category name should not be an integer" }), 400
+                return jsonify({"message": "category name should"
+                                           " not be an integer"}), 400
             if not name or name.isspace():
                 return jsonify({'message': 'Category name is required'}), 422
             if is_valid(name):
-                return jsonify({'message': 'Category name should not have special characters'}), 400
+                return jsonify({'message': 'Category name should'
+                                         ' not have special characters'}), 400
             if has_numbers(name):
-                return jsonify({'message': 'Category name should not have numbers'}), 400
+                return jsonify({'message': 'Category name should'
+                                           ' not have numbers'}), 400
             name = name.title()
-            result = Category.query.filter_by(name=name, created_by=user_id).first()
+            result = Category.query.filter_by(name=name,
+                                              created_by=user_id).first()
             if result:
                 return jsonify({"message": "name already exists"}), 400
-            category = Category.query.filter_by(id=id,created_by=user_id).first()
+            category = Category.query.filter_by(id=id,
+                                                created_by=user_id).first()
             if not category:
                 return jsonify({"message": "No category found to edit"}), 404
             else:
@@ -394,12 +400,9 @@ def edit_category(id, **kwargs):
                 }
                 return make_response(jsonify(response)), 200
         else:
-            # user is not legit, so the payload is an error message to handle expired token
+            # user is not legit,an error message to handle expired token
             message = user_id
-            response = {
-                'message': message
-            }
-            # return an error response, telling the user he is Unauthorized
+            response = {'message': message}
             return make_response(jsonify(response)), 401
 
 
@@ -432,7 +435,10 @@ def get_category_by_id(id, **kwargs):
               default: 1
             response:
               type: string
-              default: {'id': 1, 'name': Lunch, 'date_created': 22-12-2017, 'date_modified': 22-12-2017, 'created_by': 1}
+              default: {'id': 1, 'name': Lunch,
+                'date_created': 22-12-2017,
+                'date_modified': 22-12-2017,
+                'created_by': 1}
       400:
         description: Searching for the id that is not there
         schema:
@@ -447,17 +453,16 @@ def get_category_by_id(id, **kwargs):
     """
     auth_header = request.headers.get('Authorization')
     if auth_header is None:
-        return jsonify({"message": "No token, please provide a token" }), 401
+        return jsonify({"message": "No token, please provide a token"}), 401
     access_token = auth_header.split(" ")[1]
-
     if access_token:
         user_id = User.decode_token(access_token)
         if not isinstance(user_id, str):
-            category = Category.query.filter_by(id=id,created_by=user_id).first()
+            category = Category.query.filter_by(id=id,
+                                                created_by=user_id).first()
             if not category:
                 return jsonify({"message": "No category found by id"}), 404
             else:
-                # Handle GET request, sending back category to the user
                 response = {
                     "message": "category {} found".format(category.id),
                     'category': {
@@ -470,12 +475,9 @@ def get_category_by_id(id, **kwargs):
                 }
                 return make_response(jsonify(response)), 200
         else:
-            # user is not legit, so the payload is an error message to handle expired token
+            # user is not legit,an error message to handle expired token
             message = user_id
-            response = {
-                'message': message
-            }
-            # return an error response, telling the user he is Unauthorized
+            response = {'message': message}
             return make_response(jsonify(response)), 401
 
 
