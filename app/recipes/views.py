@@ -2,77 +2,13 @@ from .import recipe
 from flask import request, jsonify, abort, make_response
 from app.models import Category, User, Recipe
 from app.categories.views import is_valid, has_numbers
+from flasgger import swag_from
 
 
 @recipe.route('/api/v1/categories/<int:id>/recipes', methods=['POST'])
+@swag_from('/app/docs/addrecipe.yml')
 def add_recipes(id, **kwargs):
-    """
-    Method for posting recipes
-    ---
-    tags:
-        - Recipe functions
-    parameters:
-        - in: path
-          name: id
-          required: true
-          type: integer
-          description: input the category id where you want to add recipes
-        - in: body
-          name: body
-          required: true
-          type: string
-          description: input json data as recipe details
-    security:
-        - TokenHeader: []
-
-    responses:
-      200:
-        description:  recipe successfully created
-      201:
-        description: Recipe created successfully
-        schema:
-          id: Add recipe
-          properties:
-            title:
-              type: string
-              default: pilau
-            description:
-              type: string
-              default: burn onions
-            response:
-              type: string
-              default: {'id': 1, 'title': pilau, 'description': burn onions,
-                    'date_created': 22-12-2017, 'date_modified': 22-12-2017,
-                    'category_identity': 1}
-      400:
-        description: For json data, special characters the recipes
-        schema:
-          id: Invalid name
-          properties:
-            title:
-              type: string
-              default: '@@@kl'
-            description:
-              type: string
-              default: burn onions
-            response:
-              type: string
-              default: Recipe title should not have special characters or numbers
-      422:
-        description: If space or nothing is entered for title
-        schema:
-          id: Add empty recipe
-          properties:
-            title:
-              type: string
-              default: " "
-            description:
-              type: string
-              default: burn onions
-            response:
-              type: string
-              default: Recipe title mostly required
-    """
+    """This route handles posting a recipe"""
     auth_header = request.headers.get('Authorization')
     if auth_header is None:
         return jsonify({"message": "No token, please provide a token"}), 401
@@ -132,68 +68,9 @@ def add_recipes(id, **kwargs):
 
 
 @recipe.route('/api/v1/categories/<int:id>/recipes', methods=['GET'])
+@swag_from('/app/docs/getrecipes.yml')
 def get_recipes(id, **kwargs):
-    """
-    This route is for a user to get recipes by q or pagination
-    ---
-    tags:
-        - Recipe functions
-
-    parameters:
-        - in: path
-          name: id
-          required: true
-          type: integer
-          description: specify the category id where the recipe belongs
-        - in: query
-          name: q
-          required: false
-          type: string
-          description: query by recipe name
-        - in: query
-          name: page
-          required: false
-          type: integer
-          description: query by specifying the page number
-        - in: query
-          name: per_page
-          required: false
-          type: integer
-          description: query by specifying the number of items per_page
-    security:
-        - TokenHeader: []
-    responses:
-      200:
-        description:  recipe successfully retrieved
-      201:
-        description: For getting a valid recipe by q or pagination
-        schema:
-          id: successful retrieve of recipe
-          properties:
-            q search by title:
-              type: string
-              default: ?q=p
-            pagination search:
-              type: string
-              default: ?page=1&per_page=1
-            response:
-              type: string
-              default: {'id': 1, 'title': pilau,
-                'description': burn onions,
-                'date_created': 22-12-2017,
-                'date_modified': 22-12-2017, 'category_identity': 1}
-      400:
-        description: Searching for a title that is not there or invalid
-        schema:
-          id: invalid GET recipe
-          properties:
-            title:
-              type: string
-              default: '33erdg@@'
-            response:
-              type: string
-              default: No recipe found
-    """
+    """This route handles getting recipes"""
     auth_header = request.headers.get('Authorization')
     if auth_header is None:
         return jsonify({"message": "No token, please provide a token" }),401
@@ -253,51 +130,9 @@ def get_recipes(id, **kwargs):
 
 
 @recipe.route('/api/v1/categories/<int:id>/recipes/<int:recipe_id>', methods=['DELETE'])
+@swag_from('/app/docs/deleterecipe.yml')
 def delete_recipe(id, recipe_id, **kwargs):
-    """
-    This method is for deleting recipe by id
-    ---
-    tags:
-        - Recipe functions
-    parameters:
-        - in: path
-          name: id
-          required: true
-          type: integer
-          description: specify the category id for the recipe
-        - in: path
-          name: recipe_id
-          required: true
-          type: integer
-          description: specify the recipe id you want to delete
-    security:
-        - TokenHeader: []
-
-    responses:
-      200:
-        description:  recipe successfully deleted
-      201:
-        description: For successful deletion of an existing recipe
-        schema:
-          id: successful deletion of recipe
-          properties:
-            id:
-              default: 1
-            response:
-              type: string
-              default: recipe 1 deleted
-      204:
-        description: Deleting a recipe which doesnot exist
-        schema:
-          id: invalid Delete of recipes
-          properties:
-            id:
-              type: string
-              default: 50
-            response:
-              type: string
-              default: No recipe with that id  found to delete
-    """
+    """This route handles deleting a recipe by id"""
     auth_header = request.headers.get('Authorization')
     if auth_header is None:
         return jsonify({"message": "No token, please provide a token"}), 401
@@ -329,64 +164,9 @@ def delete_recipe(id, recipe_id, **kwargs):
 
 
 @recipe.route('/api/v1/categories/<int:id>/recipes/<int:recipe_id>', methods=['PUT'])
+@swag_from('/app/docs/updaterecipes.yml')
 def edit_recipe(id, recipe_id, **kwargs):
-    """
-    This method is for editing categories
-    ---
-    tags:
-        - Recipe functions
-    parameters:
-        - in: path
-          name: id
-          required: true
-          type: integer
-          description: specify the category id for the recipe
-        - in: path
-          name: recipe_id
-          required: true
-          type: integer
-          description: specify the recipe id you want to update
-        - in: body
-          name: body
-          required: true
-          type: string
-          description: input new recipe details to edit a recipe
-    security:
-        - TokenHeader: []
-    responses:
-      200:
-        description:  recipe successfully updated
-      201:
-        description: For successful update of an existing recipe
-        schema:
-          id: successful update of recipe
-          properties:
-            id:
-              default: 1
-            title:
-              type: string
-              default: milkshake
-            description:
-              type: string
-              default: mix with coffee
-            response:
-              type: string
-              default: {'id': 1, 'title': milkshake,
-                    'description': mix with coffee,
-                     date_created': 22-12-2017,
-                     'date_modified': 22-12-2017, 'category_id': 1}
-      400:
-        description: updating recipe which doesnot exist
-        schema:
-          id: invalid update of recipes
-          properties:
-            id:
-              type: string
-              default: 100
-            response:
-              type: string
-              default: No recipe found to edit
-    """
+    """This route handles update a recipe by id"""
     auth_header = request.headers.get('Authorization')
     if auth_header is None:
         return jsonify({"message": "No token, please provide a token"}), 401
@@ -448,56 +228,9 @@ def edit_recipe(id, recipe_id, **kwargs):
 
 
 @recipe.route('/api/v1/categories/<int:id>/recipes/<int:recipe_id>', methods=['GET'])
+@swag_from('/app/docs/getrecipe.yml')
 def get_recipe_by_id(id, recipe_id, **kwargs):
-    """
-    This method is for getting category by id
-    ---
-    tags:
-        - Recipe functions
-    parameters:
-        - in: path
-          name: id
-          required: true
-          type: integer
-          description: specify the category id for the recipe
-        - in: path
-          name: recipe_id
-          required: true
-          type: integer
-          description: specify the recipe id you want to get
-    security:
-        - TokenHeader: []
-
-    responses:
-      200:
-        description:  recipe successfully retrieved
-      201:
-        description: For getting a valid recipe title by id
-        schema:
-          id: successful retrieve recipe by id
-          properties:
-            name:
-              type: integer
-              default: 1
-            response:
-              type: string
-              default: {'id': 1, 'title': milkshake,
-                 'description': mix with coffee,
-                 'date_created': 22-12-2017,
-                 'date_modified': 22-12-2017,
-                 'category_id': 1}
-      400:
-        description: Searching for the recipe id that is not there
-        schema:
-          id: invalid GET recipe by id
-          properties:
-            id:
-              type: integer
-              default: 100
-            response:
-              type: string
-              default: No recipe found with that id
-    """
+    """This route handles getting a recipe by id"""
     auth_header = request.headers.get('Authorization')
     if auth_header is None:
         return jsonify({"message": "No token, please provide a token"}), 401
