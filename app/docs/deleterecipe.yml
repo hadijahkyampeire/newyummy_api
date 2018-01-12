@@ -1,0 +1,42 @@
+This method is for deleting recipe by id
+---
+tags:
+    - Recipe functions
+parameters:
+    - in: path
+      name: id
+      required: true
+      type: integer
+      description: specify the category id for the recipe
+    - in: path
+      name: recipe_id
+      required: true
+      type: integer
+      description: specify the recipe id you want to delete
+security:
+    - TokenHeader: []
+
+responses:
+  200:
+    description:  recipe successfully deleted
+  201:
+    description: For successful deletion of an existing recipe
+    schema:
+      id: successful deletion of recipe
+      properties:
+        id:
+          default: 1
+        response:
+          type: string
+          default: recipe 1 deleted
+  204:
+    description: Deleting a recipe which doesnot exist
+    schema:
+      id: invalid Delete of recipes
+      properties:
+        id:
+          type: string
+          default: 50
+        response:
+          type: string
+          default: No recipe with that id  found to delete

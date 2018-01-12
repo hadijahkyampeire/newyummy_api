@@ -1,0 +1,46 @@
+This method is for editing categories
+---
+tags:
+    - Category functions
+parameters:
+    - in: path
+      name: id
+      required: true
+      type: integer
+      description: first specify the category id
+    - in: body
+      name: body
+      required: true
+      type: string
+      description: input new json data to replace the existing on
+security:
+    - TokenHeader: []
+responses:
+  200:
+    description:  category successfully updated
+  201:
+    description: For successful update of an existing category
+    schema:
+      id: successful update
+      properties:
+        id:
+          default: 1
+        name:
+          type: string
+          default: Supper
+        response:
+          type: string
+          default: {'id': 1, 'name': Supper,
+                'date_created': 22-12-2017,
+                'date_modified': 22-12-2017, 'created_by': 1}
+  400:
+    description: updating category which doesnot exist
+    schema:
+      id: invalid update
+      properties:
+        id:
+          type: string
+          default: 100
+        response:
+          type: string
+          default: No category found to edit

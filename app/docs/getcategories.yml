@@ -1,0 +1,48 @@
+This method is for getting categories
+---
+tags:
+    - Category functions
+parameters:
+    - in: query
+      name: q
+      required: false
+      type: string
+      description: search category by querying the name
+    - in: query
+      name: page
+      required: false
+      type: integer
+      description: search categories by querying the page number
+    - in: query
+      name: per_page
+      required: false
+      type: integer
+      description: search by specifying number of items on a page
+security:
+    - TokenHeader: []
+responses:
+  200:
+    description:  category successfully retrieved
+  201:
+    description: For getting a valid categoryname by q or pagination
+    schema:
+      id: successful retrieve of category
+      properties:
+        name:
+          type: string
+          default: Lunch
+        response:
+          type: string
+          default: {'id': 1, 'name': Lunch, 'date_created': 22-12-2017,
+            'date_modified': 22-12-2017, 'created_by': 1}
+  400:
+    description: Searching for a name that is not there or invalid
+    schema:
+      id: invalid GET
+      properties:
+        name:
+          type: string
+          default: '33erdg@@'
+        response:
+          type: string
+          default: No category found

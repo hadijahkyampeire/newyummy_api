@@ -4,82 +4,13 @@ from flask.views import MethodView
 from flask import make_response, request, jsonify, json, abort
 from app.models import User, RevokedToken
 from flask_bcrypt import Bcrypt
+from flasgger import swag_from
 
 class RegistrationView(MethodView):
     """This class registers a new user."""
-
+    @swag_from('/app/docs/register.yml')
     def post(self):
-        """
-        Handle POST request for this view. Url ---> /api/v1/auth/register 
-        ---
-        tags:
-          - User Authentication
-        parameters:
-          - in: body
-            name: body
-            required: true
-            type: string
-            description: This route registers a new user
-        responses:
-          201:
-            description: You successfully registered 
-          201:
-            description: You successfully registered , please login
-            schema:
-              id: successful Register 
-              properties:
-                email:
-                  type: string
-                  default: hadijah.kyampeire@andela.com
-                password:
-                  type: string
-                  default: 1234567
-                response:
-                  type: string
-                  default: You registered successfully. Please login.
-          400:
-            description: For invalid data
-            schema:
-              id: Register User with invalid
-              properties:
-                email:
-                  type: string
-                  default: hadijah
-                password:
-                  type: string
-                  default: 12345
-                response:
-                  type: string
-                  default: Invalid email or password, Please try again with a valid email and a password with morethan 6 characters
-          400:
-            description: wrong json
-            schema:
-              id: Invalid Register
-              properties:
-                email:
-                  default: hadijah@gmail.com
-                password:
-                  type: string
-                  default: 1234897
-                response:
-                  type: string
-                  default: please input both email and password in json form'
-          202:
-            description: Duplication
-            schema:
-              id: Exceptions
-              properties:
-                email:
-                  type: string
-                  default: hadijah.kyampeire@andela.com
-                password:
-                  type: string
-                  default: 1234567
-                response:
-                  type: string
-                  default: User already exists. Please login.'
-        """
-
+        """This route is for registering a user """
         try:
             user = User.query.filter_by(email=request.data['email']).first()
             if not user:
@@ -118,55 +49,12 @@ class RegistrationView(MethodView):
 
 class LoginView(MethodView):
     """This class-based view handles user login and access token generation."""
-
+    @swag_from('/app/docs/login.yml')
     def post(self):
-        """
-        Handle POST request for this view. Url ---> /api/v1/auth/login
-        ---
-        tags:
-          - User Authentication
-        parameters:
-          - in: body
-            name: body
-            required: true
-            type: string
-            description: This route logs in a user
-        responses:
-          200:
-            description: User logged in successfully
-          201:
-            description: You successfully registered , please login
-            schema:
-              id: successful login
-              properties:
-                email:
-                  type: string
-                  default: hadijah.kyampeire@andela.com
-                password:
-                  type: string
-                  default: 1234567
-                response:
-                  type: string
-                  default: access_token="eyJ0eXAiOiJKV1QiLCJhbGci" You logged in successfully..
-          400:
-            description: login before signup
-            schema:
-              id: Register User with invalid
-              properties:
-                email:
-                  type: string
-                  default: hadijah@gmail.com
-                password:
-                  type: string
-                  default: 0987654
-                response:
-                  type: string
-                  default: Invalid email or password, Please try again' 
-        """
+        """This route is for handling login"""
         try:
             # Get the user object using their email (unique to every user)
             user = User.query.filter_by(email=request.data['email']).first()
-
             # Try to authenticate the found user using their password
             if user and user.password_is_valid(request.data['password']):
                 # Generate the access token. This will be used as the authorization header
@@ -183,51 +71,17 @@ class LoginView(MethodView):
                     'message': 'Invalid email or password, Please try again'
                 }
                 return make_response(jsonify(response)), 401
-
         except Exception as e:  # pragma: no cover
             # Create a response containing an string error message
             response = {
-                # 'message': str(e)
-                'message': "An error occured ensure proper login"
-            }
+                'message': "An error occured ensure proper login"}
             # Return a server error using the HTTP Error Code 500 (Internal Server Error)
             return make_response(jsonify(response)), 401
 
 class ResetPasswordView(MethodView):
-
+    @swag_from('/app/docs/change.yml')
     def post(self):
-        """
-        Allows user to change password. Url ---> /api/v1/auth/reset_password 
-        ---
-        tags:
-          - User Authentication
-        parameters:
-          - in: body
-            name: body
-            required: true
-            type: string
-            description: first input your credentials then Input new password 
-        security:
-          - TokenHeader: []
-        responses:
-          200:
-            description: User successfully created   
-          201:
-            description: You successfully registered , please login
-            schema:
-              id: successful reset password
-              properties:
-                email:
-                  type: string
-                  default: hadijah.kyampeire@andela.com
-                password:
-                  type: string
-                  default: 0987654
-                response:
-                  type: string
-                  default: password reset successfully..
-
-        """
+        """This route handles changing password"""
         auth_header = request.headers.get('Authorization')
         if auth_header is None:
           return jsonify({"message": "No token, please provide a token" }),401
@@ -264,18 +118,9 @@ class ResetPasswordView(MethodView):
                 return make_response(jsonify(response)), 401
 
 class Logout_view(MethodView):
+    @swag_from('/app/docs/logout.yml')
     def post(self):
-        """
-        Handle POST request for this view. Url ---> /api/v1/auth/logout
-        ---
-        tags:
-          - User Authentication
-        security:
-          - TokenHeader: []
-        responses:
-          200:
-            description: you logged out successfully   
-        """
+        """This route handles logout """
         auth_header = request.headers.get('Authorization')
         if auth_header is None:
           return jsonify({"message": "No token, please provide a token" }),401
