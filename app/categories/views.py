@@ -2,6 +2,7 @@ from flask import request, jsonify, make_response
 from app.models import Category, User
 from .import category
 from flasgger import swag_from
+from .validations import valid_category
 
 def is_valid(name_string):
     """Function to handle special characters in inputs"""
@@ -20,7 +21,7 @@ def add_categories():
     """This route handles posting categories"""
     auth_header = request.headers.get('Authorization')
     if auth_header is None:
-        return jsonify({"message": "No token, please provide a token" }),401
+        return jsonify({"message": "No token, please provide a token"}),401
     access_token = auth_header.split(" ")[1]
     if access_token:
         # Attempt to decode the token and get the User ID
@@ -28,22 +29,9 @@ def add_categories():
         if not isinstance(user_id, str):
             # Go ahead and handle the request, the user is authenticated
             if request.method == "POST":
-                # name = str(request.data.get('name', ''))
                 name = str(request.data.get('name')).strip()
-                if name =="None":
-                    return jsonify({"message": "Nothing is provided" }),400
-                if isinstance(name, int):
-                    return jsonify({"message": "category name"
-                                   " should not be an integer" }),400
-                if not name or name.isspace():
-                    return jsonify({'message': 'Category name'
-                                    ' is required'}),422
-                if is_valid(name):
-                    return jsonify({'message': 'Category name should'
-                              ' not have special characters'}),400
-                if has_numbers(name):
-                    return jsonify({'message': 'Category name should'
-                                    ' not have numbers'}),400
+                resultn = valid_category(name)
+                return jsonify(resultn), 400
                 name = name.title()
                 result = Category.query.filter_by(name=name,
                            created_by=user_id).first()
@@ -111,8 +99,8 @@ def get_categories():
                         'date_created': category.date_created,
                         'date_modified': category.date_modified,
                         'created_by': category.created_by,
-                        'Next_page':categories.next_num,
-                        'Previous_page':categories.prev_num
+                        'Next_page': categories.next_num,
+                        'Previous_page': categories.prev_num
                     }
                     results.append(obj)
             if len(results) <= 0:
@@ -168,19 +156,8 @@ def edit_category(id, **kwargs):
         user_id = User.decode_token(access_token)
         if not isinstance(user_id, str):
             name = str(request.data.get('name')).strip()
-            if name == "None":
-                return jsonify({"message": "Nothing is provided"}), 400
-            if isinstance(name, int):
-                return jsonify({"message": "category name should"
-                                           " not be an integer"}), 400
-            if not name or name.isspace():
-                return jsonify({'message': 'Category name is required'}), 422
-            if is_valid(name):
-                return jsonify({'message': 'Category name should'
-                                         ' not have special characters'}), 400
-            if has_numbers(name):
-                return jsonify({'message': 'Category name should'
-                                           ' not have numbers'}), 400
+            result2 = valid_category(name)
+            return jsonify(result2), 400
             name = name.title()
             result = Category.query.filter_by(name=name,
                                               created_by=user_id).first()
