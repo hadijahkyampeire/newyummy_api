@@ -3,7 +3,7 @@ from flask import request, jsonify, abort, make_response
 from app.models import Category, User, Recipe
 from app.categories.views import is_valid, has_numbers
 from flasgger import swag_from
-
+from .validations import valid_recipe_title
 
 @recipe.route('/api/v1/categories/<int:id>/recipes', methods=['POST'])
 @swag_from('/app/docs/addrecipe.yml')
@@ -19,20 +19,8 @@ def add_recipes(id, **kwargs):
             if request.method == "POST":
                 title = str(request.data.get('title', '')).strip()
                 description = str(request.data.get('description', ''))
-                if title == "None":
-                    return jsonify({"message": "Nothing is provided"}), 400
-                if isinstance(title, int):
-                    return jsonify({"message": "Recipe title"
-                                          " should not be an integer"}), 400
-                if is_valid(title):
-                    return jsonify({'message': 'Recipe title should'
-                                        ' not have special characters'}), 400
-                if has_numbers(title):
-                    return jsonify({'message': 'Recipe title'
-                                             ' should not have numbers'}), 400
-                if not title or title.isspace():
-                    return jsonify({'message': 'Recipe title'
-                                               ' is mostly required'}), 422
+                result1 = valid_recipe_title(title)
+                return jsonify(result1), 400
                 identity = Category.query.filter_by(id=id,
                                                 created_by=user_id).first()
                 if not identity:
@@ -178,21 +166,8 @@ def edit_recipe(id, recipe_id, **kwargs):
             description = str(request.data.get('description', '')).strip()
             identity = Category.query.filter_by(id=id,
                                                 created_by=user_id).first()
-            if not identity:
-                return jsonify({"message": "You do not have"
-                                " that recipe in that category"}), 400
-            if isinstance(title, int):
-                return jsonify({"message": "Recipe title"
-                                           " should not be an integer"}), 400
-            if is_valid(title):
-                return jsonify({'message': 'Recipe title'
-                                ' should not have special characters'}), 400
-            if has_numbers(title):
-                return jsonify({'message': 'Recipe title'
-                                           ' should not have numbers'}), 400
-            if not title or title.isspace():
-                return jsonify({'message': 'Recipe title'
-                                           ' is mostly required'}), 422
+            result2 = valid_recipe_title(title)
+            return jsonify(result2), 400
             title = title.lower()
             result = Recipe.query.filter_by(title=title,
                                             category_identity=id).first()
