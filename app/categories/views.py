@@ -2,18 +2,7 @@ from flask import request, jsonify, make_response
 from app.models import Category, User
 from .import category
 from flasgger import swag_from
-from .validations import valid_category
-
-def is_valid(name_string):
-    """Function to handle special characters in inputs"""
-    special_character = "~!@#$%^&*()_={}|\[]<>?/,;:"
-    return any(char in special_character for char in name_string)
-
-
-def has_numbers(input_string):
-    """Function to handle digits in inputs"""
-    return any(char.isdigit() for char in input_string)
-
+from .validations import valid_category, is_valid, has_numbers
 
 @category.route('/api/v1/categories/', methods=['POST'])
 @swag_from('/app/docs/addcategories.yml')
