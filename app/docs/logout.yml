@@ -1,0 +1,9 @@
+Handle POST request for this view. Url ---> /api/v1/auth/logout
+---
+tags:
+  - User Authentication
+security:
+  - TokenHeader: []
+responses:
+  200:
+    description: you logged out successfully  

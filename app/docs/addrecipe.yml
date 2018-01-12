@@ -1,0 +1,65 @@
+Method for posting recipes
+---
+tags:
+    - Recipe functions
+parameters:
+    - in: path
+      name: id
+      required: true
+      type: integer
+      description: input the category id where you want to add recipes
+    - in: body
+      name: body
+      required: true
+      type: string
+      description: input json data as recipe details
+security:
+    - TokenHeader: []
+
+responses:
+  200:
+    description:  recipe successfully created
+  201:
+    description: Recipe created successfully
+    schema:
+      id: Add recipe
+      properties:
+        title:
+          type: string
+          default: pilau
+        description:
+          type: string
+          default: burn onions
+        response:
+          type: string
+          default: {'id': 1, 'title': pilau, 'description': burn onions,
+                'date_created': 22-12-2017, 'date_modified': 22-12-2017,
+                'category_identity': 1}
+  400:
+    description: For json data, special characters the recipes
+    schema:
+      id: Invalid name
+      properties:
+        title:
+          type: string
+          default: '@@@kl'
+        description:
+          type: string
+          default: burn onions
+        response:
+          type: string
+          default: Recipe title should not have special characters or numbers
+  422:
+    description: If space or nothing is entered for title
+    schema:
+      id: Add empty recipe
+      properties:
+        title:
+          type: string
+          default: " "
+        description:
+          type: string
+          default: burn onions
+        response:
+          type: string
+          default: Recipe title mostly required

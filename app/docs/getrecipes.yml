@@ -1,0 +1,59 @@
+This route is for a user to get recipes by q or pagination
+---
+tags:
+    - Recipe functions
+
+parameters:
+    - in: path
+      name: id
+      required: true
+      type: integer
+      description: specify the category id where the recipe belongs
+    - in: query
+      name: q
+      required: false
+      type: string
+      description: query by recipe name
+    - in: query
+      name: page
+      required: false
+      type: integer
+      description: query by specifying the page number
+    - in: query
+      name: per_page
+      required: false
+      type: integer
+      description: query by specifying the number of items per_page
+security:
+    - TokenHeader: []
+responses:
+  200:
+    description:  recipe successfully retrieved
+  201:
+    description: For getting a valid recipe by q or pagination
+    schema:
+      id: successful retrieve of recipe
+      properties:
+        q search by title:
+          type: string
+          default: ?q=p
+        pagination search:
+          type: string
+          default: ?page=1&per_page=1
+        response:
+          type: string
+          default: {'id': 1, 'title': pilau,
+            'description': burn onions,
+            'date_created': 22-12-2017,
+            'date_modified': 22-12-2017, 'category_identity': 1}
+  400:
+    description: Searching for a title that is not there or invalid
+    schema:
+      id: invalid GET recipe
+      properties:
+        title:
+          type: string
+          default: '33erdg@@'
+        response:
+          type: string
+          default: No recipe found

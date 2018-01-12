@@ -1,0 +1,38 @@
+This method is for delete category by id
+---
+tags:
+    - Category functions
+parameters:
+
+    - in: path
+      name: id
+      required: true
+      type: integer
+      description: delete a category by specifying its id
+security:
+    - TokenHeader: []
+
+responses:
+  200:
+    description:  category successfully deleted
+  201:
+    description: For successful deletion of an existing category
+    schema:
+      id: successful deletion
+      properties:
+        id:
+          default: 1
+        response:
+          type: string
+          default: category 1 deleted
+  400:
+    description: Deleting a category which doesnot exist
+    schema:
+      id: invalid Delete
+      properties:
+        id:
+          type: string
+          default: 100
+        response:
+          type: string
+          default: No category found to delete

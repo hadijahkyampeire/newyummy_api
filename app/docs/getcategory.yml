@@ -1,0 +1,41 @@
+This method is for getting category by id
+---
+tags:
+    - Category functions
+parameters:
+    - in: path
+      name: id
+      required: true
+      type: integer
+      description: search by a category id
+security:
+    - TokenHeader: []
+
+responses:
+  200:
+    description:  category successfully retrieved
+  201:
+    description: For getting a valid categoryname by id
+    schema:
+      id: successful retrieve by id
+      properties:
+        id:
+          type: integer
+          default: 1
+        response:
+          type: string
+          default: {'id': 1, 'name': Lunch,
+            'date_created': 22-12-2017,
+            'date_modified': 22-12-2017,
+            'created_by': 1}
+  400:
+    description: Searching for the id that is not there
+    schema:
+      id: invalid GET by id
+      properties:
+        name:
+          type: integer
+          default: 100
+        response:
+          type: string
+          default: No category found with that id

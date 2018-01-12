@@ -1,0 +1,47 @@
+This method is for getting category by id
+---
+tags:
+    - Recipe functions
+parameters:
+    - in: path
+      name: id
+      required: true
+      type: integer
+      description: specify the category id for the recipe
+    - in: path
+      name: recipe_id
+      required: true
+      type: integer
+      description: specify the recipe id you want to get
+security:
+    - TokenHeader: []
+
+responses:
+  200:
+    description:  recipe successfully retrieved
+  201:
+    description: For getting a valid recipe title by id
+    schema:
+      id: successful retrieve recipe by id
+      properties:
+        name:
+          type: integer
+          default: 1
+        response:
+          type: string
+          default: {'id': 1, 'title': milkshake,
+              'description': mix with coffee,
+              'date_created': 22-12-2017,
+              'date_modified': 22-12-2017,
+              'category_id': 1}
+  400:
+    description: Searching for the recipe id that is not there
+    schema:
+      id: invalid GET recipe by id
+      properties:
+        id:
+          type: integer
+          default: 100
+        response:
+          type: string
+          default: No recipe found with that id

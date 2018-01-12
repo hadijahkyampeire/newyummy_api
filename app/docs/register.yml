@@ -1,0 +1,68 @@
+Handle POST request for this view. Url ---> /api/v1/auth/register 
+---
+tags:
+  - User Authentication
+parameters:
+  - in: body
+    name: body
+    required: true
+    type: string
+    description: This route registers a new user
+responses:
+  201:
+    description: You successfully registered 
+  201:
+    description: You successfully registered , please login
+    schema:
+      id: successful Register 
+      properties:
+        email:
+          type: string
+          default: hadijah.kyampeire@andela.com
+        password:
+          type: string
+          default: 1234567
+        response:
+          type: string
+          default: You registered successfully. Please login.
+  400:
+    description: For invalid data
+    schema:
+      id: Register User with invalid
+      properties:
+        email:
+          type: string
+          default: hadijah
+        password:
+          type: string
+          default: 12345
+        response:
+          type: string
+          default: Invalid email or password, Please try again with a valid email and a password with morethan 6 characters
+  400:
+    description: wrong json
+    schema:
+      id: Invalid Register
+      properties:
+        email:
+          default: hadijah@gmail.com
+        password:
+          type: string
+          default: 1234897
+        response:
+          type: string
+          default: please input both email and password in json form'
+  202:
+    description: Duplication
+    schema:
+      id: Exceptions
+      properties:
+        email:
+          type: string
+          default: hadijah.kyampeire@andela.com
+        password:
+          type: string
+          default: 1234567
+        response:
+          type: string
+          default: User already exists. Please login.'

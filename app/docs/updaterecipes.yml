@@ -1,0 +1,55 @@
+This method is for editing categories
+---
+tags:
+    - Recipe functions
+parameters:
+    - in: path
+      name: id
+      required: true
+      type: integer
+      description: specify the category id for the recipe
+    - in: path
+      name: recipe_id
+      required: true
+      type: integer
+      description: specify the recipe id you want to update
+    - in: body
+      name: body
+      required: true
+      type: string
+      description: input new recipe details to edit a recipe
+security:
+    - TokenHeader: []
+responses:
+  200:
+    description:  recipe successfully updated
+  201:
+    description: For successful update of an existing recipe
+    schema:
+      id: successful update of recipe
+      properties:
+        id:
+          default: 1
+        title:
+          type: string
+          default: milkshake
+        description:
+          type: string
+          default: mix with coffee
+        response:
+          type: string
+          default: {'id': 1, 'title': milkshake,
+                'description': mix with coffee,
+                  date_created': 22-12-2017,
+                  'date_modified': 22-12-2017, 'category_id': 1}
+  400:
+    description: updating recipe which doesnot exist
+    schema:
+      id: invalid update of recipes
+      properties:
+        id:
+          type: string
+          default: 100
+        response:
+          type: string
+          default: No recipe found to edit
