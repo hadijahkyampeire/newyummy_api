@@ -20,8 +20,10 @@ def add_categories():
             if request.method == "POST":
                 name = str(request.data.get('name')).strip()
                 resultn = valid_category(name)
-                return jsonify(resultn), 400
+                if resultn:
+                    return jsonify(resultn), 400
                 name = name.title()
+                print("In function"+name)
                 result = Category.query.filter_by(name=name,
                            created_by=user_id).first()
                 if result:
@@ -59,7 +61,7 @@ def get_categories():
     if access_token:
         user_id = User.decode_token(access_token)
         if not isinstance(user_id, str):
-                # GET all the categories by q or pagination
+            # GET all the categories by q or pagination
             page = request.args.get('page', 1, type=int)
             limit = request.args.get('limit', 2, type=int)
             q = str(request.args.get('q', '')).title()
@@ -92,10 +94,11 @@ def get_categories():
                         'Previous_page': categories.prev_num
                     }
                     results.append(obj)
+
             if len(results) <= 0:
                 return jsonify({"message": "No categories on that page"}), 404
             if results:
-                return jsonify({'categories': results})
+                return jsonify({'categories': results}), 200
             else:
                 return jsonify({"message": "No category found"}), 404
         else:
@@ -146,7 +149,8 @@ def edit_category(id, **kwargs):
         if not isinstance(user_id, str):
             name = str(request.data.get('name')).strip()
             result2 = valid_category(name)
-            return jsonify(result2), 400
+            if result2:
+                return jsonify(result2), 400
             name = name.title()
             result = Category.query.filter_by(name=name,
                                               created_by=user_id).first()

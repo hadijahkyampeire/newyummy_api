@@ -265,7 +265,7 @@ class RecipeTestCase(unittest.TestCase):
             headers=dict(Authorization="Bearer " + access_token),
             data=recipe)
         result = json.loads(res.data.decode())
-        self.assertEqual(res.status_code, 422)
+        self.assertEqual(res.status_code, 400)
         self.assertEqual(
             result['message'], 'Recipe title is mostly required')
 

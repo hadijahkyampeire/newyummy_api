@@ -68,8 +68,6 @@ class CategoryTestCase(unittest.TestCase):
             '/api/v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
             data=self.category)
-        self.assertEqual(res.status_code, 201)
-        # get all the categories that belong to the test user
         res = self.client().get(
             '/api/v1/categories/',
             headers=dict(Authorization="Bearer " + access_token),
@@ -194,7 +192,7 @@ class CategoryTestCase(unittest.TestCase):
             headers=dict(Authorization="Bearer " + access_token),
             data=categoryname)
         result = json.loads(res.data.decode())
-        self.assertEqual(res.status_code, 422)
+        self.assertEqual(res.status_code, 400)
         self.assertEqual(
             result['message'], 'Category name is required')
     def test_if_category_to_edit_doesnot_exist(self):

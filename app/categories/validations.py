@@ -28,5 +28,5 @@ def valid_category(name):
                            ' not have special characters'}
     if has_numbers(name):
         return {'message': 'Category name should'
-                           ' not have numbers'}
+                           ' not have numbers'}               
 
