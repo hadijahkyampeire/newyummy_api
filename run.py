@@ -1,11 +1,20 @@
 import os
 
-from flask import render_template, redirect
+from flask import render_template, redirect, jsonify
 from flasgger import Swagger
 from app import create_app
 
 config_name = os.getenv('APP_SETTINGS')
 app = create_app(config_name)
+
+@app.errorhandler(405)
+def url_not_found(error):
+    return jsonify({'message':'Requested method not allowed'}), 405
+
+@app.errorhandler(500)
+def internal_error(error):
+    return "500 error"
+
 swag= Swagger(app,
    template={
        "info": {
