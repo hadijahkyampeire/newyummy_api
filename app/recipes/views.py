@@ -20,9 +20,10 @@ def add_recipes(id, **kwargs):
                 title = str(request.data.get('title', '')).strip()
                 description = str(request.data.get('description', ''))
                 result1 = valid_recipe_title(title)
-                return jsonify(result1), 400
+                if result1:
+                    return jsonify(result1), 400
                 identity = Category.query.filter_by(id=id,
-                                                created_by=user_id).first()
+                                                   created_by=user_id).first()
                 if not identity:
                     return jsonify({"message": "Category doesn't exist"}), 400
                 title = title.lower()
@@ -61,7 +62,7 @@ def get_recipes(id, **kwargs):
     """This route handles getting recipes"""
     auth_header = request.headers.get('Authorization')
     if auth_header is None:
-        return jsonify({"message": "No token, please provide a token" }),401
+        return jsonify({"message": "No token, please provide a token"}),401
     access_token = auth_header.split(" ")[1]
     if access_token:
         user_id = User.decode_token(access_token)
@@ -101,7 +102,8 @@ def get_recipes(id, **kwargs):
                         'date_modified': recipe.date_modified,
                         'category_identity': id,
                         'Next_page': recipes.next_num,
-                        'Previous_page': recipes.prev_num
+                        'Previous_page': recipes.prev_num,
+                        'Page_number': recipes.page
                     }
                     results.append(obj)
             if len(results) <= 0:
@@ -167,7 +169,8 @@ def edit_recipe(id, recipe_id, **kwargs):
             identity = Category.query.filter_by(id=id,
                                                 created_by=user_id).first()
             result2 = valid_recipe_title(title)
-            return jsonify(result2), 400
+            if result2:
+                return jsonify(result2), 400
             title = title.lower()
             result = Recipe.query.filter_by(title=title,
                                             category_identity=id).first()

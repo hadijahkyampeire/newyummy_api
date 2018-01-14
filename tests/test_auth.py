@@ -133,7 +133,7 @@ class AuthTestCase(unittest.TestCase):
     def test_new_password_length_is_morethan_6(self):
         """Test for the length of new password"""
         res = self.client().post('/api/v1/auth/register', 
-        data=self.user_data)
+                            data=self.user_data)
         login_res = self.client().post('/api/v1/auth/login',
          data=self.user_data)
         result = json.loads(login_res.data.decode())
