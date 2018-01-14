@@ -50,10 +50,8 @@ def add_recipes(id, **kwargs):
                     response.status_code = 201
                     return response
         else:
-            # user is not legit,an error message to handle expired token
             message = user_id
-            response = {'message': message}
-            return make_response(jsonify(response)), 401
+            return jsonify({'message': message}), 401
 
 
 @recipe.route('/api/v1/categories/<int:id>/recipes', methods=['GET'])
@@ -68,7 +66,7 @@ def get_recipes(id, **kwargs):
         user_id = User.decode_token(access_token)
         if not isinstance(user_id, str):
             page = request.args.get('page', 1, type=int)
-            limit = request.args.get('limit', 2, type=int)
+            limit = request.args.get('limit', 3, type=int)
             q = str(request.args.get('q', '')).lower()
             identity = Category.query.filter_by(id=id,
                                                 created_by=user_id).first()
@@ -115,11 +113,11 @@ def get_recipes(id, **kwargs):
         else:
             # user is not legit,an error message to handle expired token
             message = user_id
-            response = {'message': message}
-            return make_response(jsonify(response)), 401
+            return jsonify({'message': message}), 401
 
 
-@recipe.route('/api/v1/categories/<int:id>/recipes/<int:recipe_id>', methods=['DELETE'])
+@recipe.route('/api/v1/categories/<int:id>/recipes/<int:recipe_id>', 
+              methods=['DELETE'])
 @swag_from('/app/docs/deleterecipe.yml')
 def delete_recipe(id, recipe_id, **kwargs):
     """This route handles deleting a recipe by id"""
@@ -127,33 +125,30 @@ def delete_recipe(id, recipe_id, **kwargs):
     if auth_header is None:
         return jsonify({"message": "No token, please provide a token"}), 401
     access_token = auth_header.split()[1]
-    if access_token:
-        # Get the user id related to this access token
+    if access_token :
         user_id = User.decode_token(access_token)
         if not isinstance(user_id, str):
             identity = Category.query.filter_by(id=id,
                                                 created_by=user_id).first()
-            if not identity:
+            if not identity :
                 return jsonify({"message": "You don't have"
                                 " that recipe in that category"}), 400
             recipe = Recipe.query.filter_by(id=recipe_id,
                                             category_identity=id).first()
-            if not recipe:
+            if not recipe :
                 return jsonify({"message": "No recipes with"
-                                          " that id to delete "}), 404
+                                " that id to delete "}), 404
             else:
                 recipe.delete()
-                return {
-                    "message": "recipe {} deleted"
+                return {"message": "recipe {} deleted"
                                " successfully".format(recipe.id)}, 200
         else:
-            # user is not legit,is an error message to handle expired token
             message = user_id
-            response = {'message': message}
-            return make_response(jsonify(response)), 401
+            return jsonify({'message': message}), 401
 
 
-@recipe.route('/api/v1/categories/<int:id>/recipes/<int:recipe_id>', methods=['PUT'])
+@recipe.route('/api/v1/categories/<int:id>/recipes/<int:recipe_id>',
+              methods=['PUT'])
 @swag_from('/app/docs/updaterecipes.yml')
 def edit_recipe(id, recipe_id, **kwargs):
     """This route handles update a recipe by id"""
@@ -201,11 +196,11 @@ def edit_recipe(id, recipe_id, **kwargs):
         else:
             # user is not legit, an error message to handle expired token
             message = user_id
-            response = {'message': message}
-            return make_response(jsonify(response)), 401
+            return jsonify({'message': message}), 401
 
 
-@recipe.route('/api/v1/categories/<int:id>/recipes/<int:recipe_id>', methods=['GET'])
+@recipe.route('/api/v1/categories/<int:id>/recipes/<int:recipe_id>', 
+               methods=['GET'])
 @swag_from('/app/docs/getrecipe.yml')
 def get_recipe_by_id(id, recipe_id, **kwargs):
     """This route handles getting a recipe by id"""
@@ -219,12 +214,12 @@ def get_recipe_by_id(id, recipe_id, **kwargs):
         if not isinstance(user_id, str):
             identity = Category.query.filter_by(id=id,
                                                 created_by=user_id).first()
-            if not identity:
+            if not identity :
                 return jsonify({"message": "You don't have"
                                " that recipe in that category"}), 400
             recipe = Recipe.query.filter_by(id=recipe_id,
-                                        category_identity=id).first()
-            if not recipe:
+                                            category_identity=id).first()
+            if not recipe :
                 return jsonify({"message":"No recipes with"
                                           " that id to get"}), 400
             else:
@@ -241,5 +236,4 @@ def get_recipe_by_id(id, recipe_id, **kwargs):
         else:
             # user is not legit,an error message to handle expired token
             message = user_id
-            response = {'message': message}
-            return make_response(jsonify(response)), 401
+            return jsonify({'message': message}), 401
