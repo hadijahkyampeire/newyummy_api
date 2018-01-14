@@ -30,24 +30,17 @@ def add_categories():
                     return jsonify({"message": "Category already exists"}),400
                 category = Category(name=name, created_by=user_id)
                 category.save()
+                response1 = category.category_json()
                 response = jsonify({
                     'message': 'Category ' + category.name +
-                    ' has been created',
-                    'category': {
-                        'id': category.id,
-                        'name': category.name,
-                        'date_created': category.date_created,
-                        'date_modified': category.date_modified,
-                        'created_by': user_id,
-                        'status': True
-                    }
+                    ' has been created', 
+                     'category': response1
                 })
                 return make_response(response), 201
         else:
             # user is not legit,an error message for expired token
             message = user_id
-            response = {'message': message}
-            return make_response(jsonify(response)), 401
+            return jsonify({'message': message}), 401
 
 
 @category.route('/api/v1/categories/', methods=['GET'])
@@ -72,14 +65,7 @@ def get_categories():
             if q:
                 for category in categories.items:
                     if q in category.name:
-                        obj = {}
-                        obj = {
-                            'id': category.id,
-                            'name': category.name,
-                            'date_created': category.date_created,
-                            'date_modified': category.date_modified,
-                            'created_by': category.created_by
-                        }
+                        obj = category.category_json()
                         results.append(obj)
             else:
                 for category in categories.items:
@@ -104,8 +90,7 @@ def get_categories():
         else:
             # user is not legit,an error message for expired token
             message = user_id
-            response = {'message': message}
-            return make_response(jsonify(response)), 401
+            return jsonify({'message': message}), 401
 
 
 @category.route('/api/v1/categories/<int:id>', methods=['DELETE'])
@@ -132,8 +117,7 @@ def delete_category(id, **kwargs):
         else:
             # user is not legit,an error message to handle expired token
             message = user_id
-            response = {'message': message}
-            return make_response(jsonify(response)), 401
+            return jsonify({'message': message}), 401
 
 
 @category.route('/api/v1/categories/<int:id>', methods=['PUT'])
@@ -164,22 +148,16 @@ def edit_category(id, **kwargs):
                 name = str(request.data.get('name', ''))
                 category.name = name
                 category.save()
+                response2 = category.category_json()
                 response = {
                     'message': 'Category has been updated',
-                    'newcategory': {
-                        'id': category.id,
-                        'name': category.name,
-                        'date_created': category.date_created,
-                        'date_modified': category.date_modified,
-                        'created_by': category.created_by
-                    }
+                    'newcategory': response2
                 }
                 return make_response(jsonify(response)), 200
         else:
             # user is not legit,an error message to handle expired token
             message = user_id
-            response = {'message': message}
-            return make_response(jsonify(response)), 401
+            return jsonify({'message': message}), 401
 
 
 @category.route('/api/v1/categories/<int:id>', methods=['GET'])
@@ -198,21 +176,15 @@ def get_category_by_id(id, **kwargs):
             if not category:
                 return jsonify({"message": "No category found by id"}), 404
             else:
+                response3 = category.category_json()
                 response = {
                     "message": "category {} found".format(category.id),
-                    'category': {
-                        'id': category.id,
-                        'name': category.name,
-                        'date_created': category.date_created,
-                        'date_modified': category.date_modified,
-                        'created_by': category.created_by
-                    }
+                    'category': response3
                 }
                 return make_response(jsonify(response)), 200
         else:
             # user is not legit,an error message to handle expired token
             message = user_id
-            response = {'message': message}
-            return make_response(jsonify(response)), 401
+            return jsonify({'message': message}), 401
 
 
