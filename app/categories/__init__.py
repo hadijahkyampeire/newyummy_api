@@ -1,5 +1,5 @@
 from flask import Blueprint
 
-category = Blueprint('categories', __name__)
+category = Blueprint('category', __name__)
 
 from .import views

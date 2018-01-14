@@ -1,4 +1,4 @@
 from flask import Blueprint
 
-recipe=Blueprint('recipes',__name__)
+recipe=Blueprint('recipe',__name__)
 from .import views

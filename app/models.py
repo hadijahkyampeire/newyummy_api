@@ -66,7 +66,7 @@ class User(db.Model):
             payload = jwt.decode(token, current_app.config.get('SECRET'))
             token_is_revoked = RevokedToken.check_revoked_token(auth_token=token)
             if token_is_revoked:
-                return 'Revoked token. please login'
+                return 'Revoked token. please login to get a new token'
             else:
                 return payload['sub']
         except jwt.ExpiredSignatureError:

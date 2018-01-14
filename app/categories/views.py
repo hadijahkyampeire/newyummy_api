@@ -1,4 +1,4 @@
-from flask import request, jsonify, make_response
+from flask import request, jsonify, make_response, url_for
 from app.models import Category, User
 from .import category
 from flasgger import swag_from
@@ -31,8 +31,9 @@ def add_categories():
                 response1 = category.category_json()
                 response = jsonify({
                     'message': 'Category ' + category.name +
-                    ' has been created', 
-                     'category': response1
+                    ' has been created',
+                    'Recipes': url_for('recipe.get_recipes', id=category.id, _external=True),
+                    'category': response1
                 })
                 return make_response(response), 201
         else:
@@ -63,7 +64,8 @@ def get_categories():
             if q:
                 for category in categories.items:
                     if q in category.name:
-                        obj = category.category_json()
+                        obj = {'cat': category.category_json(),
+                               'Recipes': url_for('recipe.get_recipes', id=category.id, _external=True)}
                         results.append(obj)
             else:
                 for category in categories.items:
@@ -75,7 +77,9 @@ def get_categories():
                         'date_modified': category.date_modified,
                         'created_by': category.created_by,
                         'Next_page': categories.next_num,
-                        'Previous_page': categories.prev_num
+                        'Previous_page': categories.prev_num,
+                        'total_Items': categories.total,
+                        'Recipes': url_for('recipe.get_recipes', id=category.id, _external=True)
                     }
                     results.append(obj)
 
@@ -101,7 +105,7 @@ def delete_category(id, **kwargs):
     if access_token:
         user_id = User.decode_token(access_token)
         if not isinstance(user_id, str):
-            category = Category.find_by_id(id, user_id)
+            category = Category.find_user_by_id(id, user_id)
             if not category:
                 return jsonify({"message": "No category to delete"}), 404
             if request.method == "DELETE":
@@ -131,7 +135,7 @@ def edit_category(id, **kwargs):
             result = Category.find_by_name(name, user_id)
             if result:
                 return jsonify({"message": "name already exists"}), 400
-            category = Category.find_by_id(id, user_id)
+            category = Category.find_user_by_id(id, user_id)
             if not category:
                 return jsonify({"message": "No category found to edit"}), 404
             else:
@@ -141,7 +145,8 @@ def edit_category(id, **kwargs):
                 response2 = category.category_json()
                 response = {
                     'message': 'Category has been updated',
-                    'newcategory': response2
+                    'newcategory': response2,
+                    'Recipes': url_for('recipe.get_recipes', id=category.id, _external=True)
                 }
                 return make_response(jsonify(response)), 200
         else:
@@ -161,14 +166,15 @@ def get_category_by_id(id, **kwargs):
     if access_token:
         user_id = User.decode_token(access_token)
         if not isinstance(user_id, str):
-            category = Category.find_by_id(id, user_id)
+            category = Category.find_user_by_id(id, user_id)
             if not category:
                 return jsonify({"message": "No category found by id"}), 404
             else:
                 response3 = category.category_json()
                 response = {
                     "message": "category {} found".format(category.id),
-                    'category': response3
+                    'category': response3,
+                    'Recipes': url_for('recipe.get_recipes', id=category.id, _external=True)
                 }
                 return make_response(jsonify(response)), 200
         else:
