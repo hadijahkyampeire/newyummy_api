@@ -22,33 +22,18 @@ def add_recipes(id, **kwargs):
                 result1 = valid_recipe_title(title)
                 if result1:
                     return jsonify(result1), 400
-                identity = Category.query.filter_by(id=id,
-                                                   created_by=user_id).first()
+                identity = Category.find_user_by_id(id, user_id)
                 if not identity:
                     return jsonify({"message": "Category doesn't exist"}), 400
                 title = title.lower()
-                result = Recipe.query.filter_by(title=title,
-                                                category_identity=id).first()
+                result = Recipe.find_by_id(title, id)
                 if result:
                     return jsonify({"message": "Recipe already exists"}), 400
                 if title:
-                    recipe = Recipe(
-                        title=title, description=description,
-                        category_identity=id)
+                    recipe = Recipe(title=title, description=description,
+                                    category_identity=id)
                     recipe.save()
-                    response = jsonify({
-                        'message': 'Recipe ' + recipe.title + 'created',
-                        'recipe': {
-                            'id': recipe.id,
-                            'title': recipe.title,
-                            'description': recipe.description,
-                            'date_created': recipe.date_created,
-                            'date_modified': recipe.date_modified,
-                            'category_identity': id
-                        }
-                    })
-                    response.status_code = 201
-                    return response
+                    return recipe.json(), 201
         else:
             message = user_id
             return jsonify({'message': message}), 401
@@ -68,8 +53,7 @@ def get_recipes(id, **kwargs):
             page = request.args.get('page', 1, type=int)
             limit = request.args.get('limit', 3, type=int)
             q = str(request.args.get('q', '')).lower()
-            identity = Category.query.filter_by(id=id,
-                                                created_by=user_id).first()
+            identity = Category.find_user_by_id(id, user_id)
             if not identity:
                 return jsonify({"message":"You don't have"
                                       " the recipes in that category"}), 400
@@ -80,15 +64,7 @@ def get_recipes(id, **kwargs):
             if q:
                 for recipe in recipes.items:
                     if q in recipe.title.lower() or q in recipe.description:
-                        obj = {}
-                        obj = {
-                            'id': recipe.id,
-                            'title': recipe.title,
-                            'description': recipe.description,
-                            'date_created': recipe.date_created,
-                            'date_modified': recipe.date_modified,
-                            'category_identity': id
-                        }
+                        obj = recipe.json()
                         results.append(obj)
             else:
                 for recipe in recipes.items:
@@ -107,7 +83,7 @@ def get_recipes(id, **kwargs):
             if len(results) <= 0:
                 return jsonify({"Error": "No recipes on that page"}), 404
             if results:
-                return jsonify({'recipes': results})
+                return jsonify({'recipes': results}), 200
             else:
                 return jsonify({"message": "No recipes found"}), 404
         else:
@@ -128,13 +104,11 @@ def delete_recipe(id, recipe_id, **kwargs):
     if access_token :
         user_id = User.decode_token(access_token)
         if not isinstance(user_id, str):
-            identity = Category.query.filter_by(id=id,
-                                                created_by=user_id).first()
+            identity = Category.find_user_by_id(id, user_id)
             if not identity :
                 return jsonify({"message": "You don't have"
                                 " that recipe in that category"}), 400
-            recipe = Recipe.query.filter_by(id=recipe_id,
-                                            category_identity=id).first()
+            recipe = Recipe.find_recipe_by_id(recipe_id, id)
             if not recipe :
                 return jsonify({"message": "No recipes with"
                                 " that id to delete "}), 404
@@ -161,20 +135,19 @@ def edit_recipe(id, recipe_id, **kwargs):
         if not isinstance(user_id, str):
             title = str(request.data.get('title', '')).strip()
             description = str(request.data.get('description', '')).strip()
-            identity = Category.query.filter_by(id=id,
-                                                created_by=user_id).first()
+            identity = Category.find_user_by_id(id, user_id)
+            if not identity :
+                return jsonify({"message": "You don't have"
+                                " that recipe in that category"}), 400
             result2 = valid_recipe_title(title)
             if result2:
                 return jsonify(result2), 400
             title = title.lower()
-            result = Recipe.query.filter_by(title=title,
-                                            category_identity=id).first()
+            result = Recipe.find_by_id(title, id)
             if result:
                 return jsonify({"message": "Recipe already exists"}), 400
-            # retrieve a recipe using it's ID
-            recipe = Recipe.query.filter_by(id=recipe_id,
-                                            category_identity=id).first()
-            if not recipe:
+            recipe = Recipe.find_recipe_by_id(recipe_id, id)
+            if not recipe :
                 return jsonify({"message":"No recipes"
                                           " with that id to edit "}), 404
             else:
@@ -183,16 +156,7 @@ def edit_recipe(id, recipe_id, **kwargs):
                 recipe.title = title
                 recipe.description = description
                 recipe.save()
-                response = jsonify({
-                    'id': recipe.id,
-                    'title': recipe.title,
-                    'description': recipe.description,
-                    'date_created': recipe.date_created,
-                    'date_modified': recipe.date_modified,
-                    'category_identity': id
-                })
-                response.status_code = 200
-                return response
+                return recipe.json(), 200
         else:
             # user is not legit, an error message to handle expired token
             message = user_id
@@ -209,30 +173,18 @@ def get_recipe_by_id(id, recipe_id, **kwargs):
         return jsonify({"message": "No token, please provide a token"}), 401
     access_token = auth_header.split(" ")[1]
     if access_token:
-        # Get the user id related to this access token
         user_id = User.decode_token(access_token)
         if not isinstance(user_id, str):
-            identity = Category.query.filter_by(id=id,
-                                                created_by=user_id).first()
-            if not identity :
+            identity = Category.find_user_by_id(id, user_id)
+            if not identity:
                 return jsonify({"message": "You don't have"
                                " that recipe in that category"}), 400
-            recipe = Recipe.query.filter_by(id=recipe_id,
-                                            category_identity=id).first()
-            if not recipe :
+            recipe = Recipe.find_recipe_by_id(recipe_id, id)
+            if not recipe:
                 return jsonify({"message":"No recipes with"
                                           " that id to get"}), 400
             else:
-                response = jsonify({
-                    'id': recipe.id,
-                    'title': recipe.title,
-                    'description': recipe.description,
-                    'date_created': recipe.date_created,
-                    'date_modified': recipe.date_modified,
-                    'category_identity': id
-                })
-                response.status_code = 200
-                return response
+                return recipe.json(), 200
         else:
             # user is not legit,an error message to handle expired token
             message = user_id

@@ -124,14 +124,18 @@ class Category(db.Model):
         onupdate=db.func.current_timestamp())
     created_by = db.Column(db.Integer, db.ForeignKey(User.id))
 
-    def __init__(self, name, created_by):
-        """initialize with name."""
-        self.name = name
-        self.created_by = created_by
+    def category_json(self):
+        """This method jsonifies the recipe model"""
+        return {'id':self.id, 'name': self.name, 'date_created':self.date_created,
+                'date_modified':self.date_modified, 'created_by':self.created_by}
 
     def save(self):
         db.session.add(self)
         db.session.commit()
+
+    @classmethod
+    def find_user_by_id(cls, id, user_id):
+        return cls.query.filter_by(id = id, created_by = user_id).first()
 
     @staticmethod
     def get(user_id):
@@ -158,14 +162,26 @@ class Recipe(db.Model):
                               onupdate=db.func.current_timestamp())
     category_identity = db.Column(db.Integer, db.ForeignKey(Category.id))
 
-    def __init__(self, title, description, category_identity):
-        self.title = title
-        self.description = description
-        self.category_identity = category_identity
+    def json(self):
+        """This method jsonifies the recipe model"""
+        return {'id':self.id,'title': self.title, 'description': self.description, 'date_created':self.date_created,
+                'date_modified':self.date_modified, 'category_identity':self.category_identity}
 
     def save(self):
         db.session.add(self)
         db.session.commit()
+
+    @classmethod
+    def find_by_title(cls, title, id):
+        return cls.query.filter_by(title = title, category_identity = id).first()
+
+    @classmethod
+    def find_by_id(cls, title, id):
+        return cls.query.filter_by(title = title, category_identity = id).first()
+
+    @classmethod
+    def find_recipe_by_id(cls, recipe_id, id):
+        return cls.query.filter_by(id = recipe_id, category_identity = id).first()
 
     @staticmethod
     def get():
