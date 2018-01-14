@@ -23,12 +23,10 @@ def add_categories():
                 if resultn:
                     return jsonify(resultn), 400
                 name = name.title()
-                print("In function"+name)
-                result = Category.query.filter_by(name=name,
-                           created_by=user_id).first()
+                result = Category.find_by_name(name, user_id)
                 if result:
                     return jsonify({"message": "Category already exists"}),400
-                category = Category(name=name, created_by=user_id)
+                category = Category(name= name, created_by= user_id)
                 category.save()
                 response1 = category.category_json()
                 response = jsonify({
@@ -88,7 +86,6 @@ def get_categories():
             else:
                 return jsonify({"message": "No category found"}), 404
         else:
-            # user is not legit,an error message for expired token
             message = user_id
             return jsonify({'message': message}), 401
 
@@ -102,20 +99,15 @@ def delete_category(id, **kwargs):
         return jsonify({"message": "No token, please provide a token"}), 401
     access_token = auth_header.split(" ")[1]
     if access_token:
-        # Get the user id related to this access token
         user_id = User.decode_token(access_token)
         if not isinstance(user_id, str):
-            category = Category.query.filter_by(id=id,
-                                                created_by=user_id).first()
+            category = Category.find_by_id(id, user_id)
             if not category:
                 return jsonify({"message": "No category to delete"}), 404
             if request.method == "DELETE":
                 category.delete()
-                return {
-                    "message": "category {} deleted".format(category.id)
-                }, 200
+                return {"message": "category {} deleted".format(category.id)}, 200
         else:
-            # user is not legit,an error message to handle expired token
             message = user_id
             return jsonify({'message': message}), 401
 
@@ -136,12 +128,10 @@ def edit_category(id, **kwargs):
             if result2:
                 return jsonify(result2), 400
             name = name.title()
-            result = Category.query.filter_by(name=name,
-                                              created_by=user_id).first()
+            result = Category.find_by_name(name, user_id)
             if result:
                 return jsonify({"message": "name already exists"}), 400
-            category = Category.query.filter_by(id=id,
-                                                created_by=user_id).first()
+            category = Category.find_by_id(id, user_id)
             if not category:
                 return jsonify({"message": "No category found to edit"}), 404
             else:
@@ -167,12 +157,11 @@ def get_category_by_id(id, **kwargs):
     auth_header = request.headers.get('Authorization')
     if auth_header is None:
         return jsonify({"message": "No token, please provide a token"}), 401
-    access_token = auth_header.split(" ")[1]
+    access_token = auth_header.split()[1]
     if access_token:
         user_id = User.decode_token(access_token)
         if not isinstance(user_id, str):
-            category = Category.query.filter_by(id=id,
-                                                created_by=user_id).first()
+            category = Category.find_by_id(id, user_id)
             if not category:
                 return jsonify({"message": "No category found by id"}), 404
             else:
@@ -183,7 +172,6 @@ def get_category_by_id(id, **kwargs):
                 }
                 return make_response(jsonify(response)), 200
         else:
-            # user is not legit,an error message to handle expired token
             message = user_id
             return jsonify({'message': message}), 401
 

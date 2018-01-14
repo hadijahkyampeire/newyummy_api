@@ -134,6 +134,10 @@ class Category(db.Model):
         db.session.commit()
 
     @classmethod
+    def find_by_name(cls, name, user_id):
+        return cls.query.filter_by(name = name, created_by = user_id).first()
+
+    @classmethod
     def find_user_by_id(cls, id, user_id):
         return cls.query.filter_by(id = id, created_by = user_id).first()
 

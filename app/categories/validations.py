@@ -11,7 +11,6 @@ def has_numbers(input_string):
     """Function to handle digits in inputs"""
     return any(char.isdigit() for char in input_string)
 
-
 def valid_category(name):
     """Function to handle validations in inputs"""
     if name == "None":
