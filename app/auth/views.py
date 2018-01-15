@@ -6,6 +6,7 @@ from app.models import User, RevokedToken
 from flask_bcrypt import Bcrypt
 from flasgger import swag_from
 
+
 class RegistrationView(MethodView):
     """This class registers a new user."""
     @swag_from('/app/docs/register.yml')
@@ -19,33 +20,21 @@ class RegistrationView(MethodView):
                 email = post_data['email'].strip()
                 password = post_data['password'].strip()
                 if not password:
-                  return jsonify({"message":"password required please"}), 401
+                    return jsonify({"message": "password required please"}), 401
                 if len(password) > 6 and re.match("[^@]+@[^@]+\.[^@]+", email):
                     user = User(email=email, password=password)
                     user.save()
-
-                    response = {
-                        'message': 'You registered successfully. Please login.'
-                    }
-                    # return a response notifying registered successfully
-                    return make_response(jsonify(response)), 201
-                response = {
-                    'message': 'Invalid email or password, Please try again'
-                }
-                return make_response(jsonify(response)), 400
-            else:
-                # There is an existing user. We don't want to register users twice
-                response = {
-                    'message': 'User already exists. Please login.'
-                }
-                return make_response(jsonify(response)), 202
+                    return jsonify({'message': 'You registered'
+                                    ' successfully. Please login.'}), 201
+                return jsonify({'message':
+                                'Invalid email or password,'
+                                ' Please try again'}), 400
+            return jsonify({'message': 'User already exists.'
+                            ' Please login.'}), 202
         except Exception as e:  # pragma: no cover
-            # An error occured, therefore return a string message containing the error
-            response = {
-                # 'message': str(e)
-                'message': 'Invalid data, ensure proper json'
-            }
-            return make_response(jsonify(response)), 400
+            # An error occured, then return a message containing the error
+            return jsonify({'message': 'Invalid data, ensure proper json'}), 400
+
 
 class LoginView(MethodView):
     """This class-based view handles user login and access token generation."""
@@ -57,26 +46,18 @@ class LoginView(MethodView):
             user = User.query.filter_by(email=request.data['email']).first()
             # Try to authenticate the found user using their password
             if user and user.password_is_valid(request.data['password']):
-                # Generate the access token. This will be used as the authorization header
+                # Generate the access token to be used as the header
                 access_token = user.generate_token(user.id)
                 if access_token:
-                    response = {
-                        'message': 'You logged in successfully.',
-                        'access_token': access_token.decode()
-                    }
-                    return make_response(jsonify(response)), 200
-            else:
-                # User does not exist. Therefore, we return an error message
-                response = {
-                    'message': 'Invalid email or password, Please try again'
-                }
-                return make_response(jsonify(response)), 401
+                    return jsonify({'message': 'You logged in successfully.',
+                                    'access_token': access_token.decode()}), 200
+
+            return jsonify({'message': 'Invalid email or password,'
+                            ' Please try again'}), 401
         except Exception as e:  # pragma: no cover
             # Create a response containing an string error message
-            response = {
-                'message': "An error occured ensure proper login"}
-            # Return a server error using the HTTP Error Code 500 (Internal Server Error)
-            return make_response(jsonify(response)), 401
+            return jsonify({'message': 'An error occured ensure proper login'}), 401
+
 
 class ResetPasswordView(MethodView):
     @swag_from('/app/docs/change.yml')
@@ -84,38 +65,34 @@ class ResetPasswordView(MethodView):
         """This route handles changing password"""
         auth_header = request.headers.get('Authorization')
         if auth_header is None:
-          return jsonify({"message": "No token, please provide a token" }),401
+            return jsonify({"message": "No token, please provide a token"}), 401
         access_token = auth_header.split()[1]
         if access_token:
-          user_id = User.decode_token(access_token)
-          if not isinstance(user_id, str):
-            try:
-                post_data = request.data
-            # Register the user
-                email = post_data['email']
-                password = post_data['password'].strip()
-                new = post_data['new_password'].strip()
-                reset_data = [new]
-                user = User.query.filter_by(email=email).first()
-                if  user and user.password_is_valid(request.data['password']):   
-                    if reset_data:
-                        if len(new) > 6:
-                            user.password = Bcrypt().generate_password_hash(new).decode()
-                            user.save()
-                            response = {
-                                'message': 'Your password has been reset.'}
-                            return make_response(jsonify(response)), 200
-                        response = {
-                            'message': "new password needs to be more than 6 characters"
-                        }
-                        return make_response(jsonify(response)), 400
-                response = jsonify({
-                        'message': 'User not found or wrong password'
-                    })
-                return make_response(response), 401
-            except Exception as e:  # pragma: no cover
-                response = {'message': str(e)}
-                return make_response(jsonify(response)), 401
+            user_id = User.decode_token(access_token)
+            if not isinstance(user_id, str):
+                try:
+                    post_data = request.data
+                # Register the user
+                    email = post_data['email']
+                    password = post_data['password'].strip()
+                    new = post_data['new_password'].strip()
+                    reset_data = [new]
+                    user = User.query.filter_by(email=email).first()
+                    if user and user.password_is_valid(request.data['password']):
+                        if reset_data:
+                            if len(new) > 6:
+                                user.password = Bcrypt().generate_password_hash(new).decode()
+                                user.save()
+                                return jsonify({"message": "Your password"
+                                                " has been reset."}), 200
+                            return jsonify({"message": "new password needs to"
+                                            " be more than 6 characters"}), 400
+                    return jsonify({"message": "User not found"
+                                               " or wrong password"}), 401
+                except Exception as e:  # pragma: no cover
+                    response = {'message': str(e)}
+                    return make_response(jsonify(response)), 401
+
 
 class Logout_view(MethodView):
     @swag_from('/app/docs/logout.yml')
@@ -123,20 +100,21 @@ class Logout_view(MethodView):
         """This route handles logout """
         auth_header = request.headers.get('Authorization')
         if auth_header is None:
-          return jsonify({"message": "No token, please provide a token" }),401
-        access_token = auth_header.split( )[1]
+            return jsonify({"message": "No token, please provide a token"}), 401
+        access_token = auth_header.split()[1]
         if access_token:
             user_id = User.decode_token(access_token)
             if isinstance(user_id, int):
                 revoked_token = RevokedToken(token=access_token)
                 revoked_token.save()
-                return jsonify({'message': 'Your have been logged out.'}),201
+                return jsonify({'message': 'Your have been logged out.'}), 201
             else:
                 message = user_id
                 response = {'message': message}
                 return make_response(jsonify(response)), 401
         else:
             return jsonify({'message': 'please provide a  valid token'})
+
 
 # Define the API resource
 registration_view = RegistrationView.as_view('registration_view')

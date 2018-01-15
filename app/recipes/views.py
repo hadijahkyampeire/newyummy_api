@@ -20,7 +20,7 @@ def add_recipes(id, **kwargs):
         user_id = User.decode_token(access_token)
         if not isinstance(user_id, str):
             if request.method == "POST":
-                title = str(request.data.get('title', '')).strip()
+                title = str(request.data.get('title', '')).strip().lower()
                 description = str(request.data.get('description', ''))
                 result1 = valid_recipe_title(title)
                 if result1:
@@ -28,7 +28,6 @@ def add_recipes(id, **kwargs):
                 identity = Category.find_user_by_id(id, user_id)
                 if not identity:
                     return jsonify({"message": "Category doesn't exist"}), 400
-                title = title.lower()
                 result = Recipe.find_by_id(title, id)
                 if result:
                     return jsonify({"message": "Recipe already exists"}), 400
@@ -61,7 +60,9 @@ def get_recipes(id, **kwargs):
             recipes = Recipe.query.filter(
                 Recipe.category_identity == id)
             if search_query:
-                recipes = recipes.filter(or_(Recipe.title.like('%' + search_query.strip().lower() + '%'),Recipe.description.like('%' + search_query.strip().lower() + '%')))
+                recipes = recipes.filter(
+                    or_(Recipe.title.like('%' + search_query.strip().lower() + '%'),
+                        Recipe.description.like('%' + search_query.strip().lower() + '%')))
             recipes = recipes.paginate(
                 page=page, per_page=limit, error_out=False)
             results = []
@@ -97,11 +98,10 @@ def delete_recipe(id, recipe_id, **kwargs):
             recipe = Recipe.find_recipe_by_id(recipe_id, id)
             if not recipe:
                 return jsonify({"message": "No recipes with"
-                                " that id to delete "}), 404
-      
+                                           " that id to delete "}), 404
             recipe.delete()
             return {"message": "recipe {} deleted"
-                    " successfully".format(recipe.id)}, 200
+                               " successfully".format(recipe.id)}, 200
         return jsonify({'message': user_id}), 401
 
 
