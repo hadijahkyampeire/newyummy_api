@@ -11,6 +11,10 @@ app = create_app(config_name)
 def url_not_found(error):
     return jsonify({'message':'Requested method not allowed'}), 405
 
+@app.errorhandler(404)
+def page_not_found(error):
+    return jsonify({'message':'page not found, check the url'}), 404
+
 @app.errorhandler(500)
 def internal_error(error):
     return "500 error"
