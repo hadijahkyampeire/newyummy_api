@@ -20,7 +20,8 @@ class RegistrationView(MethodView):
                 email = post_data['email'].strip()
                 password = post_data['password'].strip()
                 if not password:
-                    return jsonify({"message": "password required please"}), 401
+                    return jsonify({"message": "password"
+                                    " required please"}), 401
                 if len(password) > 6 and re.match("[^@]+@[^@]+\.[^@]+", email):
                     user = User(email=email, password=password)
                     user.save()
@@ -33,7 +34,8 @@ class RegistrationView(MethodView):
                             ' Please login.'}), 202
         except Exception as e:  # pragma: no cover
             # An error occured, then return a message containing the error
-            return jsonify({'message': 'Invalid data, ensure proper json'}), 400
+            return jsonify({'message': 'Invalid data,'
+                            ' ensure proper json'}), 400
 
 
 class LoginView(MethodView):
@@ -56,7 +58,8 @@ class LoginView(MethodView):
                             ' Please try again'}), 401
         except Exception as e:  # pragma: no cover
             # Create a response containing an string error message
-            return jsonify({'message': 'An error occured ensure proper login'}), 401
+            return jsonify({'message': 'An error occured'
+                            ' ensure proper login'}), 401
 
 
 class ResetPasswordView(MethodView):
@@ -65,7 +68,8 @@ class ResetPasswordView(MethodView):
         """This route handles changing password"""
         auth_header = request.headers.get('Authorization')
         if auth_header is None:
-            return jsonify({"message": "No token, please provide a token"}), 401
+            return jsonify({"message": "No token,"
+                            " please provide a token"}), 401
         access_token = auth_header.split()[1]
         if access_token:
             user_id = User.decode_token(access_token)
@@ -86,7 +90,7 @@ class ResetPasswordView(MethodView):
                                 return jsonify({"message": "Your password"
                                                 " has been reset."}), 200
                             return jsonify({"message": "new password needs to"
-                                            " be more than 6 characters"}), 400
+                                            " be morethan 6 characters"}), 400
                     return jsonify({"message": "User not found"
                                                " or wrong password"}), 401
                 except Exception as e:  # pragma: no cover
@@ -100,7 +104,8 @@ class Logout_view(MethodView):
         """This route handles logout """
         auth_header = request.headers.get('Authorization')
         if auth_header is None:
-            return jsonify({"message": "No token, please provide a token"}), 401
+            return jsonify({"message": "No token,"
+                            " please provide a token"}), 401
         access_token = auth_header.split()[1]
         if access_token:
             user_id = User.decode_token(access_token)

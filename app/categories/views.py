@@ -32,7 +32,8 @@ def add_categories():
                 category_.save()
                 response1 = category_.category_json()
                 response = jsonify({
-                    # 'message': f'Category {category_.name} has been created',
+                    'message': 'Category' + category_.name +
+                    'has been created',
                     'Recipes': url_for('recipe.get_recipes',
                                        id=category_.id,
                                        _external=True),
@@ -100,7 +101,7 @@ def delete_category(id, **kwargs):
                 return jsonify({"message": "No category to delete"}), 404
             if request.method == "DELETE":
                 category.delete()
-                return {"message": f"category {category.id} deleted"}, 200
+                return {"message": "category {} deleted".format(category.id)}, 200
         return jsonify({'message': user_id}), 401
 
 
