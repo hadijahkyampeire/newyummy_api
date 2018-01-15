@@ -9,7 +9,7 @@ from .validations import valid_category, is_valid, has_numbers
 @swag_from('/app/docs/addcategories.yml')
 def add_categories():
     """This route handles posting categories"""
-    
+
     auth_header = request.headers.get('Authorization')
     if auth_header is None:
         return jsonify({"message": "No token, please provide a token"}), 401
@@ -32,7 +32,7 @@ def add_categories():
                 category_.save()
                 response1 = category_.category_json()
                 response = jsonify({
-                    'message': f'Category {category_.name} has been created',
+                    # 'message': f'Category {category_.name} has been created',
                     'Recipes': url_for('recipe.get_recipes',
                                        id=category_.id,
                                        _external=True),
