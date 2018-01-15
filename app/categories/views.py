@@ -176,7 +176,7 @@ def get_category_by_id(id, **kwargs):
                     'category': response3,
                     'Recipes': url_for('recipe.get_recipes', id=category.id, _external=True)
                 }
-                return make_response(jsonify(response)), 200
+                return make_response(jsonify(response)), 200  
         else:
             message = user_id
             return jsonify({'message': message}), 401
