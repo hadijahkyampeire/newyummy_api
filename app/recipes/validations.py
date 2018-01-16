@@ -1,5 +1,5 @@
 from flask import request, jsonify
-from app.categories.validations import is_valid, has_numbers
+from app.categories.validations import is_valid, has_numbers, authentication
 
 
 def valid_recipe_title(title):
