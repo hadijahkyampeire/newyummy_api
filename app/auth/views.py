@@ -31,7 +31,7 @@ class RegistrationView(MethodView):
                                 'Invalid email or password,'
                                 ' Please try again'}), 400
             return jsonify({'message': 'User already exists.'
-                            ' Please login.'}), 202
+                            ' Please login.'}), 409
         except Exception as e:  # pragma: no cover
             # An error occured, then return a message containing the error
             return jsonify({'message': 'Invalid data,'
