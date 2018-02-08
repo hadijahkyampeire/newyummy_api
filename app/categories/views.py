@@ -42,7 +42,7 @@ def get_categories(user_id):
 
     # GET all the categories by q or pagination
     page = request.args.get('page', 1, type=int)
-    limit = request.args.get('limit', 5, type=int)
+    limit = request.args.get('limit', 10, type=int)
     search_query = str(request.args.get('q', '')).title()
     categories = Category.query.filter(
         Category.created_by == user_id)

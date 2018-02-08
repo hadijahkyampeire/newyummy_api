@@ -7,14 +7,12 @@ parameters:
     name: body
     required: true
     type: string
-    description: first input your credentials then Input new password 
+    description: input email, newpassword and retype 
 security:
   - TokenHeader: []
-responses:
-  200:
-    description: User successfully created   
+responses:  
   201:
-    description: You successfully registered , please login
+    description: password reset successful
     schema:
       id: successful reset password
       properties:

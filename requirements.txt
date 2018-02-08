@@ -1,7 +1,9 @@
 alembic==0.9.6
 astroid==1.6.0
+attrs==17.4.0
 autopep8==1.3.3
 bcrypt==3.1.4
+blinker==1.4
 certifi==2017.11.5
 cffi==1.11.2
 chardet==3.0.4
@@ -12,6 +14,8 @@ flasgger==0.8.0
 Flask==0.12.2
 Flask-API==1.0
 Flask-Bcrypt==0.7.1
+Flask-Cors==3.0.3
+Flask-Mail==0.9.1
 Flask-Migrate==2.1.1
 Flask-Script==2.0.6
 Flask-SQLAlchemy==2.3.2
@@ -29,12 +33,15 @@ mccabe==0.6.1
 mistune==0.8.3
 nose2==0.7.3
 pep8==1.7.1
+pluggy==0.6.0
 psycopg2==2.7.3.2
+py==1.5.2
 pyasn1==0.4.2
 pycodestyle==2.3.1
 pycparser==2.18
 PyJWT==1.5.3
 pylint==1.8.1
+pytest==3.3.2
 python-dateutil==1.5
 python-editor==1.0.3
 PyYAML==3.12
@@ -42,5 +49,5 @@ requests==2.18.4
 six==1.11.0
 SQLAlchemy==1.1.15
 urllib3==1.22
-Werkzeug==0.13
+Werkzeug==0.14.1
 wrapt==1.10.11
