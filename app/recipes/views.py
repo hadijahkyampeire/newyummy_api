@@ -39,7 +39,7 @@ def get_recipes(user_id, id, **kwargs):
     """This route handles getting recipes"""
 
     page = request.args.get('page', 1, type=int)
-    limit = request.args.get('limit', 3, type=int)
+    limit = request.args.get('limit', 6, type=int)
     search_query = str(request.args.get('q', '')).lower()
     identity = Category.find_user_by_id(id, user_id)
     if not identity:
@@ -59,7 +59,7 @@ def get_recipes(user_id, id, **kwargs):
             'recipe': recipe.json(),
             'Next_page': recipes.next_num,
             'Previous_page': recipes.prev_num,
-            'Page_number': recipes.page
+            'Total_pages': recipes.pages
         })
     if results:
         return jsonify({'recipes': results}), 200
@@ -104,7 +104,7 @@ def edit_recipe(user_id, id, recipe_id, **kwargs):
         return jsonify(result2), 400
     title = title.lower()
     result = Recipe.find_by_id(title, id)
-    if result:
+    if result and result.description == description:
         return jsonify({"message": "Recipe already exists"}), 400
     recipe = Recipe.find_recipe_by_id(recipe_id, id)
     if not recipe:

@@ -78,41 +78,6 @@ class LoginView(MethodView):
                             ' ensure proper login'}), 401
 
 
-# class ResetPasswordView(MethodView):
-#     @swag_from('/app/docs/change.yml')
-#     def post(self):
-#         """This route handles changing password"""
-#         auth_header = request.headers.get('Authorization')
-#         if auth_header is None:
-#             return jsonify({"message": "No token,"
-#                             " please provide a token"}), 401
-#         access_token = auth_header.split()[1]
-#         if access_token:
-#             user_id = User.decode_token(access_token)
-#             if not isinstance(user_id, str):
-#                 try:
-#                     post_data = request.data
-#                 # Register the user
-#                     email = post_data['email']
-#                     password = post_data['password'].strip()
-#                     new = post_data['new_password'].strip()
-#                     reset_data = [new]
-#                     user = User.query.filter_by(email=email).first()
-#                     if user and user.password_is_valid(request.data['password']):
-#                         if reset_data:
-#                             if len(new) > 6:
-#                                 user.password = Bcrypt().generate_password_hash(new).decode()
-#                                 user.save()
-#                                 return jsonify({"message": "Your password"
-#                                                 " has been reset."}), 200
-#                             return jsonify({"message": "new password needs to"
-#                                             " be morethan 6 characters"}), 400
-#                     return jsonify({"message": "User not found"
-#                                                " or wrong password"}), 401
-#                 except Exception as e:  # pragma: no cover
-#                     response = {'message': str(e)}
-#                     return make_response(jsonify(response)), 401
-
 class ResetPasswordView(MethodView):
     """This class will handle the resetting of password"""
     @swag_from('/app/docs/change.yml')
@@ -130,7 +95,7 @@ class ResetPasswordView(MethodView):
             return make_response(jsonify({'message': 'Invalid email given'})), 400
 
         if len(password) < 7 and len(retyped_password) < 7:
-            return make_response(jsonify({'message': 'The password is too short'})), 412
+            return make_response(jsonify({'message': 'The password is too short'})), 400
 
         if password != retyped_password:
             return make_response(jsonify({'message': 'Password mismatch'})), 400
@@ -138,7 +103,7 @@ class ResetPasswordView(MethodView):
         if user:
             user.password = Bcrypt().generate_password_hash(retyped_password).decode()
             user.save()
-            return make_response(jsonify({'message': 'Password resetting is successful'})), 201
+            return make_response(jsonify({'message': 'Password resetting is successful'})), 200
         return make_response(jsonify({'message': 'User does not exist!'})), 404
 
 class Send_reset_password_emailView(MethodView):
@@ -147,7 +112,6 @@ class Send_reset_password_emailView(MethodView):
     # This method will edit the already existing password
         post_data = request.data
         email = post_data['email'].strip()
-        print(email)
         user = User.query.filter_by(email=email).first()
         if not email:
             return make_response(jsonify({'message': 'Please fill all the fields'})), 412

@@ -10,7 +10,6 @@ from instance.config import app_config
 # initialize sql-alchemy
 db = SQLAlchemy()
 
-
 def create_app(config_name):
     from .models import Category, User, Recipe
     app = FlaskAPI(__name__, instance_relative_config=True)
