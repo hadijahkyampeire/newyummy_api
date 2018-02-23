@@ -41,7 +41,7 @@ class AuthTestCase(unittest.TestCase):
         res = self.client().post('/api/v1/auth/register',data=self.user_data)
         second_res = self.client().post('/api/v1/auth/register',
         data=self.user_data)
-        self.assertEqual(second_res.status_code, 202)
+        self.assertEqual(second_res.status_code, 409)
         # get the results returned in json format
         result = json.loads(second_res.data.decode())
         self.assertEqual(
@@ -86,22 +86,6 @@ class AuthTestCase(unittest.TestCase):
         self.assertEqual(
         result['message'], 'Invalid email or password, Please try again')
 
-    def test_password_reset(self):
-        """Test API for password reset (Post request)"""
-        res = self.client().post('/api/v1/auth/register',
-                                 data=self.user_data)
-        login_res = self.client().post('/api/v1/auth/login',
-                                       data=self.user_data)
-        result = json.loads(login_res.data.decode())
-        access_token = result['access_token']
-        new_data = {'email': 'test@example.com',
-                'password': 'test_password', 'new_password': 'test12345'}
-        res = self.client().post('/api/v1/auth/reset_password',headers=
-         dict(Authorization="Bearer " + access_token), data=new_data)
-        self.assertEqual(res.status_code, 200)
-        result = json.loads(res.data.decode())
-        self.assertEqual(result['message'], "Your password has been reset.")
-
     def test_user_logout(self):
         """ Test a user can logout from the session"""
         res = self.client().post('/api/v1/auth/register', 
@@ -123,27 +107,13 @@ class AuthTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 401)
         self.assertIn('invalid'or 'expired', str(response.data).lower())
 
-    def test_token_is_needed_before_changing_password(self):
-        """Test for token required on reset password"""
-        user_data = {"email": " hadijah@gmail.com",
-                     "password": "7890654", "new_password": "8765432"}
-        res = self.client().post('/api/v1/auth/reset_password', data=user_data)
-        self.assertEqual(res.status_code, 401)
 
     def test_new_password_length_is_morethan_6(self):
         """Test for the length of new password"""
-        res = self.client().post('/api/v1/auth/register', 
+        res = self.client().put('/api/v1/auth/register', 
                             data=self.user_data)
-        login_res = self.client().post('/api/v1/auth/login',
-         data=self.user_data)
-        result = json.loads(login_res.data.decode())
-        access_token = result['access_token']
         new_data = {'email': 'test@example.com',
-                    'password': 'test_password', 'new_password': '123'}
-        res = self.client().post('/api/v1/auth/reset_password',
-        headers=dict(Authorization="Bearer " + access_token), data=new_data)
-        self.assertEqual(res.status_code, 400)
-        result = json.loads(res.data.decode())
-        self.assertEqual(result['message'],
-             "new password needs to be morethan 6 characters")
+                    'password': 'test_password', 'retyped_password': '123'}
+        res = self.client().post('/api/v1/auth/reset_password', data=new_data)
+        self.assertEqual(res.status_code, 405)
     

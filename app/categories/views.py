@@ -1,3 +1,4 @@
+import re
 from flask import request, jsonify, make_response, url_for
 from app.models import Category, User
 from .import category
@@ -13,6 +14,7 @@ def add_categories(user_id):
 
     if request.method == "POST":
         name = str(request.data.get('name')).strip()
+        name = re.sub(' +',' ', name)
         resultn = valid_category(name)
         if resultn:
             return jsonify(resultn), 400
@@ -42,13 +44,13 @@ def get_categories(user_id):
 
     # GET all the categories by q or pagination
     page = request.args.get('page', 1, type=int)
-    limit = request.args.get('limit', 5, type=int)
+    limit = request.args.get('limit', 6, type=int)
     search_query = str(request.args.get('q', '')).title()
     categories = Category.query.filter(
         Category.created_by == user_id)
 
     if search_query:
-        categories = categories.filter(Category.name.like(
+        categories = categories.filter(Category.name.ilike(
             '%' + search_query.strip().title() + '%'))
     categories = categories.paginate(
         page=page, per_page=limit, error_out=False)
@@ -56,15 +58,20 @@ def get_categories(user_id):
     for cat in categories.items:
         results.append({
             'cat': cat.category_json(),
-            'Next_page': categories.next_num,
-            'Previous_page': categories.prev_num,
-            'total_Items': categories.total,
             'Recipes': url_for('recipe.get_recipes',
                                 id=cat.id, _external=True)
         })
 
+    
+    pagination_details = {
+            'Next_page': categories.next_num,
+            'current_page': categories.page,
+            'Previous_page': categories.prev_num,
+            'total_Items': categories.total,
+            'total_pages':categories.pages,}
+
     if results:
-        return jsonify({'categories': results}), 200
+        return jsonify({'categories': results, **pagination_details}), 200
     return jsonify({"message": "No category found"}), 404
 
 
