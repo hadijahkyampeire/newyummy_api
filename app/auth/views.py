@@ -82,30 +82,36 @@ class ResetPasswordView(MethodView):
     """This class will handle the resetting of password"""
     @swag_from('/app/docs/change.yml')
     def put(self):
-        # This method will edit the already existing password
-        post_data = request.data
-        email = post_data['email'].strip()
-        password = post_data['password'].strip()
-        retyped_password = post_data['retyped_password'].strip()
+        auth_header = request.headers.get('Authorization')
+        if auth_header is None:
+            return jsonify({"message": "No token,"
+                            " please provide a token"}), 401
+        access_token = auth_header.split()[1]
+        if access_token:
+            # This method will edit the already existing password
+            post_data = request.data
+            email = post_data['email'].strip()
+            password = post_data['password'].strip()
+            retyped_password = post_data['retyped_password'].strip()
 
-        if not email or not password or not retyped_password:
-            return make_response(jsonify({'message': 'Please fill all the fields'})), 400
+            if not email or not password or not retyped_password:
+                return make_response(jsonify({'message': 'Please fill all the fields'})), 400
 
-        if not re.match("[^@]+@[^@]+\.[^@]+", email):
-            return make_response(jsonify({'message': 'Invalid email given'})), 400
+            if not re.match("[^@]+@[^@]+\.[^@]+", email):
+                return make_response(jsonify({'message': 'Invalid email given'})), 400
 
-        if len(password) < 7 and len(retyped_password) < 7:
-            return make_response(jsonify({'message': 'The password is too short'})), 400
+            if len(password) < 7 and len(retyped_password) < 7:
+                return make_response(jsonify({'message': 'The password is too short'})), 400
 
-        if password != retyped_password:
-            return make_response(jsonify({'message': 'Password mismatch'})), 400
-        user = User.query.filter_by(email=request.data['email']).first()
-        if user:
-            user.password = Bcrypt().generate_password_hash(retyped_password).decode()
-            user.save()
-            return make_response(jsonify({'message': 'Password resetting is successful'})), 200
-        return make_response(jsonify({'message': 'User does not exist!'})), 404
-
+            if password != retyped_password:
+                return make_response(jsonify({'message': 'Password mismatch'})), 400
+            user = User.query.filter_by(email=request.data['email']).first()
+            if user:
+                user.password = Bcrypt().generate_password_hash(retyped_password).decode()
+                user.save()
+                return make_response(jsonify({'message': 'Password resetting is successful'})), 200
+            return make_response(jsonify({'message': 'User does not exist!'})), 404
+        return jsonify({'message': 'please provide a  valid token'})
 class Send_reset_password_emailView(MethodView):
     """ This will send an email with the token to reset password."""
     def post(self):
@@ -129,10 +135,10 @@ class Send_reset_password_emailView(MethodView):
             subject = "Yummy Recipes Reset Password"
             recipients.append(email)
             msg = Message(subject, sender="Admin", recipients=recipients)
-            msg.html = "Copy the token between the single quotes below:\n \n<h3>"+str(access_token)+"</h3>"
+            msg.html = "Copy the token between the single quotes below:\n \n<h3> http://localhost:3000/reset?tk="+str(access_token)+"</h3>"
             with app.app_context():
                 mail.send(msg)
-            return make_response(jsonify({'message': 'Token sent successfully to '+email+''})), 201
+            return make_response(jsonify({'message': 'Password Reset link sent successfully to '+email+''})), 201
         except Exception:
             return make_response(jsonify({'message': 'Invalid request sent.'})), 400
 

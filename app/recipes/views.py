@@ -1,3 +1,4 @@
+import re
 from .import recipe
 from flask import request, jsonify, abort, make_response
 from sqlalchemy import or_
@@ -15,6 +16,7 @@ def add_recipes(user_id, id, **kwargs):
 
     if request.method == "POST":
         title = str(request.data.get('title', '')).strip().lower()
+        title = re.sub(' +',' ',title)
         description = str(request.data.get('description', ''))
         result1 = valid_recipe_title(title)
         if result1:
@@ -57,12 +59,15 @@ def get_recipes(user_id, id, **kwargs):
     for recipe in recipes.items:
         results.append({
             'recipe': recipe.json(),
-            'Next_page': recipes.next_num,
-            'Previous_page': recipes.prev_num,
-            'Total_pages': recipes.pages
         })
+    pagination_details = {
+            'Next_page': recipes.next_num,
+            'current_page': recipes.page,
+            'Previous_page': recipes.prev_num,
+            'total_Items': recipes.total,
+            'total_pages':recipes.pages,}
     if results:
-        return jsonify({'recipes': results}), 200
+        return jsonify({'recipes': results, **pagination_details}), 200
     return jsonify({"message": "No recipes found"}), 404
 
 

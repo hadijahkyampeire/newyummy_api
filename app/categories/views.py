@@ -1,3 +1,4 @@
+import re
 from flask import request, jsonify, make_response, url_for
 from app.models import Category, User
 from .import category
@@ -13,6 +14,7 @@ def add_categories(user_id):
 
     if request.method == "POST":
         name = str(request.data.get('name')).strip()
+        name = re.sub(' +',' ', name)
         resultn = valid_category(name)
         if resultn:
             return jsonify(resultn), 400
@@ -48,7 +50,7 @@ def get_categories(user_id):
         Category.created_by == user_id)
 
     if search_query:
-        categories = categories.filter(Category.name.like(
+        categories = categories.filter(Category.name.ilike(
             '%' + search_query.strip().title() + '%'))
     categories = categories.paginate(
         page=page, per_page=limit, error_out=False)
