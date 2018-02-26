@@ -114,6 +114,7 @@ class ResetPasswordView(MethodView):
         return jsonify({'message': 'please provide a  valid token'})
 class Send_reset_password_emailView(MethodView):
     """ This will send an email with the token to reset password."""
+    @swag_from('/app/docs/resetemail.yml')
     def post(self):
     # This method will edit the already existing password
         post_data = request.data
