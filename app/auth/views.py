@@ -114,6 +114,7 @@ class ResetPasswordView(MethodView):
         return jsonify({'message': 'please provide a  valid token'})
 class Send_reset_password_emailView(MethodView):
     """ This will send an email with the token to reset password."""
+    @swag_from('/app/docs/resetemail.yml')
     def post(self):
     # This method will edit the already existing password
         post_data = request.data
@@ -136,7 +137,7 @@ class Send_reset_password_emailView(MethodView):
             recipients.append(email)
             msg = Message(subject, sender="Admin", recipients=recipients)
             styles = "display:block; background-color:green; color:white;"
-            msg.html = f"Click the link to reset password:\n \n<h3><a href='https://hadijahz-recipes-react.herokuapp.com/reset?tk={str(access_token)}' style={styles}></a></h3>"
+            msg.html = f"Click the link to reset password:\n \n<h3><a href='https://hadijahz-recipes-react.herokuapp.com/reset?tk={str(access_token)}' style={styles}>Reset Password</a></h3>"
             with app.app_context():
                 mail.send(msg)
             return make_response(jsonify({'message': 'Password Reset link sent successfully to '+email+''})), 201
