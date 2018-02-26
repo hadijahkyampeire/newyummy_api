@@ -136,8 +136,8 @@ class Send_reset_password_emailView(MethodView):
             subject = "Yummy Recipes Reset Password"
             recipients.append(email)
             msg = Message(subject, sender="Admin", recipients=recipients)
-            styles = "display:block; background-color:green; color:white;"
-            msg.html = f"Click the link to reset password:\n \n<h3><a href='https://hadijahz-recipes-react.herokuapp.com/reset?tk={str(access_token)}' style={styles}>Reset Password</a></h3>"
+            styles = "background-color:green; color:white; padding: 5px 10px; border-radius:3px; text-decoration: none;"
+            msg.html = f"Click the link to reset password:\n \n<h3><a href='https://hadijahz-recipes-react.herokuapp.com/reset?tk={str(access_token)}' style='{styles}'>Reset Password</a></h3>"
             with app.app_context():
                 mail.send(msg)
             return make_response(jsonify({'message': 'Password Reset link sent successfully to '+email+''})), 201
