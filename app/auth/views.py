@@ -35,6 +35,9 @@ class RegistrationView(MethodView):
                 # Register the user
                 email = post_data['email'].strip()
                 password = post_data['password'].strip()
+                if not email:
+                    return jsonify({"message": "email"
+                                    " required please"}), 401
                 if not password:
                     return jsonify({"message": "password"
                                     " required please"}), 401
@@ -60,6 +63,11 @@ class LoginView(MethodView):
     def post(self):
         """This route is for handling login"""
         try:
+            post_data = request.data
+            email = post_data['email'].strip()
+            password = post_data['password'].strip()
+            if not email and not password:
+                return make_response(jsonify({'message': 'Please fill all the fields'})), 400
             # Get the user object using their email (unique to every user)
             user = User.query.filter_by(email=request.data['email']).first()
             # Try to authenticate the found user using their password
@@ -121,7 +129,7 @@ class Send_reset_password_emailView(MethodView):
         email = post_data['email'].strip()
         user = User.query.filter_by(email=email).first()
         if not email:
-            return make_response(jsonify({'message': 'Please fill all the fields'})), 412
+            return make_response(jsonify({'message': 'Please input the email'})), 412
 
         if not re.match("[^@]+@[^@]+\.[^@]+", email):
             return make_response(jsonify({'message': 'Invalid email given'})), 400
