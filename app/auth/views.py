@@ -66,7 +66,7 @@ class LoginView(MethodView):
             post_data = request.data
             email = post_data['email'].strip()
             password = post_data['password'].strip()
-            if not email and not password:
+            if not email or not password:
                 return make_response(jsonify({'message': 'Please fill all the fields'})), 400
             # Get the user object using their email (unique to every user)
             user = User.query.filter_by(email=request.data['email']).first()
