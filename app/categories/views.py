@@ -86,7 +86,7 @@ def delete_category(user_id, id, **kwargs):
         return jsonify({"message": "No category to delete"}), 404
     if request.method == "DELETE":
         category.delete()
-        return {"message": "category {} deleted".format(category.id)}, 200
+        return {"message": "category {} deleted".format(category.name)}, 200
 
 
 @category.route('/api/v1/categories/<int:id>', methods=['PUT'])

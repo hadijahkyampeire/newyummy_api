@@ -77,14 +77,25 @@ class AuthTestCase(unittest.TestCase):
 
     def test_user_registers_with_valid_email(self):
         """Test for invalid email and password on registration"""
-        user = {
-            "email": "hadijah", "password": "123"
+        user1 = {
+            "email": "hadijah", "password": "1234567"
         }
-        res = self.client().post('/api/v1/auth/register',data=user)
+        res = self.client().post('/api/v1/auth/register',data=user1)
         result = json.loads(res.data.decode())
         self.assertEqual(res.status_code, 400)
         self.assertEqual(
-        result['message'], 'Invalid email or password, Please try again')
+        result['message'], 'Invalid email format')
+
+    def test_user_registers_with_valid_password(self):
+        """Test for short password on registration"""
+        user2 = {
+            "email": "hadijah@gmail.com", "password": "123"
+        }
+        res = self.client().post('/api/v1/auth/register',data=user2)
+        result = json.loads(res.data.decode())
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(
+        result['message'], ' Ensure password is morethan 6 characters')
 
     def test_user_logout(self):
         """ Test a user can logout from the session"""
