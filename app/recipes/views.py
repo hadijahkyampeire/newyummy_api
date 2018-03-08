@@ -88,7 +88,7 @@ def delete_recipe(user_id, id, recipe_id, **kwargs):
                         " that id to delete "}), 404
     recipe.delete()
     return {"message": "recipe {} deleted"
-            " successfully".format(recipe.id)}, 200
+            " successfully".format(recipe.title)}, 200
 
 
 @recipe.route('/api/v1/categories/<int:id>/recipes/<int:recipe_id>',

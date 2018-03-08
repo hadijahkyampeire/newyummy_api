@@ -41,14 +41,18 @@ class RegistrationView(MethodView):
                 if not password:
                     return jsonify({"message": "password"
                                     " required please"}), 401
-                if len(password) > 6 and re.match("[^@]+@[^@]+\.[^@]+", email):
-                    user = User(email=email, password=password)
-                    user.save()
-                    return jsonify({'message': 'You registered'
-                                    ' successfully. Please login.'}), 201
-                return jsonify({'message':
-                                'Invalid email or password,'
-                                ' Please try again'}), 400
+                if not re.match("[^@]+@[^@]+\.[^@]+", email):
+                    return jsonify({'message':
+                                'Invalid email format'}), 400
+                if not len(password) > 6:
+                    return jsonify({'message':' Ensure password is morethan 6 characters'}), 400
+                
+                user = User(email=email, password=password)
+                user.save()
+                return jsonify({'message': 'You registered'
+                                ' successfully. Please login.'}), 201
+                    
+                
             return jsonify({'message': 'User already exists.'
                             ' Please login.'}), 409
         except Exception as e:  # pragma: no cover
