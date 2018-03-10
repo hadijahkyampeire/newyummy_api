@@ -57,9 +57,13 @@ class RegistrationView(MethodView):
                     
                 user = User(username=username, email=email, password=password)
                 user.save()
-                print(user)
+                response = User.query.filter_by(email=email).first()
+                user_response ={}
+                user_response["id"] = response.id
+                user_response["username"] = response.username
                 return jsonify({'message': 'You registered'
-                                ' successfully. Please login.'}), 201
+                                ' successfully. Please login.',
+                                'user': user_response }), 201
                     
                 
             return jsonify({'message': 'User already exists.'
@@ -67,7 +71,7 @@ class RegistrationView(MethodView):
         except Exception as e:  # pragma: no cover
             # An error occured, then return a message containing the error
             return jsonify({'message': 'Invalid data,'
-                            ' ensure proper json'}), 400
+                            ' something is wrong'}), 400
 
 
 class LoginView(MethodView):

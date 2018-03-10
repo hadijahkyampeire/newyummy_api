@@ -77,7 +77,8 @@ class User(db.Model):
         except jwt.InvalidTokenError:
             # the token is invalid, return an error string
             return "Invalid token. Please register or login"
-
+    def __repr__(self):
+        return "<User: {}>".format(self.email)
 
 class RevokedToken(db.Model):
     """Define the 'RevokedToken' model mapped to database table 'revoked_tokens'."""
