@@ -13,14 +13,16 @@ class User(db.Model):
 
     # Define the columns of the users table, starting with the primary key
     id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(120), nullable=False)
     email = db.Column(db.String(256), nullable=False, unique=True)
     password = db.Column(db.String(256), nullable=False)
     categories = db.relationship(
         'Category', order_by='Category.id', cascade="all, delete-orphan", lazy='dynamic')
 
-    def __init__(self, email, password):
+    def __init__(self, email, password, username):
         """Initialize the user with an email and a password."""
         self.email = email
+        self.username = username
         self.password = Bcrypt().generate_password_hash(password).decode()
 
     def password_is_valid(self, password):
@@ -75,7 +77,8 @@ class User(db.Model):
         except jwt.InvalidTokenError:
             # the token is invalid, return an error string
             return "Invalid token. Please register or login"
-
+    def __repr__(self):
+        return "<User: {}>".format(self.email)
 
 class RevokedToken(db.Model):
     """Define the 'RevokedToken' model mapped to database table 'revoked_tokens'."""

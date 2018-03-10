@@ -33,24 +33,37 @@ class RegistrationView(MethodView):
             if not user:
                 post_data = request.data
                 # Register the user
+                username = post_data['username'].strip()
                 email = post_data['email'].strip()
                 password = post_data['password'].strip()
+                if not username:
+                    return jsonify({"message": "username"
+                                    " required please"}), 401
+                
                 if not email:
                     return jsonify({"message": "email"
                                     " required please"}), 401
                 if not password:
                     return jsonify({"message": "password"
                                     " required please"}), 401
+                if not re.match("^[a-zA-Z0-9_.-]+$", username):
+                    return jsonify({'message':
+                                'Username should not have space, better user -'}), 400
                 if not re.match("[^@]+@[^@]+\.[^@]+", email):
                     return jsonify({'message':
                                 'Invalid email format'}), 400
                 if not len(password) > 6:
                     return jsonify({'message':' Ensure password is morethan 6 characters'}), 400
-                
-                user = User(email=email, password=password)
+                    
+                user = User(username=username, email=email, password=password)
                 user.save()
+                response = User.query.filter_by(email=email).first()
+                user_response ={}
+                user_response["id"] = response.id
+                user_response["username"] = response.username
                 return jsonify({'message': 'You registered'
-                                ' successfully. Please login.'}), 201
+                                ' successfully. Please login.',
+                                'user': user_response }), 201
                     
                 
             return jsonify({'message': 'User already exists.'
@@ -58,7 +71,7 @@ class RegistrationView(MethodView):
         except Exception as e:  # pragma: no cover
             # An error occured, then return a message containing the error
             return jsonify({'message': 'Invalid data,'
-                            ' ensure proper json'}), 400
+                            ' something is wrong'}), 400
 
 
 class LoginView(MethodView):
