@@ -13,6 +13,7 @@ class AuthTestCase(unittest.TestCase):
         self.client = self.app.test_client
         # This is the user test json data with a predefined email and password
         self.user_data = {
+            'username': 'haddie',
             'email': 'test@example.com',
             'password': 'test_password'
         }
@@ -31,7 +32,7 @@ class AuthTestCase(unittest.TestCase):
         
     def test_registration_with_no_password(self):
         """Test user registration with no password."""
-        half_data={"email":"example@gmail.com","password":""}
+        half_data={"username":"haddie", "email":"example@gmail.com","password":""}
         res = self.client().post('/api/v1/auth/register',data=half_data)
         result = json.loads(res.data.decode())
         self.assertEqual(res.status_code, 401)
@@ -64,6 +65,7 @@ class AuthTestCase(unittest.TestCase):
         """Test non registered users cannot login."""
         # define a dictionary to represent an unregistered user
         not_a_user = {
+            'username':'example',
             'email': 'not_a_user@example.com',
             'password': 'nope'
         }
@@ -78,7 +80,7 @@ class AuthTestCase(unittest.TestCase):
     def test_user_registers_with_valid_email(self):
         """Test for invalid email and password on registration"""
         user1 = {
-            "email": "hadijah", "password": "1234567"
+            "username":"had","email": "hadijah", "password": "1234567"
         }
         res = self.client().post('/api/v1/auth/register',data=user1)
         result = json.loads(res.data.decode())
@@ -89,7 +91,7 @@ class AuthTestCase(unittest.TestCase):
     def test_user_registers_with_valid_password(self):
         """Test for short password on registration"""
         user2 = {
-            "email": "hadijah@gmail.com", "password": "123"
+            "username":"haddie","email": "hadijah@gmail.com", "password": "123"
         }
         res = self.client().post('/api/v1/auth/register',data=user2)
         result = json.loads(res.data.decode())
