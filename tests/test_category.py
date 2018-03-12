@@ -17,9 +17,10 @@ class CategoryTestCase(unittest.TestCase):
             # create all tables
             db.create_all()
 
-    def register_user(self, email="user@test.com", password="test1234"):
+    def register_user(self, username="haddie", email="user@test.com", password="test1234"):
         """This helper method helps register a test user."""
         user_data = {
+            'username':username,
             'email': email,
             'password': password
         }
