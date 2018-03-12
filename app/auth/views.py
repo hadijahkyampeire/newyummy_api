@@ -94,7 +94,10 @@ class LoginView(MethodView):
                 if access_token:
                     return jsonify({'message': 'You logged in successfully.',
                                     'access_token': access_token.decode(),
-                                    'user_email': email}), 200
+                                    'user_email': user.email,
+                                    'username': user.username,
+                                    'Id': user.id}
+                                    ), 200
 
             return jsonify({'message': 'Invalid email or password,'
                             ' Please try again'}), 401
